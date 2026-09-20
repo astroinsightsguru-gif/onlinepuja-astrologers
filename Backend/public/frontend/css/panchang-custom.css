@@ -1,0 +1,366 @@
+/* ─── Panchang Custom Premium Styles ─── */
+.panchang-hero {
+    background: linear-gradient(135deg, #fffdf4 0%, #fefbe8 50%, #fef3c7 100%) !important;
+    padding: 40px 0 50px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.18) !important;
+}
+.panchang-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.panchang-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.panchang-hero h1 { color: #1e293b !important; font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+.panchang-hero .hero-subtitle { color: #64748b !important; font-size: 15px; margin-bottom: 0; }
+.panchang-hero .hero-date { color: #b45309 !important; font-size: 18px; font-weight: 600; margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+.panchang-hero .hero-location { color: #64748b !important; font-size: 13px; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+
+/* ─── Hero details card (Tithi/Nakshatra) ─── */
+.hero-details-card {
+    background: rgba(245, 158, 11, 0.05) !important;
+    border: 1px solid rgba(245, 158, 11, 0.18) !important;
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+.hero-details-label {
+    font-size: 12px !important;
+    color: #88540c !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+.hero-details-value-tithi {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #d97706 !important;
+}
+.hero-details-value-nakshatra {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+}
+.hero-details-divider {
+    border-top: 1px solid rgba(245, 158, 11, 0.15) !important;
+    margin: 10px 0 !important;
+}
+
+
+/* ─── Date Nav ─── */
+.date-nav-bar { background: #fff !important; padding: 16px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 10; transition: background 0.3s ease, border-color 0.3s ease; border-bottom: 1px solid rgba(245, 158, 11, 0.1) !important; }
+.date-nav-pills { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.date-nav-btn { padding: 8px 22px; border-radius: 50px; font-size: 14px; font-weight: 600; text-decoration: none; border: 2px solid #fbbf24 !important; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.date-nav-btn.active { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; color: #ffffff !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25); border-color: transparent !important; }
+.date-nav-btn:not(.active) { background: #fff !important; color: #b45309 !important; }
+.date-nav-btn:hover:not(.active) { background: rgba(245, 158, 11, 0.08) !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12); text-decoration: none; color: #b45309 !important; }
+.date-nav-btn:hover.active { text-decoration: none; color: #fff !important; }
+.calendar-toggle-btn { background: rgba(245, 158, 11, 0.08) !important; color: #b45309 !important; border: 2px solid rgba(245, 158, 11, 0.25) !important; }
+
+/* ─── Calendar ─── */
+.calendar-dropdown { background: #fff !important; border-radius: 16px; box-shadow: 0 8px 32px rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.18) !important; padding: 20px; margin-top: 12px; transition: background 0.3s ease, border-color 0.3s ease; }
+.cal-month-label { display: inline-block; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 20px; border-radius: 50px; font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+.cal-day-grid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.cal-day { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 13px; font-weight: 500; color: #333 !important; text-decoration: none; border: 1px solid #f0f0f0 !important; transition: all 0.2s ease; }
+.cal-day:hover { background: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.25) !important; color: #b45309 !important; text-decoration: none; transform: scale(1.08); }
+.cal-day.selected { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.2); }
+
+/* ─── Content ─── */
+.panchang-content { background: transparent !important; padding: 30px 0 50px; min-height: 60vh; }
+
+/* ─── Five Elements Grid ─── */
+.panch-five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
+@media(max-width: 992px) { .panch-five { grid-template-columns: repeat(3, 1fr); } }
+@media(max-width: 576px) { .panch-five { grid-template-columns: repeat(2, 1fr); } }
+.panch-element { background: #fff !important; border: 1.5px solid #f2e6cb !important; border-radius: 14px; padding: 18px 12px 14px; text-align: center; position: relative; overflow: hidden; transition: all 0.25s; box-shadow: 0 2px 12px rgba(0,0,0,0.02); }
+.panch-element:hover { transform: translateY(-4px); border-color: #f59e0b !important; box-shadow: 0 10px 32px rgba(245, 158, 11, 0.08); }
+.panch-element::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.panch-element .el-symbol { font-size: 26px; display: block; margin-bottom: 8px; }
+.panch-element .el-name { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #b45309 !important; display: block; margin-bottom: 5px; font-weight: 700; }
+.panch-element .el-value { font-size: 17px; font-weight: 600; color: #1e293b !important; display: block; line-height: 1.25; }
+.panch-element .el-sub { font-size: 12px; color: #64748b !important; font-style: italic; margin-top: 3px; display: block; }
+
+/* ─── Cards ─── */
+.panchang-card { background: #fff !important; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.03); border: 1px solid #f2e6cb !important; overflow: hidden; margin-bottom: 24px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.panchang-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245, 158, 11, 0.05); }
+.panchang-card-header { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+.panchang-card-header i { color: #fff !important; font-size: 18px; }
+.panchang-card-header h3 { color: #fff !important; font-size: 16px; font-weight: 700; margin: 0; }
+
+/* ─── Data Rows ─── */
+.panchang-row { display: flex; align-items: center; border-bottom: 1px solid #f7edd6 !important; transition: background 0.2s ease; }
+.panchang-row:last-child { border-bottom: none !important; }
+.panchang-row:hover { background: #fffef8 !important; }
+.panchang-row-label { flex: 0 0 45%; padding: 12px 20px; font-weight: 600; color: #4b5563 !important; font-size: 14px; display: flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.03) !important; }
+.panchang-row-label i { color: #f59e0b !important; font-size: 14px; width: 18px; text-align: center; }
+.panchang-row-value { flex: 1; padding: 12px 20px; color: #1e293b !important; font-size: 14px; }
+.panchang-row-value .sub-time { display: block; font-size: 12px; color: #64748b !important; margin-top: 2px; }
+
+/* ─── Inauspicious Badge ─── */
+.inauspicious-badge { background: rgba(239,68,68,0.04) !important; border: 1.5px solid rgba(239,68,68,0.15) !important; border-radius: 10px; padding: 10px 16px; margin-bottom: 10px; }
+.inauspicious-badge .i-name { font-size: 12px; color: #dc2626 !important; font-weight: 700; letter-spacing: 0.5px; }
+.inauspicious-badge .i-time { font-size: 14px; color: #333 !important; margin-top: 3px; }
+
+/* ─── Choghadiya Grid ─── */
+.chog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; padding: 16px 20px; }
+.chog-item { border-radius: 10px; padding: 10px 14px; border-left: 4px solid #f59e0b !important; background: #fffdf5 !important; transition: all 0.2s; border: 1px solid rgba(245, 158, 11, 0.12); }
+.chog-item:hover { transform: translateX(3px); }
+.chog-item.good-type { border-color: #10b981 !important; border-left-width: 4px !important; background: rgba(16, 185, 129, 0.03) !important; }
+.chog-item .time-label { font-size: 10px; letter-spacing: 1.5px; color: #b45309 !important; text-transform: uppercase; font-weight: 700; }
+.chog-item.good-type .time-label { color: #10b981 !important; }
+.chog-item .time-name { font-size: 15px; font-weight: 600; color: #1e293b !important; margin: 2px 0; }
+.chog-item .time-range { font-size: 13px; color: #64748b !important; }
+
+/* ─── Festival Pills ─── */
+.festival-pill { display: inline-flex; align-items: center; gap: 6px; background: #fffbeb !important; border: 1px solid #fde68a !important; border-radius: 50px; padding: 7px 16px; font-size: 14px; color: #4b5563 !important; font-weight: 600; margin: 4px; transition: all 0.2s; }
+.festival-pill:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(245, 158, 11, 0.1); border-color: #f59e0b !important; }
+.festival-pill .star { color: #f59e0b !important; }
+
+/* ─── Signification Cards ─── */
+.signif-card { border-left: 5px solid #f59e0b !important; }
+.signif-card .meaning-text { font-size: 15px; line-height: 1.6; font-style: italic; color: #4b5563 !important; }
+.signif-card .special-box { background: #fffbeb !important; border-radius: 8px; padding: 12px; border: 1px dashed #fcd34d !important; margin-top: 10px; }
+.signif-card .special-box p { font-size: 14px; margin: 0; line-height: 1.5; color: #1e293b !important; }
+
+/* ─── Info Section ─── */
+.panchang-info-section { background: #fff !important; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,0.03); border: 1px solid #f2e6cb !important; margin-bottom: 24px; transition: background 0.3s ease, border-color 0.3s ease; }
+.panchang-info-section p { color: #4b5563 !important; font-size: 14px; line-height: 1.8; }
+
+/* ─── Empty State ─── */
+.panchang-empty-state { text-align: center; padding: 60px 20px; }
+.panchang-empty-state > i { font-size: 60px; color: #fcd34d; margin-bottom: 16px; }
+.panchang-empty-state h3 { color: #4b5563 !important; font-weight: 600; margin-bottom: 8px; }
+
+/* ─── Responsive ─── */
+@media (max-width: 767px) {
+    .panchang-hero { padding: 24px 0 32px; }
+    .panchang-hero h1 { font-size: 22px; }
+    .panchang-row-label { flex: 0 0 50%; padding: 10px 14px; font-size: 13px; }
+    .panchang-row-value { padding: 10px 14px; font-size: 13px; }
+    .date-nav-pills { justify-content: center; }
+}
+
+/* ─── Dark Mode Overrides ─── */
+body.home-dark-mode h2.section-title {
+    color: #ffffff !important;
+}
+body.home-dark-mode .panchang-hero {
+    background: linear-gradient(135deg, #181512 0%, #120f0c 100%) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.home-dark-mode .panchang-hero h1 {
+    color: #ffffff !important;
+}
+body.home-dark-mode .panchang-hero .hero-subtitle {
+    color: #94a3b8 !important;
+}
+body.home-dark-mode .panchang-hero .hero-date {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .panchang-hero .hero-location {
+    color: #94a3b8 !important;
+}
+body.home-dark-mode .date-nav-bar {
+    background: #181512 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+body.home-dark-mode .date-nav-btn:not(.active) {
+    background: transparent !important;
+    color: #fbbf24 !important;
+    border-color: #fbbf24 !important;
+}
+body.home-dark-mode .date-nav-btn.active {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #0c0a08 !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35) !important;
+}
+body.home-dark-mode .date-nav-btn:hover:not(.active) {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .calendar-toggle-btn {
+    background: rgba(245, 158, 11, 0.08) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+body.home-dark-mode .calendar-dropdown {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+body.home-dark-mode .cal-month-label {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #0c0a08 !important;
+}
+body.home-dark-mode .cal-day {
+    background: #25201a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .cal-day:hover {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+    border-color: #fbbf24 !important;
+}
+body.home-dark-mode .cal-day.selected {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #0c0a08 !important;
+    border-color: transparent !important;
+}
+body.home-dark-mode .panch-element {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+body.home-dark-mode .panch-element::before {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
+}
+body.home-dark-mode .panch-element .el-name {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .panch-element .el-value {
+    color: #ffffff !important;
+}
+body.home-dark-mode .panch-element .el-sub {
+    color: #94a3b8 !important;
+}
+body.home-dark-mode .panchang-card {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+body.home-dark-mode .panchang-card-header {
+    background: linear-gradient(135deg, #2a2015, #1a140d) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+body.home-dark-mode .panchang-row {
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+body.home-dark-mode .panchang-row:hover {
+    background: #25201a !important;
+}
+body.home-dark-mode .panchang-row-label {
+    background: rgba(245, 158, 11, 0.04) !important;
+    color: #e2e8f0 !important;
+}
+body.home-dark-mode .panchang-row-label i {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .panchang-row-value {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .panchang-row-value strong {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .panchang-row-value .sub-time {
+    color: #888 !important;
+}
+body.home-dark-mode .inauspicious-badge {
+    background: rgba(239, 68, 68, 0.04) !important;
+    border-color: rgba(239, 68, 68, 0.15) !important;
+}
+body.home-dark-mode .inauspicious-badge .i-time {
+    color: #e2e8f0 !important;
+}
+body.home-dark-mode .chog-item {
+    background: #25201a !important;
+    border-color: #444 !important;
+}
+body.home-dark-mode .chog-item:hover {
+    background: #2d261f !important;
+}
+body.home-dark-mode .chog-item .time-label {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .chog-item .time-name {
+    color: #ffffff !important;
+}
+body.home-dark-mode .chog-item .time-range {
+    color: #94a3b8 !important;
+}
+body.home-dark-mode .chog-item.good-type {
+    border-color: #2e7d32 !important;
+    background: rgba(46, 94, 58, 0.08) !important;
+}
+body.home-dark-mode .chog-item.good-type .time-label {
+    color: #4ade80 !important;
+}
+body.home-dark-mode .festival-pill {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-color: rgba(245, 158, 11, 0.25) !important;
+    color: #f8fafc !important;
+}
+body.home-dark-mode .festival-pill .star {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .signif-card {
+    border-left-color: #fbbf24 !important;
+}
+body.home-dark-mode .signif-card .meaning-text {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .signif-card .special-box {
+    background: rgba(245, 158, 11, 0.04) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+body.home-dark-mode .signif-card .special-box p {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .panchang-info-section {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.home-dark-mode .panchang-info-section h2 {
+    color: #ffffff !important;
+}
+body.home-dark-mode .panchang-info-section p {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .border-right {
+    border-right-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── Breadcrumb ─── */
+.astroway-breadcrumb {
+    background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+}
+body.home-dark-mode .astroway-breadcrumb {
+    background: linear-gradient(90deg, #2a2015 0%, #1a140d 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.home-dark-mode .hero-details-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+body.home-dark-mode .hero-details-label {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+body.home-dark-mode .hero-details-value-tithi {
+    color: #fbbf24 !important;
+}
+body.home-dark-mode .hero-details-value-nakshatra {
+    color: #ffffff !important;
+}
+body.home-dark-mode .hero-details-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+

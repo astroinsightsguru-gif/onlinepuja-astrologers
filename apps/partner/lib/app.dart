@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:op_shared/op_shared.dart';
+
+import 'ui/screens/auth/login_screen.dart';
+import 'ui/screens/auth/otp_screen.dart';
+import 'ui/screens/call/call_session_screen.dart';
+import 'ui/screens/chat/chat_session_screen.dart';
+import 'ui/screens/home/home_shell.dart';
+import 'ui/screens/profile/profile_screen.dart';
+import 'ui/screens/splash_screen.dart';
+import 'ui/screens/wallet/wallet_screen.dart';
+
+class OnlinePujaPartnerApp extends StatelessWidget {
+  const OnlinePujaPartnerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Online Puja Astrologer',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
+      initialRoute: SplashScreen.route,
+      routes: {
+        SplashScreen.route: (_) => const SplashScreen(),
+        LoginScreen.route: (_) => const LoginScreen(),
+        OtpScreen.route: (_) => const OtpScreen(),
+        HomeShell.route: (_) => const HomeShell(),
+        ProfileScreen.route: (_) => const ProfileScreen(),
+        WalletScreen.route: (_) => const WalletScreen(),
+      },
+      onGenerateRoute: (settings) {
+        final args = settings.arguments;
+        Map<String, dynamic> map() =>
+            args is Map<String, dynamic> ? args : const {};
+        switch (settings.name) {
+          case ChatSessionScreen.route:
+            return MaterialPageRoute(
+              builder: (_) => ChatSessionScreen(
+                customerId: map()['customerId'] as int? ?? 0,
+                customerName:
+                    map()['customerName'] as String? ?? 'Customer',
+                sessionId: map()['sessionId'] as String?,
+              ),
+            );
+          case CallSessionScreen.route:
+            return MaterialPageRoute(
+              builder: (_) => CallSessionScreen(
+                customerId: map()['customerId'] as int? ?? 0,
+                customerName:
+                    map()['customerName'] as String? ?? 'Customer',
+                sessionId: map()['sessionId'] as String?,
+                isVideo: map()['isVideo'] as bool? ?? false,
+              ),
+            );
+        }
+        return null;
+      },
+    );
+  }
+}

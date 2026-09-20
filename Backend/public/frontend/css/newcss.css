@@ -1,0 +1,1511 @@
+/* --- Global Font Family Unification --- */
+html,
+body,
+p,
+a:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab):not(.glyphicon),
+h1:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+h2:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+h3:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+h4:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+h5:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+h6:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+span:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab):not(.glyphicon):not(.star-icon):not(.el-symbol),
+li:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+i:not([class*="fa-"]):not(.fa):not(.fas):not(.far):not(.fab),
+input,
+select,
+textarea,
+button,
+label {
+  font-family: 'Outfit', 'Poppins', sans-serif !important;
+}
+
+.navbar {
+  /* background-color: #f8f9fa; */
+  border-bottom: 1px solid #eaeaea;
+  /* Subtle border below the navbar */
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: orange;
+  font-size: 1.5rem;
+}
+
+.navbar-brand span {
+  color: #00bfff;
+  /* Light blue for the "rishi" part */
+}
+
+.navbar-nav .nav-link {
+  color: #333;
+  font-weight: 500;
+  margin-right: 15px;
+}
+
+.nav-link:hover {
+  color: #007bff;
+  /* Hover effect */
+}
+
+.navbar-toggler {
+  border-color: transparent;
+}
+
+.cart-icon {
+  font-size: 1.2rem;
+  margin-left: 10px;
+}
+
+.astroway-logo-text {
+  font-weight: bold;
+  color: orange;
+}
+
+.astroway-logo-subtext {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Align icons neatly */
+.top-navbar .btn-link {
+  color: #333;
+}
+
+.btn-link i {
+  font-size: 1.5rem;
+}
+
+@media (max-width: 576px) {
+  .astroway-logo-ntext {
+    display: block;
+  }
+
+  .top-navbar .btn-link {
+    margin-left: 5px;
+  }
+}
+
+
+
+.circle {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+#signSelectorContainer div:nth-child(1) .circle {
+  border: 2px solid crimson;
+}
+
+#signSelectorContainer div:nth-child(2) .circle {
+  border: 2px solid blue;
+}
+
+#signSelectorContainer div:nth-child(3) .circle {
+  border: 2px solid green;
+}
+
+#signSelectorContainer div:nth-child(4) .circle {
+  border: 2px solid orange;
+}
+
+#signSelectorContainer div:nth-child(5) .circle {
+  border: 2px solid purple;
+}
+
+#signSelectorContainer div:nth-child(6) .circle {
+  border: 2px solid teal;
+}
+
+#signSelectorContainer div:nth-child(7) .circle {
+  border: 2px solid pink;
+}
+
+#signSelectorContainer div:nth-child(8) .circle {
+  border: 2px solid yellow;
+}
+
+#signSelectorContainer div:nth-child(9) .circle {
+  border: 2px solid brown;
+}
+
+#signSelectorContainer div:nth-child(10) .circle {
+  border: 2px solid lightblue;
+}
+
+#signSelectorContainer div:nth-child(11) .circle {
+  border: 2px solid lightgreen;
+}
+
+#signSelectorContainer div:nth-child(12) .circle {
+  border: 2px solid lightcoral;
+}
+
+#signSelectorContainer div:nth-child(1) .circle:hover {
+  transform: scale(1.2) rotate(15deg);
+  box-shadow: 0 0 15px crimson;
+}
+
+#signSelectorContainer div:nth-child(2) .circle:hover {
+  transform: scale(1.2) rotate(-15deg);
+  box-shadow: 0 0 20px blue;
+  border: 2px solid blue;
+}
+
+#signSelectorContainer div:nth-child(3) .circle:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 25px green;
+}
+
+#signSelectorContainer div:nth-child(4) .circle:hover {
+  transform: scale(1.2) rotate(30deg);
+  box-shadow: 0 0 20px orange;
+}
+
+#signSelectorContainer div:nth-child(5) .circle:hover {
+  transform: scale(1.2) rotate(-30deg);
+  box-shadow: 0 0 30px purple;
+}
+
+#signSelectorContainer div:nth-child(6) .circle:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 35px teal;
+}
+
+#signSelectorContainer div:nth-child(7) .circle:hover {
+  transform: scale(1.2) rotate(45deg);
+  box-shadow: 0 0 15px pink;
+}
+
+#signSelectorContainer div:nth-child(8) .circle:hover {
+  transform: scale(1.2) rotate(-45deg);
+  box-shadow: 0 0 20px yellow;
+}
+
+#signSelectorContainer div:nth-child(9) .circle:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 25px brown;
+}
+
+#signSelectorContainer div:nth-child(10) .circle:hover {
+  transform: scale(1.2) rotate(60deg);
+  box-shadow: 0 0 20px lightblue;
+}
+
+#signSelectorContainer div:nth-child(11) .circle:hover {
+  transform: scale(1.2) rotate(-60deg);
+  box-shadow: 0 0 30px lightgreen;
+}
+
+#signSelectorContainer div:nth-child(12) .circle:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 35px lightcoral;
+}
+
+div#signSelectorContainer {
+  gap: 12px;
+}
+
+.owl-carousel .item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-card {
+  position: relative;
+  width: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  text-align: center;
+}
+
+.video-card img.video-thumbnail {
+  width: 100%;
+  height: auto;
+}
+
+.youtube-icon {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px !important;
+  height: auto;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.video-card .video-title {
+  padding: 10px;
+  font-weight: bold;
+  color: #0033cc;
+  background-color: #f1f1f1;
+  border-radius: 0 0 8px 8px;
+}
+
+#calculator {
+  background-size: cover !important;
+  background-position: 50% !important;
+
+}
+
+.product-card {
+  border-radius: 15px;
+  margin: 20px 0;
+  padding: 20px;
+  color: #333;
+  text-align: center;
+  height: 96%;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.product-card h5 {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.btn-buy {
+  margin-top: auto;
+  background-color: #007bff;
+  color: white;
+}
+
+.kuber-yantra {
+  background-color: #f5c542;
+}
+
+.pearl-mala {
+  background-color: #cfd8dc;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.button-blog {
+  padding: 8px 25px;
+  font-size: 14px;
+  color: #1a73e8;
+  background-color: transparent;
+  border: 1px solid #1a73e8;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 500;
+  height: 40px;
+}
+
+.button-blog:hover {
+  background-color: #1a73e8;
+  color: white;
+}
+
+.font-28 {
+  font-size: 28px !important;
+}
+
+.backimage {
+  background: linear-gradient(171.5deg, #f7f7f7 50%, #ececec 0);
+}
+
+
+/* product list css  */
+
+.vedic-grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.vedic-card {
+  background-color: #ffd966;
+  width: auto;
+  /* Fixed Width */
+  /*height: 500px; */
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vedic-card:nth-child(3) {
+  background-color: #ffddcc;
+}
+
+.vedic-card:hover {
+  transform: scale(1.05);
+}
+
+.vedic-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.vedic-subtitle {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.vedic-description {
+  flex-grow: 1;
+  /* Ensures equal height content */
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.vedic-image {
+  max-width: 100%;
+  height: 150px;
+  object-fit: contain;
+  /* Keeps the aspect ratio */
+  margin: 15px 0;
+}
+
+.vedic-price {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.vedic-button {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.vedic-button:hover {
+  background-color: #333;
+}
+
+.text-start {
+  text-align: start !important;
+}
+
+.font-15 {
+  font-size: 15px !important;
+}
+
+.kundli-card {
+  background-color: #fdf5e6;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+}
+
+.kundli-card h2 {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.kundli-card p {
+  margin-bottom: 5px;
+}
+
+.kundli-card img {
+  width: 100%;
+  height: 500px;
+}
+
+.btn-yellow {
+  background-color: #fbc02d;
+  color: white;
+  font-weight: bold;
+  border-radius: 30px;
+  padding: 10px 20px;
+  border: none;
+}
+
+.panchang-card {
+  background-color: #c2185b;
+  border-radius: 12px;
+  color: white;
+  padding: 20px;
+  text-align: left;
+}
+
+.panchang-card h3 {
+  margin-bottom: 15px;
+}
+
+.panchang-card .time-card {
+  background-color: white;
+  color: black;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.detailed-link {
+  text-align: center;
+  display: block;
+  background-color: #880e4f;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+
+.bg-fuchsia {
+  background-color: #FDF4FF;
+}
+
+.bg-fuchsia:hover {
+  background-color: #FAE8FF;
+}
+
+.bg-slate {
+  background-color: #F8FAFC;
+}
+
+.bg-slate:hover {
+  background-color: #F1F5F9;
+}
+
+.bg-purple {
+  background-color: #FAF5FF;
+}
+
+.bg-purple:hover {
+  background-color: #F3E8FF;
+}
+
+.bg-lime {
+  background-color: #F7FEE7;
+}
+
+.bg-lime:hover {
+  background-color: #ECFBCB;
+}
+
+.bg-rose {
+  background-color: #FFF1F2;
+}
+
+.bg-rose:hover {
+  background-color: #FFE4E6;
+}
+
+.bg-green {
+  background-color: #F0FDF4;
+}
+
+.bg-green:hover {
+  background-color: #DCFCE7 !important;
+}
+
+.bg-sky {
+  background-color: #F0F9FF;
+}
+
+.bg-sky:hover {
+  background-color: #E0F2FE;
+}
+
+.product-details-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  /* Default height */
+  overflow: hidden;
+}
+
+.product-details-img img {
+  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+@media (max-width: 576px) {
+
+  /* Adjust for mobile view */
+  .product-details-img {
+    height: 300px;
+    /* Smaller height for mobile */
+  }
+}
+
+.bg-astrologer-pink-light {
+  background: linear-gradient(90deg, #fff1f2 0%, #dcfce7 100%);
+}
+
+.astroway-astrologers .item {
+  border: 1px solid #212529 !important;
+}
+
+.bg-gray {
+  background: #f9fafb !important;
+}
+
+.btn-chat-astro {
+  background: #ffffff !important;
+  /* box-shadow: 0 2px 3px #ffd70080; */
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  padding: 8px 20px !important;
+  margin: 0 5px !important;
+  white-space: nowrap !important;
+}
+
+.btn-chat-astro:hover {
+  background: #fff;
+  border: 2px solid gold;
+}
+
+.btn-load-more {
+  display: block;
+  width: fit-content;
+  margin: 20px auto;
+  padding: 7px 15px;
+  background-color: #495057;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-load-more:hover:not(:disabled) {
+  background-color: #495057;
+  transform: translateY(-2px);
+}
+
+.btn-load-more:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.loader {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top: 2px solid transparent;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Decrease left/right margins (increase container max-width) globally */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px !important;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1280px !important;
+  }
+}
+
+/* ─── Global Dark Mode Overrides (Theme Switcher Compatibility) ─── */
+body.home-dark-mode {
+  background: #0c0a08 !important;
+  background-image: linear-gradient(180deg, #0c0a08 0%, #1a1611 30%, #201c14 60%, #0c0a08 100%) !important;
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .bg-white {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+body.home-dark-mode .text-dark,
+body.home-dark-mode .colorblack,
+body.home-dark-mode .font-weight-bold,
+body.home-dark-mode h1,
+body.home-dark-mode h2,
+body.home-dark-mode h3,
+body.home-dark-mode h4,
+body.home-dark-mode h5,
+body.home-dark-mode h6,
+body.home-dark-mode label,
+body.home-dark-mode .breadcrumbs a {
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode p,
+body.home-dark-mode span:not(.badge):not(.star-icon):not(.el-symbol):not(.breadcrumbs),
+body.home-dark-mode li,
+body.home-dark-mode td,
+body.home-dark-mode th {
+  color: #cbd5e1;
+}
+
+/* Ensure button and link spans inherit parent color in dark mode */
+body.home-dark-mode a span,
+body.home-dark-mode button span,
+body.home-dark-mode .btn span,
+body.home-dark-mode [class*="btn-"] span {
+  color: inherit !important;
+}
+
+body.home-dark-mode .text-muted {
+  color: #94a3b8 !important;
+}
+
+body.home-dark-mode a:not([class*="btn"]):not(.nav-link):not(.dropdown-item):not(.breadcrumbs a) {
+  color: #fbbf24;
+}
+
+body.home-dark-mode a:not([class*="btn"]):not(.nav-link):not(.dropdown-item):not(.breadcrumbs a):hover {
+  color: #d97706;
+}
+
+/* Header adjustments for dark mode */
+body.home-dark-mode nav.navbar.navbar-expand-lg.navbar-light.top-navbar.unified-navbar {
+  background: transparent !important;
+  border-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+body.home-dark-mode nav.navbar.navbar-expand-lg.navbar-light.top-navbar.unified-navbar.scrolled {
+  background: rgba(12, 10, 8, 0.95) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.home-dark-mode .top-navbar .brand-name {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode .top-navbar .nav-link {
+  color: #e2e8f0 !important;
+}
+
+body.home-dark-mode .top-navbar .nav-link:hover {
+  color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.1) !important;
+}
+
+body.home-dark-mode .top-navbar .navbar-toggler-icon {
+  filter: invert(1);
+}
+
+/* Dark Mode Form Control (Input, Select, Textarea) Overrides */
+body.home-dark-mode .form-control,
+body.home-dark-mode input.form-control,
+body.home-dark-mode select.form-control,
+body.home-dark-mode textarea.form-control {
+  background-color: #1c1917 !important;
+  color: #f8fafc !important;
+  border-color: rgba(238, 78, 94, 0.4) !important;
+}
+
+body.home-dark-mode .form-control:focus,
+body.home-dark-mode input.form-control:focus,
+body.home-dark-mode select.form-control:focus,
+body.home-dark-mode textarea.form-control:focus {
+  background-color: #26221f !important;
+  color: #ffffff !important;
+  border-color: #ee4e5e !important;
+  box-shadow: 0 0 0 0.2rem rgba(238, 78, 94, 0.25) !important;
+}
+
+body.home-dark-mode .form-control::placeholder,
+body.home-dark-mode input::placeholder,
+body.home-dark-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+body.home-dark-mode select.form-control option {
+  background-color: #1c1917 !important;
+  color: #f8fafc !important;
+}
+
+/* Fix browser native controls (calendar/time icon, list, etc.) in dark mode */
+body.home-dark-mode input[type="date"],
+body.home-dark-mode input[type="time"],
+body.home-dark-mode input[type="datetime-local"],
+body.home-dark-mode input[type="month"] {
+  color-scheme: dark !important;
+}
+
+/* Autofill adjustments to match dark theme background */
+body.home-dark-mode input:-webkit-autofill,
+body.home-dark-mode input:-webkit-autofill:hover,
+body.home-dark-mode input:-webkit-autofill:focus,
+body.home-dark-mode input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1c1917 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Style Google Places Autocomplete dropdown search container in dark mode */
+body.home-dark-mode .pac-container {
+  background-color: #1c1917 !important;
+  border-color: rgba(238, 78, 94, 0.4) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.home-dark-mode .pac-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .pac-item:hover {
+  background-color: #26221f !important;
+}
+
+body.home-dark-mode .pac-item-query {
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .pac-matched {
+  color: #fbbf24 !important;
+}
+
+/* Dark Mode Dropdown Menu Overrides */
+body.home-dark-mode .dropdown-menu {
+  background-color: #181512 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.5) !important;
+  color-scheme: dark !important;
+}
+
+body.home-dark-mode .dropdown-item:not(.btn) {
+  color: #cbd5e1 !important;
+  background-color: transparent !important;
+}
+
+body.home-dark-mode .dropdown-item:not(.btn):hover,
+body.home-dark-mode .dropdown-item:not(.btn):focus {
+  color: #ffffff !important;
+  background-color: #26221f !important;
+}
+
+body.home-dark-mode .dropdown-menu li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+body.home-dark-mode .dropdown-menu li:last-child {
+  border-bottom: none !important;
+}
+
+/* Specific styling for user options namedisplay section */
+body.home-dark-mode .dropdown-menu .namedisplay {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: #1c1917 !important;
+}
+
+body.home-dark-mode .dropdown-menu .namedisplay h2 {
+  color: #ffffff !important;
+}
+
+/* Ensure spans and icons in dropdown items color correctly */
+body.home-dark-mode .dropdown-item span,
+body.home-dark-mode .dropdown-item i {
+  color: inherit !important;
+}
+
+/* Google Translate Language Dropdown Overrides in Dark Mode */
+body.home-dark-mode select.goog-te-combo,
+body.home-dark-mode .goog-te-combo {
+  background-color: #1c1917 !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.home-dark-mode select.goog-te-combo option,
+body.home-dark-mode .goog-te-combo option {
+  background-color: #1c1917 !important;
+  color: #f8fafc !important;
+}
+
+/* Sign In pill button - Loaded Globally */
+.btn-signin-pill {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: 50px !important;
+  padding: 10px 24px !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.btn-signin-pill:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.45), 0 0 0 4px rgba(245, 158, 11, 0.15) !important;
+}
+
+.btn-signin-pill i {
+  font-size: 16px !important;
+  margin-right: 8px !important;
+  color: #ffffff !important;
+  display: inline-block !important;
+}
+
+/* Dark Mode Modal Overrides */
+body.home-dark-mode .modal-content {
+  background-color: #181512 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .modal-content .bg-white,
+body.home-dark-mode .modal-content .bg-white.body {
+  background-color: #181512 !important;
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .modal-header,
+body.home-dark-mode .modal-footer {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.home-dark-mode .modal-header .close,
+body.home-dark-mode .modal-content .close {
+  color: #ffffff !important;
+  text-shadow: none !important;
+  opacity: 0.8 !important;
+}
+
+body.home-dark-mode .modal-header .close:hover,
+body.home-dark-mode .modal-content .close:hover {
+  opacity: 1 !important;
+}
+
+/* Fix text and label colors in login modal */
+body.home-dark-mode #loginSignUp p,
+body.home-dark-mode #loginSignUp span,
+body.home-dark-mode #loginSignUp label,
+body.home-dark-mode #loginSignUp div {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode #loginSignUp h3 {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode #loginSignUp .text-dark,
+body.home-dark-mode #loginSignUp .colorblack {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode #loginSignUp a {
+  color: #fbbf24 !important;
+}
+
+body.home-dark-mode #loginSignUp a:hover {
+  color: #d97706 !important;
+}
+
+/* Select2 Dark Mode Overrides */
+body.home-dark-mode .select2-container--default .select2-selection--single {
+  background-color: #1c1917 !important;
+  border-color: rgba(238, 78, 94, 0.4) !important;
+  color: #f8fafc !important;
+  height: 38px !important;
+}
+
+body.home-dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #f8fafc !important;
+  line-height: 36px !important;
+}
+
+body.home-dark-mode .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+}
+
+body.home-dark-mode .select2-dropdown {
+  background-color: #1c1917 !important;
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #fbbf24 !important;
+  color: #1e1b18 !important;
+}
+
+body.home-dark-mode .select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: #26221f !important;
+  color: #ffffff !important;
+}
+
+body.home-dark-mode .select2-container--default .select2-results__option {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .select2-search--dropdown .select2-search__field {
+  background-color: #26221f !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Branded Google Sign-in Button (Light Mode & Dark Mode) */
+#googleLoginBtn {
+  background-color: #ffffff !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease !important;
+}
+
+#googleLoginBtn:hover {
+  background-color: #f9fafb !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+#googleLoginBtn i {
+  color: #ea4335 !important;
+}
+
+body.home-dark-mode #googleLoginBtn {
+  background-color: #26221f !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+
+body.home-dark-mode #googleLoginBtn:hover {
+  background-color: #2e2925 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+body.home-dark-mode #googleLoginBtn i {
+  color: #fca5a5 !important;
+}
+
+/* Specific Target Contrast Fix for Send OTP and Submit Buttons in Login Modal (Global for Light & Dark Modes) */
+#sendOtpBtn,
+#verifyOtpBtn,
+#resendOtpBtn:not(.btn-sm),
+#loginSignUp .btn-chat {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  color: #111111 !important;
+  /* Bold black text for perfect readability on gold */
+  border: none !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25) !important;
+}
+
+#sendOtpBtn:hover,
+#verifyOtpBtn:hover,
+#loginSignUp .btn-chat:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* Style the grouped phone number input form in dark mode */
+body.home-dark-mode #loginSignUp .inputform {
+  background-color: #110d0a !important;
+  border: 1px solid rgba(251, 191, 36, 0.35) !important;
+}
+
+body.home-dark-mode #loginSignUp .inputform:focus-within {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Style Select2 inside country code picker dropdown */
+body.home-dark-mode #loginSignUp .select2-container--default .select2-selection--single {
+  background-color: transparent !important;
+  border: none !important;
+  color: #f8fafc !important;
+  height: 38px !important;
+  display: flex;
+  align-items: center;
+}
+
+body.home-dark-mode #loginSignUp .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #f8fafc !important;
+  line-height: normal !important;
+  padding-left: 8px !important;
+  padding-right: 20px !important;
+  margin-top: 0 !important;
+}
+
+body.home-dark-mode #loginSignUp .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 38px !important;
+  top: 0 !important;
+}
+
+/* Subtle separator between select2 and mobile number input */
+body.home-dark-mode #loginSignUp .mobilenumber {
+  background-color: transparent !important;
+  border: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  border-radius: 0 !important;
+  padding-left: 12px !important;
+}
+
+/* Light Mode: Cosmic space / astrological deep amber-brown header banner */
+body.Is-Offer .login-offer .modal-body .login-offer-bg {
+  background: linear-gradient(135deg, #78350f 0%, #b45309 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark Mode: Cosmic space-themed night sky header banner for login modal */
+body.home-dark-mode.Is-Offer .login-offer .modal-body .login-offer-bg {
+  background: linear-gradient(135deg, #090e1a 0%, #17122a 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Adjust subtitle color inside the banner for better contrast */
+body.Is-Offer .login-offer .modal-body .login-offer-bg .offertxt2 {
+  color: #fef08a !important;
+  /* Soft light yellow for gold branding contrast */
+  font-weight: 600 !important;
+}
+
+/* Close button styling inside login modal (Global override for light & dark modes) */
+body.Is-Offer .login-offer .close {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  top: 12px !important;
+  right: 12px !important;
+  padding-bottom: 4px !important;
+}
+
+body.Is-Offer .login-offer .close:hover {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Dynamic colors for Terms & Privacy Policy Links */
+.login-policy-link {
+  color: #EE4E5E !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-policy-link:hover {
+  color: #d13b4a !important;
+  text-decoration: underline !important;
+}
+
+body.home-dark-mode .login-policy-link {
+  color: #fbbf24 !important;
+}
+
+body.home-dark-mode .login-policy-link:hover {
+  color: #d97706 !important;
+}
+
+/* ==========================================
+   BREADCRUMBS GLOBAL OVERRIDES
+========================================== */
+.astroway-breadcrumb,
+.bg-red.astroway-breadcrumb {
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+}
+
+body.home-dark-mode .astroway-breadcrumb,
+body.home-dark-mode .bg-red.astroway-breadcrumb {
+  background: #181512 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.astroway-breadcrumb .breadcrumbs a,
+.astroway-breadcrumb .breadcrumbs span,
+.astroway-breadcrumb .breadcrumbs i {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode .astroway-breadcrumb .breadcrumbs a,
+body.home-dark-mode .astroway-breadcrumb .breadcrumbs span {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .astroway-breadcrumb .breadcrumbs a:hover {
+  color: #fbbf24 !important;
+}
+
+
+/* ==========================================
+   ASTROLOGER DETAILS PAGE STYLING
+========================================== */
+
+/* Header Card Wrapper */
+.expert-profile-page-new.bg-pink {
+  background: #faf8f0 !important;
+  /* Soft warm ivory cream background instead of pink/green gradient */
+  border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Disable bg-pink gradient globally in dark mode */
+body.home-dark-mode .bg-pink {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Styled background for the expert profile card in dark mode */
+body.home-dark-mode .expert-profile-page-new {
+  background: #1c1917 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Header Text / Info in Dark Mode */
+body.home-dark-mode .expert-profile-page-new h1,
+body.home-dark-mode .expert-profile-page-new p,
+body.home-dark-mode .expert-profile-page-new span,
+body.home-dark-mode .expert-profile-page-new .reviews-count,
+body.home-dark-mode .expert-profile-page-new .colorblack.lang {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .expert-profile-page-new .color-darkgray {
+  color: #94a3b8 !important;
+}
+
+/* Call/Chat Profile Buttons in Light Mode & Dark Mode */
+.btn-chat-profile {
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #374151 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-chat-profile:hover {
+  background-color: #f9fafb !important;
+  color: #111827 !important;
+}
+
+body.home-dark-mode .btn-chat-profile {
+  background-color: #26221f !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+body.home-dark-mode .btn-chat-profile:hover {
+  background-color: #2e2925 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Description Cards & Shadows */
+body.home-dark-mode .profile-page .bg-white.div_Shadow {
+  background-color: #1a1611 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.home-dark-mode .profile-page h3,
+body.home-dark-mode .profile-page p,
+body.home-dark-mode .profile-page li,
+body.home-dark-mode .profile-page span,
+body.home-dark-mode .profile-page a {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .profile-page h3 {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode .profile-page strong {
+  color: #fbbf24 !important;
+}
+
+/* Gift Header Wrapper */
+.profile-page .bg-pink-light {
+  background-color: #fffbef !important;
+  /* Soft warm light gold */
+  border-bottom: 1px solid rgba(245, 158, 11, 0.1) !important;
+}
+
+body.home-dark-mode .profile-page .bg-pink-light {
+  background-color: #24201a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Gift Load Item */
+body.home-dark-mode .profile-page .loadGiftItem {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: #1c1917 !important;
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .profile-page .loadGiftItem:hover {
+  border-color: #fbbf24 !important;
+  background-color: #24201a !important;
+}
+
+body.home-dark-mode .profile-page .loadGiftItem p.gift-name {
+  color: #ffffff !important;
+}
+
+/* Schedule availability list */
+.schedule-progressbar.bg-pink {
+  background-color: #fffdf4 !important;
+  border: 1px solid rgba(245, 158, 11, 0.15) !important;
+  border-radius: 12px;
+}
+
+body.home-dark-mode .schedule-progressbar.bg-pink {
+  background-color: #1a1611 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.schedule-time {
+  color: #1e293b !important;
+  font-weight: 600;
+}
+
+body.home-dark-mode .schedule-time {
+  color: #cbd5e1 !important;
+}
+
+/* Reviews List Section Wrapper */
+body.home-dark-mode #review.bg-white {
+  background-color: #1a1611 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  padding: 24px !important;
+  border-radius: 12px !important;
+}
+
+body.home-dark-mode #review.bg-white h2,
+body.home-dark-mode #review.bg-white h3,
+body.home-dark-mode #review.bg-white p,
+body.home-dark-mode #review.bg-white span,
+body.home-dark-mode #review.bg-white li {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode #review.bg-white .colorblack {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode #review.bg-white .color-red {
+  color: #fbbf24 !important;
+}
+
+body.home-dark-mode #review.bg-white .review-profile-pic.bg-pink {
+  background-color: #24201a !important;
+}
+
+#review.bg-white .review-profile-pic.bg-pink {
+  background-color: #fffbef !important;
+}
+
+/* ==========================================
+   GLOBAL THEME TOGGLE WIDGET STYLING
+========================================== */
+.theme-toggle-container {
+  display: inline-block !important;
+}
+
+.theme-toggle-capsule {
+  display: flex !important;
+  background: #f1f3f5 !important;
+  border-radius: 50px !important;
+  padding: 3px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.theme-toggle-btn {
+  border: none !important;
+  background: transparent !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+  border-radius: 50px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  outline: none !important;
+}
+
+.theme-toggle-btn .icon {
+  font-size: 13px !important;
+}
+
+.theme-toggle-btn.active {
+  background: #fbbf24 !important;
+  color: #111111 !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4) !important;
+  font-weight: 700 !important;
+}
+
+.theme-toggle-btn:not(.active):hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Adjust Theme Capsule in Dark Mode */
+body.home-dark-mode .theme-toggle-capsule {
+  background: #1c1917 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.home-dark-mode .theme-toggle-btn {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode .theme-toggle-btn.active {
+  background: #fbbf24 !important;
+  color: #111111 !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4) !important;
+}
+
+body.home-dark-mode .theme-toggle-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Fix Call Mode buttons in dark mode */
+body.home-dark-mode #instantBtn,
+body.home-dark-mode #scheduleBtn {
+  background-color: #26221f !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode #instantBtn.active,
+body.home-dark-mode #scheduleBtn.active {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+  border-color: #fbbf24 !important;
+  color: #111111 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+}
+
+body.home-dark-mode #instantBtn:hover:not(.active),
+body.home-dark-mode #scheduleBtn:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Style Call / Chat buttons in dark mode */
+body.home-dark-mode .btn-call {
+  background-color: #1c1917 !important;
+  border: 2px solid #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+body.home-dark-mode .btn-call i,
+body.home-dark-mode .btn-call span {
+  color: #f59e0b !important;
+  fill: #f59e0b !important;
+}
+
+body.home-dark-mode .btn-call svg,
+body.home-dark-mode .btn-call svg path {
+  fill: #f59e0b !important;
+}
+
+body.home-dark-mode .btn-call:hover {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #111111 !important;
+}
+
+body.home-dark-mode .btn-call:hover i,
+body.home-dark-mode .btn-call:hover span {
+  color: #111111 !important;
+  fill: #111111 !important;
+}
+
+body.home-dark-mode .btn-call:hover svg,
+body.home-dark-mode .btn-call:hover svg path {
+  fill: #111111 !important;
+}
+
+/* Fix profile and bell icons in dark mode */
+body.home-dark-mode i.fa-bell {
+  color: #cbd5e1 !important;
+}
+
+body.home-dark-mode a:hover i.fa-bell,
+body.home-dark-mode a:focus i.fa-bell {
+  color: #ffffff !important;
+}
+
+body.home-dark-mode img[src*="user-img"] {
+  filter: invert(1) !important;
+}
+
+body.home-dark-mode #dropdownMenuLink.dropdown-toggle::after {
+  color: #cbd5e1 !important;
+}
+
+/* Fix .read button text color being overridden by dark mode rules */
+.read {
+  font-weight: 700 !important;
+  transition: all 0.25s ease !important;
+}
+
+body.home-dark-mode .read {
+  background-color: #ffd700 !important;
+  color: #0e0c0c !important;
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3) !important;
+}
+
+body.home-dark-mode .read span,
+body.home-dark-mode .read i {
+  color: #0e0c0c !important;
+}
+
+body.home-dark-mode .read:hover {
+  background-color: #ffea70 !important;
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.5) !important;
+}

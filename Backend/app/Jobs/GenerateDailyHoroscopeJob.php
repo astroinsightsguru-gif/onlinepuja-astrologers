@@ -1,0 +1,162 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Horoscope;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class GenerateDailyHoroscopeJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    const ALL_LANGS = ['en', 'ta', 'ka', 'te', 'hi', 'ml', 'sp', 'fr', 'be'];
+
+    const ZODIAC_MAP = [
+        1 => 'Aries',
+        2 => 'Taurus',
+        3 => 'Gemini',
+        4 => 'Cancer',
+        5 => 'Leo',
+        6 => 'Virgo',
+        7 => 'Libra',
+        8 => 'Scorpio',
+        9 => 'Sagittarius',
+        10 => 'Capricorn',
+        11 => 'Aquarius',
+        12 => 'Pisces',
+    ];
+
+    public function handle(): void
+    {
+        $apiKey = $this->getApiKey();
+        $currDate = date('d/m/Y');
+        $dbDate = date('Y-m-d');
+
+        // ── Guard: skip if today's data already exists (1 COUNT query) ──
+        if (Horoscope::where('type', config('constants.DAILY_HORSCOPE'))
+                ->whereDate('date', $dbDate)
+                ->exists()) {
+            return;
+        }
+
+        // ── 1. Fetch all 12 × 9 = 108 API calls in parallel ──
+        $responses = $this->fetchParallel(
+            endpoint: 'https://api.vedicastroapi.com/v3-json/prediction/daily-moon',
+            apiKey: $apiKey,
+            params: fn($zodiac, $lang) => [
+                'zodiac' => $zodiac,
+                'date' => $currDate,
+                'show_same' => true,
+                'lang' => $lang,
+            ]
+        );
+
+        // ── 2. Bulk insert all records ──
+        $insertData = [];
+        foreach ($responses as $item) {
+            $r = $item['data']['response'] ?? null;
+            if (!$r)
+                continue;
+
+            $insertData[] = [
+                'zodiac' => $r['zodiac'],
+                'total_score' => $r['total_score'],
+                'lucky_color' => $r['lucky_color'],
+                'lucky_color_code' => $r['lucky_color_code'],
+                'lucky_number' => json_encode($r['lucky_number']),
+                'physique' => $r['physique'],
+                'status' => $r['status'],
+                'finances' => $r['finances'],
+                'relationship' => $r['relationship'],
+                'career' => $r['career'],
+                'travel' => $r['travel'],
+                'family' => $r['family'],
+                'friends' => $r['friends'],
+                'health' => $r['health'],
+                'bot_response' => $r['bot_response'],
+                'date' => $dbDate,
+                'start_date' => null,
+                'end_date' => null,
+                'type' => config('constants.DAILY_HORSCOPE'),
+                'langcode' => $item['lang'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Chunk insert to avoid query size limits
+        foreach (array_chunk($insertData, 50) as $chunk) {
+            Horoscope::insert($chunk);
+        }
+    }
+
+    private function fetchParallel(string $endpoint, string $apiKey, callable $params): array
+    {
+        $multiHandle = curl_multi_init();
+        $handles = [];
+        $results = [];
+
+        foreach (range(1, 12) as $zodiac) {
+            foreach (self::ALL_LANGS as $lang) {
+                $query = http_build_query(array_merge(
+                    $params($zodiac, $lang),
+                    ['api_key' => $apiKey]
+                ));
+
+                $ch = curl_init("{$endpoint}?{$query}");
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ]);
+
+                $key = "{$zodiac}_{$lang}";
+                $handles[$key] = ['handle' => $ch, 'zodiac' => $zodiac, 'lang' => $lang];
+                curl_multi_add_handle($multiHandle, $ch);
+            }
+        }
+
+        $running = null;
+        do {
+            curl_multi_exec($multiHandle, $running);
+            curl_multi_select($multiHandle);
+        } while ($running > 0);
+
+        foreach ($handles as $key => $meta) {
+            $body = curl_multi_getcontent($meta['handle']);
+            $data = $body ? json_decode($body, true) : null;
+
+            if ($data) {
+                $results[] = [
+                    'zodiac' => $meta['zodiac'],
+                    'lang' => $meta['lang'],
+                    'data' => $data,
+                ];
+            } else {
+                Log::warning('Horoscope API failed', ['key' => $key]);
+            }
+
+            curl_multi_remove_handle($multiHandle, $meta['handle']);
+            curl_close($meta['handle']);
+        }
+
+        curl_multi_close($multiHandle);
+
+        return $results;
+    }
+
+    private function getApiKey(): string
+    {
+        static $apiKey = null;
+        if (!$apiKey) {
+            $apiKey = DB::table('systemflag')->where('name', 'vedicAstroAPI')->value('value');
+        }
+        return $apiKey;
+    }
+}

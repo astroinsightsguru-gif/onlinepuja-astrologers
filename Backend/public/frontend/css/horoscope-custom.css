@@ -1,0 +1,606 @@
+/* ─── Horoscope Custom Premium Styles ─── */
+
+/* ─── Breadcrumb ─── */
+.astroway-breadcrumb {
+    background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+}
+body.home-dark-mode .astroway-breadcrumb {
+    background: linear-gradient(90deg, #2a2015 0%, #1a140d 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── Menu / Header Bar ─── */
+.astroway-menu {
+    background: #fffdf4 !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+body.home-dark-mode .astroway-menu {
+    background: #181512 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.astroway-menu .cat-heading {
+    color: #b45309 !important;
+}
+body.home-dark-mode .astroway-menu .cat-heading {
+    color: #fbbf24 !important;
+}
+.astroway-menu svg path {
+    fill: #f59e0b !important;
+}
+
+/* Compatibility for bg-pink menu on Daily page */
+.astroway-menu.bg-pink {
+    background: #fffdf4 !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+body.home-dark-mode .astroway-menu.bg-pink {
+    background: #181512 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.astroway-menu.bg-pink .icon.bg-pink {
+    background: transparent !important;
+}
+.astroway-menu .icon-desc {
+    color: #b45309 !important;
+    font-weight: 600 !important;
+}
+body.home-dark-mode .astroway-menu .icon-desc {
+    color: #fbbf24 !important;
+}
+
+/* ─── Zodiac Carousel List ─── */
+.zodiac-carousel-item {
+    opacity: 0.75;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.zodiac-carousel-item:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+.zodiac-carousel-item.active {
+    opacity: 1;
+    transform: scale(1.05);
+}
+.zodiac-icon-container {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(245, 158, 11, 0.15) !important;
+    background: rgba(245, 158, 11, 0.05) !important;
+    transition: all 0.3s ease;
+}
+body.home-dark-mode .zodiac-icon-container {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+.zodiac-carousel-item.active .zodiac-icon-container {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4) !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+body.home-dark-mode .zodiac-carousel-item.active .zodiac-icon-container {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
+}
+.zodiac-icon-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: all 0.3s ease;
+}
+.zodiac-carousel-item:hover .zodiac-icon-container img {
+    transform: scale(1.1);
+}
+.zodiac-carousel-item.active .icon-desc {
+    color: #fbbf24 !important;
+    font-weight: 700 !important;
+}
+
+
+/* ─── Main Content Section ─── */
+.cat-pages {
+    background: transparent !important;
+}
+
+.cat-pages h2.cat-heading {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+}
+body.home-dark-mode .cat-pages h2.cat-heading {
+    color: #ffffff !important;
+}
+.cat-pages p {
+    color: #4b5563 !important;
+}
+body.home-dark-mode .cat-pages p {
+    color: #cbd5e1 !important;
+}
+.color-red {
+    color: #d97706 !important;
+}
+body.home-dark-mode .color-red {
+    color: #fbbf24 !important;
+}
+
+/* ─── Horoscope Sign Cards ─── */
+.horo-sign-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.04) !important;
+}
+.horo-sign-card:hover {
+    transform: translateY(-5px) !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.15) !important;
+}
+body.home-dark-mode .horo-sign-card {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+body.home-dark-mode .horo-sign-card:hover {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 12px 35px rgba(245, 158, 11, 0.25) !important;
+}
+.horo-sign-name {
+    color: #b45309 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    margin-top: 12px !important;
+    margin-bottom: 0 !important;
+}
+body.home-dark-mode .horo-sign-name {
+    color: #fbbf24 !important;
+}
+
+/* ─── Lucky Box (Daily Page) ─── */
+.shadow-pink.rounded-10 {
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.04) !important;
+    background: #ffffff !important;
+    overflow: hidden;
+}
+body.home-dark-mode .shadow-pink.rounded-10 {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    background: #1a1611 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+.shadow-pink.rounded-10 .bg-pink {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 .bg-pink {
+    background: linear-gradient(135deg, #2a2015, #1a140d) !important;
+}
+.shadow-pink.rounded-10 h3.color-red {
+    color: #ffffff !important;
+    margin: 0 !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 h3.color-red {
+    color: #fbbf24 !important;
+}
+.shadow-pink.rounded-10 svg path {
+    fill: #b45309 !important;
+}
+.shadow-pink.rounded-10 svg path[fill="#ee4e5e"] {
+    fill: #d97706 !important;
+}
+.shadow-pink.rounded-10 svg path[fill="#130708"] {
+    fill: #b45309 !important;
+}
+
+body.home-dark-mode .shadow-pink.rounded-10 svg path {
+    fill: #fbbf24 !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 svg path[fill="#130708"] {
+    fill: #e2e8f0 !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 svg path[fill="#ee4e5e"] {
+    fill: #fbbf24 !important;
+}
+
+
+/* ─── Red/White Button Overrides ─── */
+.bg-red.border-red,
+.btn.bg-red,
+.btn-red {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+body.home-dark-mode .bg-red.border-red,
+body.home-dark-mode .btn.bg-red,
+body.home-dark-mode .btn-red {
+    color: #0c0a08 !important;
+}
+.color-red.border-red,
+.btn.color-red,
+.btn-white-gold {
+    color: #b45309 !important;
+    border-color: #fbbf24 !important;
+    background: #ffffff !important;
+}
+body.home-dark-mode .color-red.border-red,
+body.home-dark-mode .btn.color-red,
+body.home-dark-mode .btn-white-gold {
+    color: #fbbf24 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    background: #1a1611 !important;
+}
+.hover-border-red:hover {
+    border-color: #f59e0b !important;
+}
+
+/* ─── Ad banner looks-1 ─── */
+.looks-1 {
+    background: linear-gradient(135deg, #fffcf0 0%, #fefbeb 50%, #fde68a 100%) !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.08) !important;
+}
+body.home-dark-mode .looks-1 {
+    background: linear-gradient(135deg, #2a2015 0%, #1a140d 100%) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+.looks-1 .heading-line {
+    color: #1e293b !important;
+    font-weight: 800 !important;
+}
+body.home-dark-mode .looks-1 .heading-line {
+    color: #ffffff !important;
+}
+.looks-1 .color-red {
+    color: #d97706 !important;
+}
+body.home-dark-mode .looks-1 .color-red {
+    color: #fbbf24 !important;
+}
+.looks-1 a.btn-chat {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3) !important;
+    border-radius: 30px !important;
+    transition: all 0.3s ease !important;
+}
+.looks-1 a.btn-chat:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45) !important;
+}
+body.home-dark-mode .looks-1 a.btn-chat {
+    color: #0c0a08 !important;
+}
+
+/* ─── Lucky Box Text Details ─── */
+.shadow-pink.rounded-10 p {
+    color: #4b5563 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin-top: 10px !important;
+}
+.shadow-pink.rounded-10 p strong {
+    color: #b45309 !important;
+    font-weight: 700 !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 p {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .shadow-pink.rounded-10 p strong {
+    color: #fbbf24 !important;
+}
+
+/* ─── Yearly / Weekly Remarks Formatting ─── */
+.dailyhoroscope-content p {
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    color: #4b5563 !important;
+    margin-bottom: 12px !important;
+}
+.dailyhoroscope-content p:nth-of-type(odd) {
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    color: #b45309 !important;
+    margin-top: 20px !important;
+    margin-bottom: 6px !important;
+}
+body.home-dark-mode .dailyhoroscope-content p {
+    color: #cbd5e1 !important;
+}
+body.home-dark-mode .dailyhoroscope-content p:nth-of-type(odd) {
+    color: #fbbf24 !important;
+}
+
+/* ─── Zodiac Avatar Profile Image ─── */
+.zodiac-avatar-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #f59e0b !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+body.home-dark-mode .zodiac-avatar-img {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4) !important;
+}
+.zodiac-avatar-img:hover {
+    transform: scale(1.06) rotate(3deg) !important;
+}
+
+/* ─── Capsule Tabs Navigation ─── */
+#cardholder {
+    background: #fff8eb !important;
+    border-radius: 50px !important;
+    padding: 6px !important;
+    display: inline-flex !important;
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    margin-bottom: 25px !important;
+}
+body.home-dark-mode #cardholder {
+    background: #181512 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+#cardholder .btn {
+    border-radius: 50px !important;
+    border: none !important;
+    padding: 8px 32px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+#cardholder .btn.bg-white {
+    background: transparent !important;
+    color: #b45309 !important;
+}
+body.home-dark-mode #cardholder .btn.bg-white {
+    color: #fbbf24 !important;
+}
+#cardholder .btn.bg-red {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25) !important;
+}
+body.home-dark-mode #cardholder .btn.bg-red {
+    color: #0c0a08 !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
+}
+#cardholder .btn:hover {
+    transform: translateY(-1px) !important;
+}
+
+/* ─── Premium Dashboard & Grid Layout ─── */
+.horo-dashboard-row {
+    margin-top: 20px;
+}
+.horoscope-profile-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    border-radius: 20px !important;
+    padding: 30px 24px !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.03) !important;
+    text-align: center;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+body.home-dark-mode .horoscope-profile-card {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+.horoscope-profile-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.08) !important;
+}
+.horoscope-profile-card .zodiac-name {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+    margin-top: 15px;
+}
+body.home-dark-mode .horoscope-profile-card .zodiac-name {
+    color: #ffffff !important;
+}
+.horoscope-profile-card .zodiac-date-text {
+    font-size: 13px !important;
+    color: #64748b !important;
+    font-weight: 500;
+}
+body.home-dark-mode .horoscope-profile-card .zodiac-date-text {
+    color: #94a3b8 !important;
+}
+
+/* Lucky pill details container */
+.lucky-pill-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+.lucky-pill-item {
+    background: #fffdf5 !important;
+    border: 1px solid rgba(245, 158, 11, 0.12) !important;
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: all 0.25s ease;
+}
+body.home-dark-mode .lucky-pill-item {
+    background: #25201a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+.lucky-pill-item:hover {
+    transform: scale(1.02);
+    border-color: #f59e0b !important;
+}
+.lucky-pill-item .lucky-icon {
+    font-size: 24px;
+}
+.lucky-pill-item .lucky-text {
+    display: flex;
+    flex-direction: column;
+}
+.lucky-pill-item .lucky-text .label {
+    font-size: 11px !important;
+    color: #88540c !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+body.home-dark-mode .lucky-pill-item .lucky-text .label {
+    color: #fbbf24 !important;
+}
+.lucky-pill-item .lucky-text .val {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+}
+body.home-dark-mode .lucky-pill-item .lucky-text .val {
+    color: #ffffff !important;
+}
+
+/* Right layout blocks */
+.horoscope-details-main-card,
+.horoscope-insights-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(245, 158, 11, 0.15) !important;
+    border-radius: 20px !important;
+    padding: 28px !important;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.03) !important;
+}
+body.home-dark-mode .horoscope-details-main-card,
+body.home-dark-mode .horoscope-insights-card {
+    background: #1a1611 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+.horoscope-details-main-card .section-title,
+.horoscope-insights-card .section-title {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #b45309 !important;
+    margin-bottom: 18px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid rgba(245, 158, 11, 0.1) !important;
+    padding-bottom: 10px !important;
+}
+body.home-dark-mode .horoscope-details-main-card .section-title,
+body.home-dark-mode .horoscope-insights-card .section-title {
+    color: #fbbf24 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+.horoscope-details-main-card .section-title i,
+.horoscope-insights-card .section-title i {
+    color: #f59e0b !important;
+}
+.forecast-desc {
+    font-size: 15px !important;
+    line-height: 1.8 !important;
+    color: #4b5563 !important;
+    margin: 0 !important;
+}
+body.home-dark-mode .forecast-desc {
+    color: #cbd5e1 !important;
+}
+
+/* Insight Ratings Grid */
+.insight-rating-item {
+    margin-bottom: 20px;
+}
+.insight-rating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.insight-rating-label {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+body.home-dark-mode .insight-rating-label {
+    color: #ffffff !important;
+}
+.insight-rating-val {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #f59e0b !important;
+}
+.insight-progress-container {
+    height: 10px;
+    background: #f3f4f6 !important;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+body.home-dark-mode .insight-progress-container {
+    background: #25201a !important;
+}
+.insight-progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%) !important;
+    transition: width 0.8s ease;
+}
+
+/* Insight Remarks (Yearly) */
+.remark-box-item {
+    background: #fffcf5 !important;
+    border: 1px solid rgba(245, 158, 11, 0.12) !important;
+    border-left: 5px solid #f59e0b !important;
+    border-radius: 0 16px 16px 0 !important;
+    padding: 16px 20px !important;
+    margin-bottom: 16px;
+    transition: all 0.25s ease;
+}
+body.home-dark-mode .remark-box-item {
+    background: #25201a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    border-left-color: #fbbf24 !important;
+}
+.remark-box-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05) !important;
+}
+.remark-box-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #b45309 !important;
+    margin-bottom: 6px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+body.home-dark-mode .remark-box-title {
+    color: #fbbf24 !important;
+}
+.remark-box-desc {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #4b5563 !important;
+    margin: 0 !important;
+}
+body.home-dark-mode .remark-box-desc {
+    color: #cbd5e1 !important;
+}
+
+
+
+

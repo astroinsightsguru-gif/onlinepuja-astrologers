@@ -1,0 +1,42 @@
+version: "3.8"
+
+# LiveKit + COTURN on the RTC VPS — free self-hosted WebRTC for the
+# Online Puja v2 apps (docs/new-apps/04 §4.2). Unlimited minutes, $0.
+#
+# Deploy:   see setup-rtc-node.sh in this folder
+# Requires: livekit.env with LIVEKIT_API_KEY / LIVEKIT_API_SECRET
+#           (same values as Backend/.env so tokens validate)
+
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    env_file: livekit.env
+    network_mode: host   # best RTC performance; binds 7880-7882 + 50000-60000
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+      - ./certs:/etc/livekit/certs:ro
+
+  # Optional but recommended for users behind symmetric NAT / corporate firewalls.
+  coturn:
+    image: coturn/coturn:latest
+    restart: unless-stopped
+    network_mode: host
+    command: >
+      -n
+      --realm=onlinepuja.live
+      --listening-port=3478
+      --fingerprint
+      --lt-cred-mech
+      --static-auth-secret=${TURN_SECRET:-change-me-please}
+      --tls-listening-port=5349
+      --cert=/etc/turn/certs/fullchain.pem
+      --pkey=/etc/turn/certs/privkey.pem
+      --no-cli
+      --no-tls-relay
+      --no-multicast-peers
+      --min-port=65534 --max-port=65534
+    env_file: turn.env
+    volumes:
+      - ./certs:/etc/turn/certs:ro

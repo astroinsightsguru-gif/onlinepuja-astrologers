@@ -1,0 +1,26 @@
+# Build / tooling artifacts
+**/build/
+**/.dart_tool/
+**/.gradle/
+**/.idea/
+**/.vscode/
+*.log
+*.err
+*_out.txt
+*_output*.txt
+product_json*.txt
+run_test.bat
+check_encoding.ps1
+apps/customer/pubget.txt
+apps/customer/an.txt
+apps/partner/pubget.txt
+apps/partner/an.txt
+apps/shared/pubget.txt
+apps/shared/an.txt
+
+# Secrets
+Backend/.env
+**/google-services.json
+**/GoogleService-Info.plist
+**/*.keystore
+**/service-account*.json

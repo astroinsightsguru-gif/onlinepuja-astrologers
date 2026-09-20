@@ -1,0 +1,331 @@
+﻿@keyframes vibrate {
+    0%, 30%, 60%, 85%, 100% {
+        left: 0;
+    }
+
+    10%, 40%, 90%, 70% {
+        left: -2px;
+    }
+
+    20%, 50%, 80%, 95% {
+        left: 2px;
+    }
+}
+
+.fadeInUp5px {
+    -webkit-animation: fadeInUpKey 300ms ease-in-out;
+    animation: fadeInUpKey 300ms ease-in-out;
+}
+
+@keyframes fadeInUpKey {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes zoom {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    10% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes bell {
+    0% {
+        transform: rotate(0);
+    }
+
+    10% {
+        transform: rotate(30deg);
+    }
+
+    20% {
+        transform: rotate(0);
+    }
+
+    80% {
+        transform: rotate(0);
+    }
+
+    90% {
+        transform: rotate(-30deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
+}
+
+.bell {
+    animation: bell 1s 1s both 2;
+}
+
+.zoom {
+    animation: zoom 1s 1s forwards 1;
+}
+
+.blink {
+    animation-name: blink;
+    animation-duration: 1.4s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    animation-play-state: running;
+    display: inline-flex !important;
+}
+
+@-webkit-keyframes blink {
+    0% {
+        opacity: .2;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .2;
+    }
+}
+
+@keyframes blink {
+    0% {
+        opacity: .2;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .2;
+    }
+}
+
+.ripple {
+    width: 50px;
+    height: 50px;
+    background-color: #EE4E5E;
+    margin: 0 auto;
+    border-radius: 100px;
+    -webkit-animation: ripple 0.7s linear infinite;
+    animation: ripple 0.7s linear infinite;
+    position: relative;
+    margin: 100px auto;
+    display: table;
+}
+
+@keyframes ripple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(238,78,94,0.3), 0 0 0 10px rgba(238,78,94,0.3), 0 0 0 30px rgba(238,78,94,0.3), 0 0 0 60px rgba(238,78,94,0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 0 10px rgba(238,78,94,0.3), 0 0 0 30px rgba(238,78,94,0.3), 0 0 0 60px rgba(238,78,94,0.3), 0 0 0 90px rgba(238,78,94,0);
+    }
+}
+
+.loadingbtn.animate:after {
+    position: absolute;
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-left-color: transparent;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    animation: spinner-border .75s linear infinite;
+}
+
+.loadingchat {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transition: opacity 150ms ease-in 50ms;
+    width: 100%;
+    z-index: 99999;
+    /*background: #D27013*/
+}
+    .loadingchat .circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 100%;
+        background: #EE4E5E;
+        background-image: url('https://cdn.anytimeastro.com/dashaspeaks/web/content/images/chat-loading.svg');
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: 60px;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+.dot-typing {
+    position: relative;
+    left: -9999px;
+    width:7px;
+    height:7px;
+    border-radius: 5px;
+    background-color: #FF8B00;
+    color: #FF8B00;
+    box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    animation: dot-typing 1.5s infinite linear;
+    top: -10px;
+    margin-right: -22px;
+}
+
+@-webkit-keyframes dot-typing {
+    0% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    16.667% {
+        box-shadow: 9984px -10px 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    33.333% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    50% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px -10px 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    66.667% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    83.333% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px -10px 0 0 #FF8B00;
+    }
+
+    100% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+}
+
+@keyframes dot-typing {
+    0% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    16.667% {
+        box-shadow: 9984px -10px 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    33.333% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    50% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px -10px 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    66.667% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+
+    83.333% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px -10px 0 0 #FF8B00;
+    }
+
+    100% {
+        box-shadow: 9984px 0 0 0 #FF8B00, 9995px 0 0 0 #FF8B00, 10006px 0 0 0 #FF8B00;
+    }
+}
+
+@keyframes blinker {
+    0% {
+        opacity: 1.0;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1.0;
+    } 
+}
+
+.blink {
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 0.3s;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-direction: alternate;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translate3d(0, -100%, 0);
+        visibility: visible
+    }
+
+    to {
+        transform: translate3d(0, 0, 0)
+    }
+}
+
+@keyframes animateBar {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes bouncebanner {
+    0% {
+        transform: translate3d(0, 0, 0)
+    }
+
+    20% {
+        transform: translate3d(-8px, 0, 0)
+    }
+
+    40% {
+        transform: translate3d(0, 0, 0)
+    }
+
+    60% {
+        transform: translate3d(-8px, 0, 0)
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0)
+    }
+}
