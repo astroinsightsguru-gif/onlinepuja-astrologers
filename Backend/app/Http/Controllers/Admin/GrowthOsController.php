@@ -216,25 +216,18 @@ class GrowthOsController extends Controller
     public function aiEngine()
     {
         $creds = Vault::aiCredentials();
-        $models = DB::table('ai_models')->orderBy('provider')->orderBy('model_id')->get();
         $providers = [
             'omniroute' => [
                 'name' => 'OmniRoute Gateway',
                 'url' => $creds['omniroute_url'] ?? 'https://ai.vmstudio.digital',
                 'configured' => ! empty($creds['omniroute_key']),
-                'type' => 'Self-Hosted AI Router',
-            ],
-            'openai' => [
-                'name' => 'OpenAI',
-                'url' => 'https://api.openai.com/v1',
-                'configured' => ! empty($creds['openai_key']),
-                'type' => 'Direct API (GPT-4o, etc.)',
+                'type' => 'Default Primary Router',
             ],
             'gemini' => [
                 'name' => 'Google Gemini',
                 'url' => 'https://generativelanguage.googleapis.com/v1beta/openai',
                 'configured' => ! empty($creds['gemini_key']),
-                'type' => 'Google AI Studio',
+                'type' => 'Secondary Fallback',
             ],
             'openrouter' => [
                 'name' => 'OpenRouter',
@@ -246,31 +239,56 @@ class GrowthOsController extends Controller
                 'name' => 'Pollinations AI',
                 'url' => 'https://text.pollinations.ai',
                 'configured' => true,
-                'type' => 'Free / Keyless Fallback Tier',
+                'type' => 'Free Keyless Fallback',
             ],
         ];
 
-        return view('pages.growth-os.ai', compact('creds', 'models', 'providers'));
+        $textModels = [
+            'auto/pro-chat' => 'OmniRoute Pro Auto (Default Recommended)',
+            'anthropic/claude-3-5-sonnet' => 'Claude 3.5 Sonnet',
+            'google/gemini-1.5-pro' => 'Gemini 1.5 Pro',
+            'google/gemini-1.5-flash' => 'Gemini 1.5 Flash',
+            'deepseek/deepseek-chat' => 'DeepSeek V3',
+            'meta-llama/llama-3.3-70b-instruct' => 'Llama 3.3 70B',
+            'qwen/qwen-2.5-72b-instruct' => 'Qwen 2.5 72B',
+        ];
+
+        $imageModels = [
+            'flux' => 'FLUX.1 (Default Schnell / Dev Photorealistic)',
+            'sdxl' => 'Stable Diffusion XL',
+            'adobe-firefly/flux-2' => 'Flux 2 (OmniRoute)',
+        ];
+
+        $videoModels = [
+            'fal-ai/xai/grok-imagine-video/text-to-video' => 'Grok Imagine Video (Fal.ai)',
+            'kie/grok-imagine/text-to-video' => 'Grok Imagine Video (KIE)',
+            'segmind/hunyuan-video-t2v' => 'Hunyuan Video T2V (Segmind)',
+            'kie/hailuo/02-text-to-video-pro' => 'Hailuo 02 Pro Video',
+        ];
+
+        $totalModelsCount = DB::table('ai_models')->count();
+
+        return view('pages.growth-os.ai', compact('creds', 'providers', 'textModels', 'imageModels', 'videoModels', 'totalModelsCount'));
     }
 
     /** Save Vault settings (API keys) */
     public function saveVault(Request $request)
     {
         $keys = [
-            'omniroute_url', 'omniroute_key', 'openai_key',
+            'omniroute_url', 'omniroute_key',
             'openrouter_key', 'gemini_key', 'ai_text_chain', 'ai_image_chain',
+            'model_omniroute', 'model_omniroute_image', 'model_omniroute_video',
         ];
 
         foreach ($keys as $key) {
             if ($request->has($key)) {
                 $val = trim((string) $request->input($key));
-                Vault::set($key, $val === '' ? null : $val, true);
+                Vault::set($key, $val);
             }
         }
 
-        return back()->with('success', 'Vault credentials updated securely!');
+        return back()->with('success', 'AI Vault credentials updated successfully!');
     }
-
     /** AJAX Action Runner for Background Tools */
     public function runAction(Request $request)
     {
@@ -303,6 +321,38 @@ class GrowthOsController extends Controller
                     Artisan::call('brain:seed-festivals');
                     $output = Artisan::output() ?: 'Hindu festivals seeded.';
                     break;
+                case 'preview_social_prompt':
+                    $topic = $request->input('topic', 'Griha Pravesh');
+                    $style = $request->input('style', 'photorealistic');
+                    $ratio = $request->input('aspect_ratio', '1:1');
+                    $enhanced = \App\AI\VedicPromptEnhancer::enhance($topic, $style, $ratio);
+                    return response()->json(['ok' => true, 'data' => $enhanced]);
+                case 'generate_social_creative':
+                    $topic = $request->input('topic', 'Griha Pravesh');
+                    $style = $request->input('style', 'photorealistic');
+                    $ratio = $request->input('aspect_ratio', '1:1');
+                    $type  = $request->input('type', 'image');
+                    $aiEngine = app(\App\services\AiEngineService::class);
+                    if ($type === 'video') {
+                        $res = $aiEngine->generateVideo($topic, null, 5);
+                    } else {
+                        $res = $aiEngine->generateImage($topic, $style, $ratio);
+                    }
+                    return response()->json(['ok' => !empty($res['success']), 'data' => $res]);
+                case 'attach_social_creative':
+                    $postId = $request->input('post_id');
+                    $imageUrl = $request->input('image_url');
+                    $post = DB::table('content_plans')->where('id', $postId)->first();
+                    if ($post) {
+                        $p = json_decode((string)$post->payload, true) ?: [];
+                        $p['image_url'] = $imageUrl;
+                        DB::table('content_plans')->where('id', $postId)->update([
+                            'payload' => json_encode($p),
+                            'updated_at' => now(),
+                        ]);
+                        return response()->json(['ok' => true, 'message' => 'Attached creative asset to post successfully!']);
+                    }
+                    return response()->json(['ok' => false, 'error' => 'Post not found'], 404);
                 default:
                     return response()->json(['ok' => false, 'message' => "Unknown action: {$action}"], 400);
             }

@@ -118,6 +118,8 @@ Route::get('check-user-balance-api',[ApiMasterAiChatBotController::class, 'check
 Route::get('master-chat-page-api',[ApiMasterAiChatBotController::class, 'masterChatPageApi'])->name('master.chat.page.api');
 Route::post('/store-master-ai-chat-history-api', [ApiMasterAiChatBotController::class, 'storeMasterAiChatHistoryApi'])->name('store.master.ai.chat.history.api');
 Route::post('/ask-master', [ApiChatGPTController::class, 'askMaster'])->name('ask.master');
+Route::post('/ai/generate-image', [ApiChatGPTController::class, 'generateImage'])->name('ai.generate.image');
+Route::post('/ai/generate-video', [ApiChatGPTController::class, 'generateVideo'])->name('ai.generate.video');
 
 //================================================================ai-astrologer================================================================
 
@@ -467,7 +469,7 @@ Route::post('generateToken', [TokenGeneratorController::class, 'generateRtmToken
 Route::post('generateRtcToken', [TokenGeneratorController::class, 'generateRtcToken'])->name('api.generateRtcToken');
 Route::post('addHoroscopeFeedback', [DailyHoroscopeController::class, 'addHoroscopeFeedback']);
 
-//livekit (free self-hosted WebRTC used by the v2 apps — see docs/new-apps/04 §4.2)
+//livekit (free self-hosted WebRTC used by the v2 apps â€” see docs/new-apps/04 Â§4.2)
 Route::post('livekit/token', [LiveKitController::class, 'token'])->name('api.livekit.token');
 
 // pages

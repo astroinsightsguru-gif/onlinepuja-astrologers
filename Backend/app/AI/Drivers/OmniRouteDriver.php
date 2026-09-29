@@ -8,24 +8,25 @@ use App\Brain\Vault;
 use Illuminate\Support\Facades\Http;
 
 /**
- * OmniRoute — your self-hosted OpenAI-compatible gateway.
+ * OmniRoute — your self-hosted / cloud OpenAI-compatible gateway.
  *
  *   POST {base}/v1/chat/completions
  *   POST {base}/v1/images/generations
+ *   POST {base}/v1/videos/generations
  *   GET  {base}/v1/models
  */
 class OmniRouteDriver implements TextProvider, ImageProvider
 {
     protected function base(): string
     {
-        $base = rtrim(Vault::aiCredentials()['omniroute_url'], '/');
+        $base = rtrim(Vault::aiCredentials()['omniroute_url'] ?? 'https://ai.vmstudio.digital', '/');
 
         return str_ends_with($base, '/v1') ? $base : $base.'/v1';
     }
 
     protected function key(): string
     {
-        return (string) Vault::aiCredentials()['omniroute_key'];
+        return (string) (Vault::aiCredentials()['omniroute_key'] ?? '');
     }
 
     public function isReady(): bool
@@ -96,43 +97,45 @@ class OmniRouteDriver implements TextProvider, ImageProvider
 
     public function create(string $prompt, array $args = []): array
     {
-        $fail = fn (string $e) => ['ok' => false, 'binary' => '', 'mime' => '', 'credit' => '', 'error' => $e];
+        $fail = fn (string $e) => ['ok' => false, 'binary' => '', 'url' => '', 'mime' => '', 'credit' => '', 'error' => $e];
 
         if (! $this->isReady()) {
             return $fail('OmniRoute not configured.');
         }
 
-        $w = $args['width'] ?? 1024;
-        $h = $args['height'] ?? 1024;
-        $ratio = $w / max(1, $h);
-        $size = $ratio > 1.5 ? '1792x1024' : ($ratio < 0.6 ? '1024x1792' : '1024x1024');
+        $size = $args['size'] ?? '1024x1024';
+        $body = [
+            'model'           => $args['image_model'] ?? 'flux',
+            'prompt'          => $prompt,
+            'n'               => 1,
+            'size'            => $size,
+            'response_format' => 'b64_json',
+        ];
+
+        if (! empty($args['negative_prompt'])) {
+            $body['negative_prompt'] = $args['negative_prompt'];
+        }
 
         try {
             $res = Http::asJson()->withToken($this->key())
                 ->timeout(120)
-                ->post($this->base().'/images/generations', [
-                    'model'           => $args['image_model'] ?? 'flux',
-                    'prompt'          => $prompt,
-                    'n'               => 1,
-                    'size'            => $size,
-                    'response_format' => 'b64_json',
-                ]);
+                ->post($this->base().'/images/generations', $body);
         } catch (\Throwable $e) {
             return $fail($e->getMessage());
         }
 
         if ($res->failed()) {
-            return $fail('HTTP '.$res->status());
+            return $fail('HTTP '.$res->status().' :: '.substr($res->body(), 0, 300));
         }
 
         $b64 = $res->json('data.0.b64_json');
 
         if ($b64 && ($bin = base64_decode($b64, true))) {
-            return ['ok' => true, 'binary' => $bin, 'mime' => 'image/png', 'credit' => 'Generated via OmniRoute', 'error' => ''];
+            return ['ok' => true, 'binary' => $bin, 'url' => 'data:image/png;base64,'.$b64, 'mime' => 'image/png', 'credit' => 'Generated via OmniRoute Flux', 'error' => ''];
         }
 
         if ($url = $res->json('data.0.url')) {
-            return ['ok' => true, 'binary' => '', 'url' => $url, 'mime' => 'image/png', 'credit' => 'Generated via OmniRoute', 'error' => ''];
+            return ['ok' => true, 'binary' => '', 'url' => $url, 'mime' => 'image/png', 'credit' => 'Generated via OmniRoute Flux', 'error' => ''];
         }
 
         return $fail('No usable image returned.');

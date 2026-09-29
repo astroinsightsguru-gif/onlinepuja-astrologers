@@ -109,9 +109,9 @@ $techAppConfig = [
                     // 'p24',
                     // 'eps'
                 ],
-                'stripeTestingSecretKey'    => 'sk_test_51MX0jLSF2flS4SttXmn9WBUWjiC6a4ZtwFUTIl6rrW0Tq6nd3ePO7DfxGjzdr2F8aNjJiviZY1gdPwBsCx5fG1Al00bYej9FiP', //Stripe testing Secret Key
+                'stripeTestingSecretKey'    => env('STRIPE_TEST_SECRET_KEY', ''), //Stripe testing Secret Key
                 'stripeTestingPublishKey'   => 'Enter your Test Publish Key', //Stripe testing Publish Key
-                'stripeLiveSecretKey'       => 'sk_test_51MX0jLSF2flS4SttXmn9WBUWjiC6a4ZtwFUTIl6rrW0Tq6nd3ePO7DfxGjzdr2F8aNjJiviZY1gdPwBsCx5fG1Al00bYej9FiP', //Stripe Secret live Key
+                'stripeLiveSecretKey'       => env('STRIPE_LIVE_SECRET_KEY', ''), //Stripe Secret live Key
                 'stripeLivePublishKey'      => 'Enter your Live Publish Key', //Stripe live Publish Key
                 'callbackUrl'               => "payment-response", //callback Url after payment successful
                 'privateItems'              => [
