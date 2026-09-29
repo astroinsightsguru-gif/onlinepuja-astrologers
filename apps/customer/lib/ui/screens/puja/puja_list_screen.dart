@@ -8,6 +8,8 @@ import 'puja_detail_screen.dart';
 class PujaListScreen extends StatefulWidget {
   const PujaListScreen({super.key});
 
+  static const route = '/pujas';
+
   @override
   State<PujaListScreen> createState() => _PujaListScreenState();
 }
@@ -116,51 +118,114 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   Widget _pujaCard(BuildContext context, Puja p, ColorScheme scheme) {
+    final price = p.startingPrice;
     return Card(
       margin: EdgeInsets.zero,
+      elevation: 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => PujaDetailScreen(puja: p)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 110,
-              height: 104,
-              child: p.coverImage.isEmpty
-                  ? Container(
-                      color: scheme.primaryContainer,
-                      child: Icon(Icons.local_fire_department_rounded,
-                          color: scheme.primary),
-                    )
-                  : CachedNetworkImage(
-                      imageUrl: MiscApi.imageUrl(p.coverImage),
-                      fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => Container(
-                        color: scheme.primaryContainer,
-                        child: Icon(Icons.local_fire_department_rounded,
-                            color: scheme.primary),
+              width: 116,
+              height: 120,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  p.coverImage.isEmpty
+                      ? Container(
+                          color: scheme.primaryContainer,
+                          child: Icon(Icons.local_fire_department_rounded,
+                              size: 40, color: scheme.primary),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: MiscApi.imageUrl(p.coverImage),
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => Container(
+                            color: scheme.primaryContainer,
+                            child: Icon(Icons.local_fire_department_rounded,
+                                size: 40, color: scheme.primary),
+                          ),
+                        ),
+                  if (price != null)
+                    Positioned(
+                      left: 6,
+                      bottom: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.75),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '₹${price.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
+                ],
+              ),
             ),
             Expanded(
-              child: ListTile(
-                title: Text(
-                  p.title?.toString() ?? 'Puja',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-                subtitle: Text(
-                  [
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.title?.toString() ?? 'Vedic Puja',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
+                    ),
+                    const SizedBox(height: 6),
                     if ((p.place ?? '').toString().isNotEmpty)
-                      p.place.toString(),
-                    if (_dateOnly(p.startDatetime).isNotEmpty)
-                      _dateOnly(p.startDatetime),
-                  ].join(' · '),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined, size: 14, color: scheme.primary),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              p.place.toString(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: scheme.outline,
+                                    fontSize: 12,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (_dateOnly(p.startDatetime).isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today_outlined, size: 13, color: scheme.outline),
+                          const SizedBox(width: 4),
+                          Text(
+                            _dateOnly(p.startDatetime),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: scheme.outline,
+                                  fontSize: 11.5,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),

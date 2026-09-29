@@ -29,6 +29,10 @@ class _OtpScreenState extends State<OtpScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     _contactNo ??= args?['contactNo'] as String?;
     _countryCode ??= args?['countryCode'] as String? ?? '+91';
+    final testOtp = args?['testOtp'] as String?;
+    if (testOtp != null && testOtp.isNotEmpty && _otp.text.isEmpty) {
+      _otp.text = testOtp;
+    }
   }
 
   Future<void> _verify() async {

@@ -10,6 +10,8 @@ import '../../../state/app_session.dart';
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
+  static const route = '/notifications';
+
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
@@ -101,7 +103,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       child: ListView.separated(
                         padding: const EdgeInsets.all(12),
                         itemCount: _items!.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, i) {
                           final n = _items![i];
                           final when = _when(n);

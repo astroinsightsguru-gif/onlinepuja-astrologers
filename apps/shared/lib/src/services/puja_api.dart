@@ -12,9 +12,12 @@ class PujaApi {
 
   static List<Map<String, dynamic>> _asMapList(dynamic decoded) {
     if (decoded is Map<String, dynamic>) {
-      final rl = decoded['recordList'];
+      final rl = decoded['recordList'] ?? decoded['data'];
       if (rl is List) {
         return rl.whereType<Map<String, dynamic>>().toList();
+      }
+      if (rl is Map) {
+        return rl.values.whereType<Map<String, dynamic>>().toList();
       }
     }
     if (decoded is List) {
@@ -40,10 +43,10 @@ class PujaApi {
 
   /// Puja list, optionally filtered by category (legacy `getPujaList`).
   Future<List<Puja>> list({dynamic categoryId, int? userId}) async {
-    final decoded = await _api.post('/getPujaList', body: {
-      'categoryId': categoryId,
-      'userId': userId,
-    });
+    final body = <String, dynamic>{};
+    if (categoryId != null) body['categoryId'] = categoryId;
+    if (userId != null) body['userId'] = userId;
+    final decoded = await _api.post('/getPujaList', body: body.isEmpty ? null : body);
     return _asMapList(decoded).map(Puja.fromJson).toList();
   }
 

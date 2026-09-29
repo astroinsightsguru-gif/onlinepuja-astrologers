@@ -8,6 +8,8 @@ import 'product_detail_screen.dart';
 class MallScreen extends StatefulWidget {
   const MallScreen({super.key});
 
+  static const route = '/mall';
+
   @override
   State<MallScreen> createState() => _MallScreenState();
 }

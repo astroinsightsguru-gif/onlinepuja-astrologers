@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
-import 'package:provider/provider.dart';
 
-import '../../../state/app_session.dart';
 import '../checkout/checkout_screen.dart';
 
 /// Product detail page (legacy `productDetailScreen.dart`).
@@ -31,9 +29,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _order() async {
     if (!mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
+    setState(() => _ordering = true);
+    await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => CheckoutScreen.product(product: widget.product),
     ));
+    if (mounted) setState(() => _ordering = false);
   }
 
   @override
@@ -110,7 +110,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ],
               const Spacer(),
               Text(
-                (p.stock is int ? p.stock as int : 0) > 0
+                ((p.stock is int ? p.stock as int : int.tryParse(p.stock?.toString() ?? '') ?? 0)) > 0
                     ? 'In stock'
                     : 'Out of stock',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(

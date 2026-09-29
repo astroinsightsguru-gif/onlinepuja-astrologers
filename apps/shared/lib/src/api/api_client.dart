@@ -98,11 +98,16 @@ class ApiClient {
         decoded = response.body;
       }
     }
-    if (response.statusCode >= 400) {
+    final int effectiveStatus = (decoded is Map<String, dynamic> && decoded['status'] is int)
+        ? (decoded['status'] as int)
+        : response.statusCode;
+
+    if (response.statusCode >= 400 || effectiveStatus >= 400) {
       Map<String, dynamic>? errors;
-      var msg = 'Request failed (${response.statusCode})';
+      var msg = 'Request failed ($effectiveStatus)';
       if (decoded is Map<String, dynamic>) {
         final err = decoded['error'];
+        final rl = decoded['recordList'];
         if (err is Map<String, dynamic>) {
           errors = err;
           msg = err.values
@@ -111,11 +116,15 @@ class ApiClient {
               .where((s) => s.isNotEmpty)
               .join('\n');
           if (msg.isEmpty) msg = err.values.join(', ');
-        } else if (decoded['message'] is String) {
-          msg = decoded['message'];
+        } else if (err is String && err.isNotEmpty) {
+          msg = err;
+        } else if (decoded['message'] is String && decoded['message'].toString().isNotEmpty) {
+          msg = decoded['message'].toString();
+        } else if (rl is Map && rl['message'] is String && rl['message'].toString().isNotEmpty) {
+          msg = rl['message'].toString();
         }
       }
-      throw ApiException(msg, statusCode: response.statusCode, errors: errors);
+      throw ApiException(msg, statusCode: effectiveStatus, errors: errors);
     }
     return decoded;
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/system_flag.dart';
@@ -15,6 +16,7 @@ class SessionStore {
   static const _kTokenType = 'tokenType';
   static const _kUser = 'currentUser';
   static const _kFlags = 'systemFlags';
+  static const _kThemeMode = 'themeMode';
 
   SharedPreferences? _prefs;
 
@@ -25,6 +27,7 @@ class SessionStore {
   String? tokenType;
   User? user;
   SystemFlags flags = SystemFlags.empty;
+  ThemeMode themeMode = ThemeMode.system;
 
   bool get isLoggedIn => token != null && (user?.id ?? 0) > 0;
 
@@ -48,6 +51,20 @@ class SessionStore {
         flags = SystemFlags(list);
       } catch (_) {}
     }
+    final rawTheme = sp.getString(_kThemeMode);
+    if (rawTheme == 'light') {
+      themeMode = ThemeMode.light;
+    } else if (rawTheme == 'dark') {
+      themeMode = ThemeMode.dark;
+    } else {
+      themeMode = ThemeMode.system;
+    }
+  }
+
+  Future<void> saveThemeMode(ThemeMode mode) async {
+    themeMode = mode;
+    final sp = await _sp;
+    await sp.setString(_kThemeMode, mode.name);
   }
 
   Future<void> saveSession({

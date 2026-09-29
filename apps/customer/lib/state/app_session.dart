@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
 /// App-wide session state for the customer app.
@@ -8,7 +8,16 @@ class AppSession extends ChangeNotifier {
   bool booted = false;
 
   bool get isLoggedIn => SessionStore.instance.isLoggedIn;
+  bool get isAuthenticated => isLoggedIn && user != null;
   String get myId => (user?.id ?? 0).toString();
+  int get userId => user?.id ?? 0;
+
+  ThemeMode get themeMode => SessionStore.instance.themeMode;
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    await SessionStore.instance.saveThemeMode(mode);
+    notifyListeners();
+  }
 
   Future<void> init() async {
     ApiClient.instance.tokenResolver = () => SessionStore.instance.token;
@@ -22,7 +31,7 @@ class AppSession extends ChangeNotifier {
   }
 
   /// Ask backend to SMS the OTP (legacy `checkContactNoExistForUser`).
-  Future<void> sendOtp({
+  Future<String?> sendOtp({
     required String contactNo,
     required String countryCode,
   }) =>
@@ -37,6 +46,7 @@ class AppSession extends ChangeNotifier {
     required String contactNo,
     required String countryCode,
     String? name,
+    String? email,
     String? fcmToken,
   }) async {
     user = await AuthApi.instance.login(
@@ -44,6 +54,7 @@ class AppSession extends ChangeNotifier {
       countryCode: countryCode,
       isPartner: false,
       name: name,
+      email: email,
       fcmToken: fcmToken,
     );
     flags = SessionStore.instance.flags;

@@ -20,13 +20,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   bool _saving = false;
+  bool _initialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final u = context.read<PartnerSession>().user;
-    _name.text = u?.name ?? '';
-    _email.text = u?.email ?? '';
+    if (!_initialized) {
+      final u = context.read<PartnerSession>().user;
+      _name.text = u?.name ?? '';
+      _email.text = u?.email ?? '';
+      _initialized = true;
+    }
   }
 
   Future<void> _save() async {
@@ -49,8 +53,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final session = context.watch<PartnerSession>();
+    final currentTheme = session.themeMode;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(
+        title: const Text('Profile'),
+        actions: [
+          IconButton(
+            tooltip: 'Toggle Theme',
+            icon: Icon(
+              currentTheme == ThemeMode.light
+                  ? Icons.light_mode_rounded
+                  : currentTheme == ThemeMode.dark
+                      ? Icons.dark_mode_rounded
+                      : Icons.brightness_auto_rounded,
+            ),
+            onPressed: () {
+              final next = currentTheme == ThemeMode.dark
+                  ? ThemeMode.light
+                  : currentTheme == ThemeMode.light
+                      ? ThemeMode.system
+                      : ThemeMode.dark;
+              session.setThemeMode(next);
+            },
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -102,6 +131,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : const Text('Save profile'),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette_outlined,
+                          size: 20, color: scheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Appearance',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ThemeMode.light,
+                        icon: Icon(Icons.light_mode_rounded),
+                        label: Text('Lite'),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.dark,
+                        icon: Icon(Icons.dark_mode_rounded),
+                        label: Text('Dark'),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.system,
+                        icon: Icon(Icons.brightness_auto_rounded),
+                        label: Text('System'),
+                      ),
+                    ],
+                    selected: {session.themeMode},
+                    onSelectionChanged: (set) {
+                      if (set.isNotEmpty) session.setThemeMode(set.first);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),

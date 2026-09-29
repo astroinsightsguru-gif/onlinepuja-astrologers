@@ -79,51 +79,56 @@ class StatusViews {
   /// Shimmer-less skeleton placeholder (Material 3 style pulse).
   static Widget skeletonList(BuildContext context, {int items = 4}) {
     final scheme = Theme.of(context).colorScheme;
-    return ListView.separated(
+    return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      itemCount: items,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (_, i) => Container(
-        height: 92,
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            CircleAvatar(radius: 26, backgroundColor: scheme.primaryContainer),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (int i = 0; i < items; i++) ...[
+            Container(
+              height: 92,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
+              ),
+              child: Row(
                 children: [
-                  Container(
-                    height: 12,
-                    width: 140,
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(6),
+                  const SizedBox(width: 16),
+                  CircleAvatar(radius: 26, backgroundColor: scheme.primaryContainer),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 12,
+                          width: 140,
+                          decoration: BoxDecoration(
+                            color: scheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 10,
+                          width: 200,
+                          decoration: BoxDecoration(
+                            color: scheme.outline.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 10,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: scheme.outline.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
+                  const SizedBox(width: 16),
                 ],
               ),
             ),
-            const SizedBox(width: 16),
           ],
-        ),
+        ],
       ),
     );
   }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
+import 'package:provider/provider.dart';
 
+import 'state/app_session.dart';
 import 'ui/screens/auth/login_screen.dart';
 import 'ui/screens/auth/otp_screen.dart';
 import 'ui/screens/call/call_session_screen.dart';
 import 'ui/screens/chat/chat_session_screen.dart';
 import 'ui/screens/home/home_shell.dart';
+import 'ui/screens/orders/orders_fulfillment_screen.dart';
 import 'ui/screens/profile/profile_screen.dart';
 import 'ui/screens/splash_screen.dart';
 import 'ui/screens/wallet/wallet_screen.dart';
@@ -15,18 +18,20 @@ class OnlinePujaPartnerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<PartnerSession>();
     return MaterialApp(
       title: 'Online Puja Astrologer',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: session.themeMode,
       initialRoute: SplashScreen.route,
       routes: {
         SplashScreen.route: (_) => const SplashScreen(),
         LoginScreen.route: (_) => const LoginScreen(),
         OtpScreen.route: (_) => const OtpScreen(),
         HomeShell.route: (_) => const HomeShell(),
+        OrdersFulfillmentScreen.route: (_) => const OrdersFulfillmentScreen(),
         ProfileScreen.route: (_) => const ProfileScreen(),
         WalletScreen.route: (_) => const WalletScreen(),
       },

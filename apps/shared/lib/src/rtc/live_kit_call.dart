@@ -39,6 +39,16 @@ class LiveKitCallController extends ChangeNotifier {
   /// Remote peer's video track (null on pure audio calls / before subscribe).
   lk.VideoTrack? get remoteVideoTrack => _remoteVideoTrack;
 
+  /// Local participant's video track (null when camera is off).
+  lk.VideoTrack? get localVideoTrack {
+    final pubs = _room?.localParticipant?.videoTrackPublications;
+    if (pubs == null || pubs.isEmpty) return null;
+    for (final pub in pubs) {
+      if (pub.track != null && !pub.muted) return pub.track;
+    }
+    return null;
+  }
+
   /// Remote peer's display name, once they join the room.
   String? get remoteName => _remoteName;
 
@@ -100,7 +110,7 @@ class LiveKitCallController extends ChangeNotifier {
       await room.connect(
         wsUrl ?? Env.liveKitUrl,
         token,
-        fastConnect: lk.FastConnectOptions(
+        fastConnectOptions: lk.FastConnectOptions(
           microphone: const lk.TrackOption(enabled: true),
           camera: lk.TrackOption(enabled: video),
         ),
@@ -110,7 +120,7 @@ class LiveKitCallController extends ChangeNotifier {
       _connected = true;
       _connecting = false;
       _camEnabled = video;
-      await room.localParticipant.setMicrophoneEnabled(true);
+      await room.localParticipant?.setMicrophoneEnabled(true);
       _refreshRemote(room);
       _safeNotify();
     } catch (_) {
@@ -129,8 +139,7 @@ class LiveKitCallController extends ChangeNotifier {
       return;
     }
     final remote = others.first;
-    _remoteName =
-        (remote.name?.isNotEmpty ?? false) ? remote.name : remote.identity;
+    _remoteName = remote.name.isNotEmpty ? remote.name : remote.identity;
   }
 
   /// Toggle the local microphone; optimistic UI, reverted on failure.
@@ -140,7 +149,7 @@ class LiveKitCallController extends ChangeNotifier {
     _micMuted = !_micMuted;
     _safeNotify();
     try {
-      await room.localParticipant.setMicrophoneEnabled(!_micMuted);
+      await room.localParticipant?.setMicrophoneEnabled(!_micMuted);
     } catch (_) {
       _micMuted = !_micMuted;
       _safeNotify();
@@ -154,12 +163,35 @@ class LiveKitCallController extends ChangeNotifier {
     final target = !_camEnabled;
     _safeNotify();
     try {
-      await room.localParticipant.setCameraEnabled(target);
+      await room.localParticipant?.setCameraEnabled(target);
       _camEnabled = target;
     } catch (_) {
       // keep previous state
     }
     _safeNotify();
+  }
+
+  lk.CameraPosition _cameraPosition = lk.CameraPosition.front;
+  lk.CameraPosition get cameraPosition => _cameraPosition;
+
+  /// Flip front / back camera on mobile devices.
+  Future<void> switchCamera() async {
+    final pubs = _room?.localParticipant?.videoTrackPublications;
+    if (pubs == null || pubs.isEmpty) return;
+    _cameraPosition = _cameraPosition == lk.CameraPosition.front
+        ? lk.CameraPosition.back
+        : lk.CameraPosition.front;
+    for (final pub in pubs) {
+      final track = pub.track;
+      if (track is lk.LocalVideoTrack) {
+        try {
+          await track.restartTrack(
+            lk.CameraCaptureOptions(cameraPosition: _cameraPosition),
+          );
+          _safeNotify();
+        } catch (_) {}
+      }
+    }
   }
 
   /// Leave the room and release all resources.

@@ -35,6 +35,15 @@ class MiscApi {
     return const {};
   }
 
+  /// Home feed aggregate: banners, news/PR, bhakti videos, blogs, mall categories.
+  Future<Map<String, dynamic>> customerHome() async {
+    final decoded = await _api.post('/getCustomerHome');
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+    return const {};
+  }
+
   // ---------------- Reports ----------------
 
   /// Available report types with prices (legacy `getReportType`).

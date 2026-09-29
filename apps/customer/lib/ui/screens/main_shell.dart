@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../state/app_session.dart';
 import 'astrologer/astrologers_screen.dart';
 import 'explore/explore_screen.dart';
 import 'history/history_screen.dart';
@@ -22,8 +20,6 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final session = context.watch<AppSession>();
-    final currency = session.flags.currency;
     return Scaffold(
       body: IndexedStack(
         index: _tab,
@@ -53,12 +49,10 @@ class _MainShellState extends State<MainShell> {
             selectedIcon: Icon(Icons.history),
             label: 'History',
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline_rounded),
-            selectedIcon: const Icon(Icons.person),
-            label: session.user == null
-                ? 'Profile'
-                : '$currency${session.user!.walletAmount.toStringAsFixed(0)}',
+          const NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

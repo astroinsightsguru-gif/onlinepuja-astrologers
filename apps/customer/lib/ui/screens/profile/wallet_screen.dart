@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
 
@@ -16,6 +17,16 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
+  static const _defaultCuratedPlans = [
+    {'amount': 50, 'bonus': '100% Extra'},
+    {'amount': 100, 'bonus': 'Popular'},
+    {'amount': 200, 'bonus': '+₹20 Extra'},
+    {'amount': 500, 'bonus': '+₹75 Extra'},
+    {'amount': 1000, 'bonus': '+₹200 Extra'},
+    {'amount': 2000, 'bonus': '+₹500 Extra'},
+  ];
+  final _customAmountController = TextEditingController();
+
   late Future<List<Map<String, dynamic>>> _future;
 
   @override
@@ -52,11 +63,17 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
     );
     if (ok != true || !mounted) return;
-    // v2: after the gateway confirms the txn, record it via addPayment.
     try {
-      await WalletApi.instance.addPayment(amount: amount);
+      final payUrl = await WalletApi.instance.addPayment(amount: amount);
+      if (payUrl != null && payUrl.isNotEmpty) {
+        final uri = Uri.parse(payUrl);
+        final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
       if (mounted) {
-        showSnack(context, 'Recharge recorded. Balance will update shortly.');
+        showSnack(context, 'Complete payment in checkout window to update balance.');
         await context.read<AppSession>().refreshUser();
       }
     } on ApiException catch (e) {
@@ -74,7 +91,7 @@ class _WalletScreenState extends State<WalletScreen> {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
         builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
+          if (snap.connectionState == ConnectionState.waiting && !snap.hasData) {
             return StatusViews.loading(context);
           }
           if (snap.hasError) {
@@ -108,15 +125,65 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Text('Recharge', style: Theme.of(context).textTheme.titleMedium),
+                Text('Select Recharge Plan', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    for (final plan in plans)
+                    for (final plan in (plans.isNotEmpty ? plans : _defaultCuratedPlans))
                       _planChip(context, plan, onTap: _recharge),
                   ],
+                ),
+                const SizedBox(height: 24),
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(color: scheme.outline.withValues(alpha: 0.25)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Custom Amount', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _customAmountController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  prefixText: '₹ ',
+                                  hintText: 'Enter amount (e.g. 150)',
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            FilledButton(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppTheme.brandSaffron,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              onPressed: () {
+                                final val = double.tryParse(_customAmountController.text.trim()) ?? 0;
+                                if (val > 0) {
+                                  _recharge(val);
+                                } else {
+                                  showSnack(context, 'Please enter a valid amount', error: true);
+                                }
+                              },
+                              child: const Text('Add Money'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -133,9 +200,21 @@ class _WalletScreenState extends State<WalletScreen> {
   }) {
     final amount = double.tryParse(plan['amount']?.toString() ?? '') ?? 0;
     if (amount <= 0) return const SizedBox.shrink();
+    final bonus = plan['bonus']?.toString();
     return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
       onPressed: () => onTap(amount),
-      child: Text('₹${amount.toStringAsFixed(0)}'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('₹${amount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          if (bonus != null)
+            Text(bonus, style: const TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.w700)),
+        ],
+      ),
     );
   }
 }

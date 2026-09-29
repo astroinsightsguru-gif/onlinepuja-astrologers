@@ -32,6 +32,24 @@ class AstrologerApi {
       if (rl is List) {
         return rl.whereType<Map<String, dynamic>>().toList();
       }
+      if (rl is Map<String, dynamic>) {
+        final data = rl['data'];
+        if (data is List) {
+          return data.whereType<Map<String, dynamic>>().toList();
+        }
+        if (data is Map) {
+          return data.values.whereType<Map<String, dynamic>>().toList();
+        }
+        final vals = rl.values.whereType<Map<String, dynamic>>().toList();
+        if (vals.isNotEmpty) return vals;
+      }
+      final data = decoded['data'];
+      if (data is List) {
+        return data.whereType<Map<String, dynamic>>().toList();
+      }
+      if (data is Map) {
+        return data.values.whereType<Map<String, dynamic>>().toList();
+      }
     }
     if (decoded is List) {
       return decoded.whereType<Map<String, dynamic>>().toList();
@@ -167,7 +185,9 @@ class AstrologerApi {
       'astrologerId': astrologerId,
       'userId': userId,
       'callType': isVideo ? 'video' : 'audio',
-      'isFreeSession': isFree,
+      'call_type': isVideo ? 11 : 10,
+      'call_duration': 300,
+      'isFreeSession': isFree ? 1 : 0,
     });
     if (decoded is Map<String, dynamic>) {
       final rl = decoded['recordList'];
@@ -210,11 +230,11 @@ class AstrologerApi {
     String? room,
   }) async {
     try {
-      final decoded = await _api.post('/livekit/token', body: {
+      final decoded = await _api.post('/livekit/token', body: <String, String>{
         'sessionId': sessionId,
         'room': room ?? sessionId,
         'identity': identity,
-        if (displayName != null) 'displayName': displayName,
+        'displayName': ?displayName,
       });
       if (decoded is Map<String, dynamic>) {
         final rl = decoded['recordList'];
@@ -237,6 +257,102 @@ class AstrologerApi {
   /// End a call session (stops the server-side billing timer).
   Future<void> endCall({required String callId}) async {
     await _api.post('/callRequest/end', body: {'callId': callId});
+  }
+
+  // ---------------- Intake Form ----------------
+
+  /// Fetch user birth & consultation details.
+  Future<Map<String, dynamic>?> getIntakeForm({int? userId}) async {
+    try {
+      final decoded = await _api.post('/chatRequest/getIntakeForm', body: {
+        if (userId != null) 'userId': userId,
+      });
+      if (decoded is Map<String, dynamic>) {
+        final rl = decoded['recordList'];
+        if (rl is List && rl.isNotEmpty && rl.first is Map<String, dynamic>) {
+          return Map<String, dynamic>.from(rl.first as Map);
+        }
+        if (rl is Map<String, dynamic>) return rl;
+      }
+    } catch (_) {
+      // Best effort
+    }
+    return null;
+  }
+
+  /// Submit user intake form details before starting a chat or call.
+  Future<bool> addIntakeForm({
+    required String name,
+    required String phoneNumber,
+    String? gender,
+    String? birthDate,
+    String? birthTime,
+    String? birthPlace,
+    String? occupation,
+    String? topicOfConcern,
+    int? userId,
+  }) async {
+    try {
+      final decoded = await _api.post('/chatRequest/addIntakeForm', body: {
+        'name': name,
+        'phoneNumber': phoneNumber,
+        if (gender != null) 'gender': gender,
+        if (birthDate != null) 'birthDate': birthDate,
+        if (birthTime != null) 'birthTime': birthTime,
+        if (birthPlace != null) 'birthPlace': birthPlace,
+        if (occupation != null) 'occupation': occupation,
+        if (topicOfConcern != null) 'topicOfConcern': topicOfConcern,
+        if (userId != null) 'userId': userId,
+      });
+      return decoded is Map<String, dynamic> && decoded['status'] == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // ---------------- Waitlist & Queue ----------------
+
+  /// Add user to astrologer's waitlist / request queue.
+  Future<bool> addToWaitList({
+    required int astrologerId,
+    required String requestType,
+    String? userName,
+    int? userId,
+  }) async {
+    try {
+      final decoded = await _api.post('/waitlist/add', body: {
+        'astrologerId': astrologerId,
+        'requestType': requestType,
+        if (userName != null) 'userName': userName,
+        if (userId != null) 'userId': userId,
+      });
+      return decoded is Map<String, dynamic> &&
+          (decoded['status'] == 200 || decoded['status'] == true);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Fetch waitlist queue for an astrologer or user.
+  Future<List<Map<String, dynamic>>> getWaitList({
+    int? astrologerId,
+    int? userId,
+  }) async {
+    try {
+      final decoded = await _api.post('/waitlist/get', body: {
+        if (astrologerId != null) 'astrologerId': astrologerId,
+        if (userId != null) 'userId': userId,
+      });
+      if (decoded is Map<String, dynamic>) {
+        final list = decoded['recordList'];
+        if (list is List) {
+          return list.whereType<Map<String, dynamic>>().toList();
+        }
+      }
+      return const [];
+    } catch (_) {
+      return const [];
+    }
   }
 
   // ---------------- Misc ----------------

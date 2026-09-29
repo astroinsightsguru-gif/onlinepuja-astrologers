@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +24,59 @@ class RequestsScreen extends StatefulWidget {
 class _RequestsScreenState extends State<RequestsScreen> {
   late Future<List<Map<String, dynamic>>> _future;
 
+  Timer? _poller;
+
   bool get _isCall => widget.kind == 'call';
 
   @override
   void initState() {
     super.initState();
     _future = _load();
+    _poller = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (mounted) _reload();
+    });
+  }
+
+  @override
+  void dispose() {
+    _poller?.cancel();
+    super.dispose();
+  }
+
+  int? _activeIncomingAlertId;
+
+  void _checkForIncomingAlert(List<Map<String, dynamic>> list) {
+    if (!_isCall || !mounted) return;
+    for (final row in list) {
+      final id = int.tryParse((row['id'] ?? row['callId'] ?? row['_id']).toString()) ?? 0;
+      final status = (row['call_status'] ?? row['status'])?.toString() ?? 'Pending';
+      if (id > 0 && status.toLowerCase().contains('pending') && _activeIncomingAlertId != id) {
+        _activeIncomingAlertId = id;
+        final customerName = row['userName']?.toString() ?? row['customerName']?.toString() ?? 'Customer';
+        final avatar = row['profile']?.toString() ?? row['userProfile']?.toString();
+        final callType = (row['call_type'] ?? row['callType'])?.toString() ?? '';
+        final isVideo = callType == '11' || callType.toLowerCase().contains('video');
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          IncomingCallDialog.show(
+            context,
+            callerName: customerName,
+            callerAvatar: avatar,
+            isVideo: isVideo,
+            onAccept: () async {
+              Navigator.of(context, rootNavigator: true).pop();
+              await _respond(row, accept: true);
+            },
+            onDecline: () async {
+              Navigator.of(context, rootNavigator: true).pop();
+              await _respond(row, accept: false);
+            },
+          );
+        });
+        break;
+      }
+    }
   }
 
   Future<List<Map<String, dynamic>>> _load() async {
@@ -62,6 +111,9 @@ class _RequestsScreenState extends State<RequestsScreen> {
       if (mounted) {
         showSnack(context, accept ? 'Accepted' : 'Declined');
         _reload();
+        if (accept) {
+          _openSession(row);
+        }
       }
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
@@ -75,12 +127,14 @@ class _RequestsScreenState extends State<RequestsScreen> {
         'Customer';
     final sessionId = (row['id'] ?? row['${widget.kind}Id'] ?? row['_id'])
         ?.toString();
+    final callType = (row['call_type'] ?? row['callType'])?.toString() ?? '';
+    final isVideo = callType == '11' || callType.toLowerCase().contains('video');
     if (_isCall) {
       Navigator.of(context).pushNamed(CallSessionScreen.route, arguments: {
         'customerId': customerId,
         'customerName': customerName,
         'sessionId': sessionId,
-        'isVideo': false,
+        'isVideo': isVideo,
       });
     } else {
       Navigator.of(context).pushNamed(ChatSessionScreen.route, arguments: {
@@ -99,13 +153,14 @@ class _RequestsScreenState extends State<RequestsScreen> {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
         builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
+          if (snap.connectionState == ConnectionState.waiting && !snap.hasData) {
             return StatusViews.skeletonList(context, items: 4);
           }
           if (snap.hasError) {
             return StatusViews.error(context, snap.error!, onRetry: _reload);
           }
           final items = snap.data ?? const <Map<String, dynamic>>[];
+          _checkForIncomingAlert(items);
           if (items.isEmpty) {
             return RefreshIndicator(
               onRefresh: () async => _reload(),
@@ -145,6 +200,8 @@ class _RequestsScreenState extends State<RequestsScreen> {
         row['name']?.toString() ??
         'Customer';
     final status = row['status']?.toString() ?? '';
+    final callType = (row['call_type'] ?? row['callType'])?.toString() ?? '';
+    final isVideo = callType == '11' || callType.toLowerCase().contains('video');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -154,7 +211,9 @@ class _RequestsScreenState extends State<RequestsScreen> {
               radius: 26,
               backgroundColor: scheme.primaryContainer,
               child: Icon(
-                _isCall ? Icons.call_rounded : Icons.chat_rounded,
+                _isCall
+                    ? (isVideo ? Icons.videocam_rounded : Icons.call_rounded)
+                    : Icons.chat_rounded,
                 color: scheme.primary,
               ),
             ),
@@ -170,7 +229,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 4),
                   Text(status.isEmpty
-                      ? (_isCall ? 'Audio call request' : 'Chat request')
+                      ? (_isCall ? (isVideo ? 'Video call request' : 'Audio call request') : 'Chat request')
                       : status,
                       style: Theme.of(context)
                           .textTheme

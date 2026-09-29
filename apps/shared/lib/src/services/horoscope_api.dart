@@ -29,13 +29,34 @@ class HoroscopeApi {
     return _asMapList(decoded).map(HoroscopeSign.fromJson).toList();
   }
 
-  /// Daily horoscope for a sign (legacy `getDailyHoroscope`).
-  Future<List<DailyHoroscope>> daily({int? signId, String? date}) async {
+  /// Daily, weekly, or yearly horoscope for a sign.
+  Future<List<DailyHoroscope>> daily({
+    int? signId,
+    String type = 'today',
+  }) async {
     final decoded = await _api.post('/getDailyHoroscope', body: {
-      'signId': ?signId,
-      'date': ?date,
+      'horoscopeSignId': ?signId,
+      'horoscopeType': type,
     });
-    return _asMapList(decoded).map(DailyHoroscope.fromJson).toList();
+    if (decoded is Map<String, dynamic>) {
+      final vedic = decoded['vedicList'];
+      if (vedic is Map<String, dynamic>) {
+        final listKey = type.toLowerCase() == 'weekly'
+            ? 'weeklyHoroScope'
+            : (type.toLowerCase() == 'yearly'
+                ? 'yearlyHoroScope'
+                : 'todayHoroscope');
+        final items = vedic[listKey];
+        if (items is List && items.isNotEmpty) {
+          return items
+              .whereType<Map<String, dynamic>>()
+              .map(DailyHoroscope.fromJson)
+              .toList();
+        }
+      }
+      return _asMapList(decoded).map(DailyHoroscope.fromJson).toList();
+    }
+    return const [];
   }
 
   /// Today's panchang for a location (legacy `get/panchang`).

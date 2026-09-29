@@ -109,4 +109,32 @@ class PartnerApi {
         'business_name': businessName,
         'business_address': businessAddress,
       }, auth: false);
+
+  /// Fetch astrologer's assigned puja bookings and custom pujas.
+  Future<List<Map<String, dynamic>>> astrologerPujaList({required int astrologerId}) async {
+    final decoded = await _api.post('/astrologerPujaList', body: {
+      'astrologerId': astrologerId,
+    });
+    return _list(_payload(decoded));
+  }
+
+  /// Fetch pending and delivered report consultation requests.
+  Future<List<Map<String, dynamic>>> getUserReportRequests({required int astrologerId}) async {
+    final decoded = await _api.post('/getUserReport', body: {
+      'astrologerId': astrologerId,
+    });
+    return _list(_payload(decoded));
+  }
+
+  /// Submit astrologer report response (PDF / text).
+  Future<void> submitUserReport({
+    required int reportId,
+    required String reportText,
+    String? fileUrl,
+  }) =>
+      _api.post('/userreport/add', body: {
+        'id': reportId,
+        'report': reportText,
+        'reportFile': fileUrl,
+      });
 }

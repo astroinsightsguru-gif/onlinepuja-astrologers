@@ -9,6 +9,7 @@ class AppTheme {
   static const Color brandDeep = Color(0xFF8E2B12);
   static const Color brandMaroon = Color(0xFF6D1B36);
   static const Color gold = Color(0xFFC9A227);
+  static const Color brandGold = gold;
 
   static const ColorScheme lightScheme = ColorScheme.light(
     primary: brandSaffron,

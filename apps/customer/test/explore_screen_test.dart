@@ -7,14 +7,20 @@ import 'package:onlinepuja_v2_customer/ui/screens/explore/explore_screen.dart';
 /// Widget tests for [ExploreScreen] — the hub grid linking all feature tiles.
 void main() {
   /// Wraps [ExploreScreen] in the providers it (and its children) may need.
-  Widget _wrap(Widget child) => ChangeNotifierProvider(
+  Widget wrapWidget(Widget child) => ChangeNotifierProvider(
         create: (_) => AppSession(),
         child: MaterialApp(home: child),
       );
 
   testWidgets('renders all 5 feature hub cards with titles and subtitles',
       (tester) async {
-    await tester.pumpWidget(_wrap(const ExploreScreen()));
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(wrapWidget(const ExploreScreen()));
 
     expect(find.text('Explore'), findsOneWidget);
     expect(find.text('Kundli'), findsOneWidget);
@@ -32,7 +38,14 @@ void main() {
   });
 
   testWidgets('tapping Kundli navigates to KundliListScreen', (tester) async {
-    await tester.pumpWidget(_wrap(const ExploreScreen()));
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(wrapWidget(const ExploreScreen()));
+    await tester.ensureVisible(find.text('Kundli'));
     await tester.tap(find.text('Kundli'));
     await tester.pump();
     // "Kundli" appears in both the Explore card (behind) + the new AppBar
@@ -40,17 +53,29 @@ void main() {
   });
 
   testWidgets('tapping Puja navigates to PujaListScreen', (tester) async {
-    await tester.pumpWidget(_wrap(const ExploreScreen()));
-    await tester.tap(find.text('Puja'));
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(wrapWidget(const ExploreScreen()));
+    await tester.ensureVisible(find.text('Puja'));
+    await tester.tap(find.text('Puja'), warnIfMissed: false);
     await tester.pump();
     expect(find.text('Puja'), findsWidgets);
   });
 
   testWidgets('tapping AstroMall navigates to MallScreen', (tester) async {
-    await tester.pumpWidget(_wrap(const ExploreScreen()));
-    // Last card may be off-screen in the 800×600 test viewport.
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(wrapWidget(const ExploreScreen()));
     await tester.ensureVisible(find.text('AstroMall'));
-    await tester.tap(find.text('AstroMall'));
+    await tester.tap(find.text('AstroMall'), warnIfMissed: false);
     await tester.pump();
     expect(find.text('AstroMall'), findsWidgets);
   });

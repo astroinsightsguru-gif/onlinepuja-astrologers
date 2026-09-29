@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state/app_session.dart';
+import '../main_shell.dart';
 import 'otp_screen.dart';
 
 /// Mobile number login (+91 default, international codes supported).
@@ -34,7 +36,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     setState(() => _sending = true);
     final session = context.read<AppSession>();
     try {
-      await session.sendOtp(
+      final otp = await session.sendOtp(
         contactNo: _phone.text.trim(),
         countryCode: _countryCode,
       );
@@ -42,6 +44,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       Navigator.of(context).pushNamed(OtpScreen.route, arguments: {
         'contactNo': _phone.text.trim(),
         'countryCode': _countryCode,
+        'testOtp': otp,
       });
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
@@ -49,6 +52,37 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       if (mounted) {
         showSnack(context, 'Could not send OTP. Please try again.',
             error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _continueWithGoogle() async {
+    setState(() => _sending = true);
+    try {
+      final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+      final account = await googleSignIn.signIn();
+      if (account == null) {
+        if (mounted) setState(() => _sending = false);
+        return;
+      }
+      if (!mounted) return;
+      final session = context.read<AppSession>();
+      await session.login(
+        contactNo: '',
+        countryCode: '+91',
+        email: account.email,
+        name: account.displayName ?? 'Devotee',
+      );
+      if (!mounted) return;
+      await session.refreshUser();
+      if (!mounted) return;
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(MainShell.route, (r) => false);
+    } catch (e) {
+      if (mounted) {
+        showSnack(context, 'Google Sign-In: $e', error: true);
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -123,6 +157,27 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                                 CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Send OTP'),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('OR', style: TextStyle(color: scheme.outline, fontSize: 12)),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    icon: const Icon(Icons.g_mobiledata_rounded, size: 30, color: Colors.redAccent),
+                    label: const Text('Continue with Google'),
+                    onPressed: _sending ? null : _continueWithGoogle,
                   ),
                   const SizedBox(height: 14),
                   Text(

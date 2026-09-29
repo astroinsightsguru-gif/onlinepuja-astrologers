@@ -33,6 +33,14 @@ class User {
   String chatStatus;
   String callStatus;
 
+  static bool _b(dynamic v) {
+    if (v == null) return false;
+    if (v is bool) return v;
+    if (v is num) return v != 0;
+    final s = v.toString().trim().toLowerCase();
+    return s == '1' || s == 'true' || s == 'yes';
+  }
+
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'] ?? 'User',
@@ -49,7 +57,7 @@ class User {
                 json['totalWalletAmount']?.toString() ?? '0') ??
             0,
         countryCode = json['countryCode'] ?? '+91',
-        isFreeChat = json['is_freechat'] ?? false,
+        isFreeChat = _b(json['is_freechat']),
         chatStatus = json['chatStatus'] ?? 'Online',
         callStatus = json['callStatus'] ?? 'Online';
 

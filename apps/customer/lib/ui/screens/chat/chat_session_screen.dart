@@ -6,8 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../state/app_session.dart';
 
-/// 1:1 consultation chat. v2 polls the REST history every 3s until Laravel
-/// Reverb websockets are enabled server-side (docs/new-apps/05 §5.3).
+/// 1:1 consultation chat with live wallet countdown ticker and quick Kundli intake.
 class ChatSessionScreen extends StatefulWidget {
   const ChatSessionScreen({
     super.key,
@@ -39,6 +38,15 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   Duration _elapsed = Duration.zero;
   DateTime? _sessionStart;
 
+  static const _quickPrompts = [
+    '🙏 Namaste Pandit ji',
+    '🔮 Check My Kundli',
+    '💼 Career & Job Guidance',
+    '❤️ Marriage & Compatibility',
+    '🩺 Health & Wellness',
+    '🪔 Recommended Remedies',
+  ];
+
   String get _myId => context.read<AppSession>().myId;
 
   @override
@@ -57,7 +65,8 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   }
 
   Future<void> _openOrReuse() async {
-    final userId = context.read<AppSession>().user?.id ?? 0;
+    final session = context.read<AppSession>();
+    final userId = session.user?.id ?? 0;
     try {
       _sessionId ??= await AstrologerApi.instance
           .existingChatSession(widget.astrologerId);
@@ -71,6 +80,24 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
       await _fetch();
       _poller = Timer.periodic(const Duration(seconds: 3), (_) => _fetch());
       setState(() {});
+
+      // Auto-send Kundli Intake details on first session message
+      if (_messages.isEmpty) {
+        final u = session.user;
+        if (u != null) {
+          final dob = u.birthDate != null ? u.birthDate.toString().split(' ').first : 'Not specified';
+          final tob = (u.birthTime != null && u.birthTime!.isNotEmpty) ? u.birthTime! : 'Not specified';
+          final pob = (u.birthPlace != null && u.birthPlace!.isNotEmpty) ? u.birthPlace! : 'India';
+          final intake = '🕉️ [Kundli Intake Details]\n'
+              '• Name: ${u.displayName}\n'
+              '• Gender: ${u.gender ?? "Not specified"}\n'
+              '• DOB: $dob\n'
+              '• Time: $tob\n'
+              '• Place: $pob\n'
+              '• Query: Astrological consultation & remedy guidance.';
+          _sendCustom(intake);
+        }
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -96,6 +123,23 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
         _scroll.jumpTo(_scroll.position.maxScrollExtent);
       }
     });
+  }
+
+  Future<void> _sendCustom(String text) async {
+    if (text.isEmpty || _sessionId == null || _sending) return;
+    setState(() => _sending = true);
+    try {
+      await AstrologerApi.instance.sendMessage(
+        sessionId: _sessionId!,
+        fromUserId: _myId,
+        text: text,
+      );
+      await _fetch();
+    } on ApiException catch (e) {
+      if (mounted) showSnack(context, e.message, error: true);
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   Future<void> _send() async {
@@ -138,7 +182,14 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
     try {
       await AstrologerApi.instance.endChat(sessionId: _sessionId!);
     } catch (_) {}
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+      showConsultationFeedbackDialog(
+        context: context,
+        astrologerId: widget.astrologerId,
+        astrologerName: widget.astrologerName,
+      );
+    }
   }
 
   String get _timerLabel {
@@ -152,17 +203,49 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.astrologerName,
-                style: Theme.of(context).textTheme.titleMedium),
-            Text(_timerLabel,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelSmall
-                    ?.copyWith(color: scheme.outline)),
-          ],
+        title: Builder(
+          builder: (ctx) {
+            final session = ctx.watch<AppSession>();
+            final balance = session.user?.walletAmount ?? 0;
+            const rate = 15.0; // default consultation rate per min
+            final totalAllowedSecs = widget.isFree ? 300 : ((balance / rate) * 60).floor();
+            final remainingSecs = (totalAllowedSecs - _elapsed.inSeconds).clamp(0, 99999);
+            final remMin = (remainingSecs / 60).floor();
+            final remSec = (remainingSecs % 60).toString().padLeft(2, '0');
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.astrologerName,
+                    style: Theme.of(context).textTheme.titleMedium),
+                Row(
+                  children: [
+                    Text('⏱️ $_timerLabel',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(color: scheme.outline)),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: remainingSecs < 120 ? Colors.red.shade100 : Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        widget.isFree ? 'FREE ($remMin:$remSec)' : '⏳ $remMin:$remSec left (₹${balance.toStringAsFixed(0)})',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: remainingSecs < 120 ? Colors.red.shade800 : Colors.green.shade800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -188,9 +271,24 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
                               _bubble(context, _messages[i]),
                         ),
                 ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  child: Row(
+                    children: _quickPrompts.map((p) => Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ActionChip(
+                        label: Text(p, style: const TextStyle(fontSize: 12)),
+                        onPressed: () => _sendCustom(p),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    )).toList(),
+                  ),
+                ),
                 SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
                     child: Row(
                       children: [
                         Expanded(

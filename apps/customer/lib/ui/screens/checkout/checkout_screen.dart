@@ -1,3 +1,4 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
@@ -107,7 +108,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           totalPayable: _price,
         );
       } else {
-        await PujaApi.instance.placeOrder(
+        final res = await PujaApi.instance.placeOrder(
           userId: userId,
           pujaId: widget.puja!.id,
           packageId: widget.package!.id,
@@ -117,6 +118,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             'amount': _price,
           },
         );
+        final redirectUrl = res['redirect']?.toString();
+        if (redirectUrl != null && redirectUrl.isNotEmpty) {
+          if (!mounted) return;
+          final payOnline = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Recharge or Pay Online'),
+              content: const Text(
+                  'Your wallet balance is insufficient for this Puja. Would you like to proceed with secure online payment?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Pay Online'),
+                ),
+              ],
+            ),
+          );
+          if (payOnline == true) {
+            await launchUrl(Uri.parse(redirectUrl),
+                mode: LaunchMode.externalApplication);
+          }
+          return;
+        }
       }
       if (!mounted) return;
       await showDialog<void>(
@@ -192,9 +220,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       )
                     else ...[
                       for (final a in _addresses!)
+                        // ignore: deprecated_member_use
                         RadioListTile<OrderAddress>(
                           value: a,
+                          // ignore: deprecated_member_use
                           groupValue: _selected,
+                          // ignore: deprecated_member_use
                           onChanged: (v) => setState(() => _selected = v),
                           title: Text(a.name?.toString() ?? 'Address'),
                           subtitle: Text(a.fullAddress),
@@ -330,7 +361,7 @@ Future<OrderAddress?> showAddAddressSheet(BuildContext context) async {
           const SizedBox(height: 14),
           ValueListenableBuilder<bool>(
             valueListenable: saving,
-            builder: (_, busy, __) => FilledButton(
+            builder: (_, busy, _) => FilledButton(
               onPressed: busy ? null : save,
               child: busy
                   ? const SizedBox(

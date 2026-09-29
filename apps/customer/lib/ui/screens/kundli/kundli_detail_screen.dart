@@ -1,4 +1,6 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
 
 /// Kundli details: Basic / Planets / Dasha / Dosha tabs
@@ -20,7 +22,7 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
   Map<String, dynamic>? _dosha;
   Object? _error;
   late final TabController _tabs =
-      TabController(length: 4, vsync: this);
+      TabController(length: 5, vsync: this);
 
   double get _tz {
     final t = double.tryParse(widget.kundli.timezone?.toString() ?? '');
@@ -80,9 +82,18 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final k = widget.kundli;
-    const tabs = ['Basic', 'Planets', 'Dasha', 'Dosha'];
+    const tabs = ['Basic', 'Planets', 'Dasha', 'Dosha', 'Remedies (उपाय)'];
     return Scaffold(
-      appBar: AppBar(title: Text(k.name)),
+      appBar: AppBar(
+        title: Text(k.name),
+        actions: [
+          IconButton(
+            tooltip: 'Export Kundli Summary',
+            icon: const Icon(Icons.share_outlined),
+            onPressed: _showExportDialog,
+          ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -121,8 +132,10 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
         return _planetsTab();
       case 2:
         return _dashaTab();
-      default:
+      case 3:
         return _doshaTab();
+      default:
+        return _remediesTab();
     }
   }
 
@@ -310,5 +323,249 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
       return StatusViews.empty(context, message: 'No dosha data available');
     }
     return _infoGrid([for (final (k, v) in rows) (k, v)]);
+  }
+
+  
+  Widget _remediesTab() {
+    final scheme = Theme.of(context).colorScheme;
+    final rashi = _planetResponse?['rasi']?.toString() ?? 'Mesha';
+    
+    // Vedic Rashi to Gemstone & Rudraksha mapping
+    final (gemName, metal, finger, day, mantra, rudraksha, deity) = switch (rashi.toLowerCase()) {
+      'mesha' || 'aries' => ('Red Coral (लाल मूंगा)', 'Copper / Gold', 'Ring Finger', 'Tuesday', 'ॐ भौं भौमाय नमः', '3-Mukhi Rudraksha', 'Lord Hanuman'),
+      'vrishabha' || 'taurus' => ('Diamond / White Zircon (हीरा/ज़रकन)', 'Silver / Platinum', 'Middle / Little Finger', 'Friday', 'ॐ शुं शुक्राय नमः', '6-Mukhi Rudraksha', 'Goddess Lakshmi'),
+      'mithuna' || 'gemini' => ('Emerald (पन्ना)', 'Gold / Bronze', 'Little Finger', 'Wednesday', 'ॐ बुं बुधाय नमः', '4-Mukhi Rudraksha', 'Lord Ganesha'),
+      'karka' || 'cancer' => ('Natural Pearl (सच्चा मोती)', 'Silver', 'Little Finger', 'Monday', 'ॐ सों सोमाय नमः', '2-Mukhi Rudraksha', 'Lord Shiva'),
+      'simha' || 'leo' => ('Ruby (माणिक्य)', 'Gold / Copper', 'Ring Finger', 'Sunday', 'ॐ घृणि सूर्याय नमः', '12-Mukhi Rudraksha', 'Lord Surya'),
+      'kanya' || 'virgo' => ('Emerald (पन्ना)', 'Gold / Silver', 'Little Finger', 'Wednesday', 'ॐ बुं बुधाय नमः', '4-Mukhi Rudraksha', 'Lord Ganesha'),
+      'tula' || 'libra' => ('Diamond / Opal (ओपल/हीरा)', 'Silver', 'Middle Finger', 'Friday', 'ॐ शुं शुक्राय नमः', '6-Mukhi Rudraksha', 'Goddess Lakshmi'),
+      'vrischika' || 'scorpio' => ('Red Coral (मूंगा)', 'Gold / Copper', 'Ring Finger', 'Tuesday', 'ॐ अं अंगारकाय नमः', '3-Mukhi Rudraksha', 'Lord Kartikeya'),
+      'dhanu' || 'sagittarius' => ('Yellow Sapphire (पुखराज)', 'Gold / Brass', 'Index Finger', 'Thursday', 'ॐ बृं बृहस्पतये नमः', '5-Mukhi Rudraksha', 'Lord Vishnu'),
+      'makara' || 'capricorn' => ('Blue Sapphire / Amethyst (नीलम/कटैला)', 'Silver / Panchadhatu', 'Middle Finger', 'Saturday', 'ॐ शं शनैश्चराय नमः', '7-Mukhi Rudraksha', 'Lord Shani Dev'),
+      'kumbha' || 'aquarius' => ('Blue Sapphire (नीलम)', 'Silver / Panchadhatu', 'Middle Finger', 'Saturday', 'ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः', '7-Mukhi Rudraksha', 'Lord Shani Dev'),
+      _ => ('Yellow Sapphire (पुखराज)', 'Gold', 'Index Finger', 'Thursday', 'ॐ बृं बृहस्पतये नमः', '5-Mukhi Rudraksha', 'Lord Vishnu / Brihaspati'),
+    };
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Prescribed Gemstone Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF8E2B12), Color(0xFFD97706)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFD97706).withValues(alpha: 0.25),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.diamond_outlined, color: Colors.white, size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Bhagya Gemstone (भाग्य रत्न)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                gemName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Metal: $metal · Wear on: $finger\nAuspicious Day: $day\nMantra: $mantra',
+                style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Sacred Rudraksha Card
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.circle_outlined, color: Colors.deepOrange, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Sacred Rudraksha (रुद्राक्ष उपाय)',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  rudraksha,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Presiding Deity: $deity\nBlesses the devotee with health, spiritual peace, and protection against planetary malefic effects.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.outline, height: 1.3),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Vedic Puja & Remedy
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.temple_hindu_rounded, color: Colors.purple, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Recommended Vedic Puja & Jaap',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Navagraha Shanti & Rudrabhishek',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Recommended by Vedic scholars to pacify malefic planetary transits and enhance auspicious vibrations for career and family harmony.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.outline, height: 1.3),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showExportDialog() {
+    final k = widget.kundli;
+    final b = _basic;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.auto_stories, color: AppTheme.brandSaffron),
+            const SizedBox(width: 10),
+            Text('${k.name} Kundli Summary'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Date of Birth: ${k.birthDate.toIso8601String().substring(0, 10)}'),
+              Text('Time of Birth: ${k.birthTime}'),
+              Text('Place: ${k.birthPlace}'),
+              const Divider(height: 20),
+              if (b != null) ...[
+                Text('Tithi: ${b.tithi}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Nakshatra: ${b.nakshatra}'),
+                Text('Yog: ${b.yog} · Karan: ${b.karan}'),
+                Text('Sunrise: ${b.sunRise} · Sunset: ${b.sunSet}'),
+              ],
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandDeep.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Full Janam Kundali report generated by Online Puja Vedic Engine. Verified against Lahiri Ayanamsha.',
+                  style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+          FilledButton.icon(
+            icon: const Icon(Icons.copy_rounded, size: 18),
+            label: const Text('Copy'),
+            onPressed: () {
+              final buf = StringBuffer();
+              buf.writeln('=== ${k.name} Kundli Summary ===');
+              buf.writeln('DOB: ${k.birthDate.toIso8601String().substring(0, 10)} ${k.birthTime}');
+              buf.writeln('Place: ${k.birthPlace}');
+              if (b != null) {
+                buf.writeln('Tithi: ${b.tithi}');
+                buf.writeln('Nakshatra: ${b.nakshatra}');
+                buf.writeln('Yog: ${b.yog} | Karan: ${b.karan}');
+                buf.writeln('Sunrise: ${b.sunRise} | Sunset: ${b.sunSet}');
+              }
+              buf.writeln('Generated by Online Puja (https://onlinepuja.live)');
+              Clipboard.setData(ClipboardData(text: buf.toString()));
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Kundli summary copied to clipboard!')),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            icon: const Icon(Icons.share_rounded, size: 18),
+            label: const Text('WhatsApp'),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF25D366)),
+            onPressed: () async {
+              final buf = StringBuffer();
+              buf.writeln('🕉️ *Janam Kundali: ${k.name}*');
+              buf.writeln('📅 *DOB:* ${k.birthDate.toIso8601String().substring(0, 10)} (${k.birthTime})');
+              buf.writeln('📍 *Birth Place:* ${k.birthPlace}');
+              if (b != null) {
+                buf.writeln('✨ *Tithi:* ${b.tithi}');
+                buf.writeln('⭐ *Nakshatra:* ${b.nakshatra}');
+                buf.writeln('🧘 *Yog:* ${b.yog} | *Karan:* ${b.karan}');
+                buf.writeln('🌅 *Sun:* Rise ${b.sunRise} / Set ${b.sunSet}');
+              }
+              buf.writeln('\n🔮 _Vedic Horoscope Consultation on Online Puja:_ https://onlinepuja.live');
+              final url = Uri.parse('https://api.whatsapp.com/send?text=${Uri.encodeComponent(buf.toString())}');
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
 /// App-wide session state for the partner (astrologer) app.
@@ -14,6 +14,13 @@ class PartnerSession extends ChangeNotifier {
   bool get isLoggedIn => SessionStore.instance.isLoggedIn;
   String get myId => (user?.id ?? 0).toString();
   int get astrologerId => user?.id ?? 0;
+
+  ThemeMode get themeMode => SessionStore.instance.themeMode;
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    await SessionStore.instance.saveThemeMode(mode);
+    notifyListeners();
+  }
 
   /// Availability state surfaced in the home shell (legacy default online).
   String chatStatus = 'Online';

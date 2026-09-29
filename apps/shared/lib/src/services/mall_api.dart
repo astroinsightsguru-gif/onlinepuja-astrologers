@@ -79,7 +79,7 @@ class MallApi {
       'payableAmount': payableAmount,
       'gstPercent': gstPercent,
       'totalPayable': totalPayable,
-      'payamentMethod': paymentMethod,
+      'paymentMethod': paymentMethod,
     });
     if (decoded is Map<String, dynamic>) {
       final rl = decoded['recordList'];

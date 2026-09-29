@@ -10,6 +10,8 @@ import 'kundli_detail_screen.dart';
 class KundliListScreen extends StatefulWidget {
   const KundliListScreen({super.key});
 
+  static const route = '/kundli';
+
   @override
   State<KundliListScreen> createState() => _KundliListScreenState();
 }

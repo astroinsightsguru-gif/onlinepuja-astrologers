@@ -54,9 +54,19 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   Future<void> _start() async {
     try {
+      final session = context.read<PartnerSession>();
+      if (!session.isLoggedIn || session.astrologerId == 0) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Partner session expired. Please log in.')),
+          );
+          Navigator.of(context).pop();
+        }
+        return;
+      }
       if (_sessionId == null && widget.customerId > 0) {
         _sessionId ??= await AstrologerApi.instance.addChatRequest(
-          astrologerId: context.read<PartnerSession>().astrologerId,
+          astrologerId: session.astrologerId,
           userId: widget.customerId,
         );
       }
@@ -69,13 +79,16 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
     }
   }
 
-  Future<void> _fetch() async {
+  Future<void> _fetch({bool forceScroll = false}) async {
     if (_sessionId == null) return;
     final fresh = await AstrologerApi.instance
         .chatHistory(sessionId: _sessionId!, myId: _myId);
     if (!mounted) return;
+    final hasNewMessages = fresh.length > _messages.length;
     setState(() => _messages = fresh);
-    _jumpToBottom();
+    if (forceScroll || hasNewMessages) {
+      _jumpToBottom();
+    }
   }
 
   void _jumpToBottom() {
@@ -97,7 +110,7 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
         fromUserId: _myId,
         text: text,
       );
-      await _fetch();
+      await _fetch(forceScroll: true);
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);
     } finally {
@@ -152,6 +165,11 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Client Info & Kundli',
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: _showClientInfoSheet,
+          ),
           IconButton(
             tooltip: 'End chat',
             icon: const Icon(Icons.call_end_rounded),
@@ -237,6 +255,100 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
               color: mine ? Colors.white : scheme.onSurface, height: 1.3),
         ),
       ),
+    );
+  }
+
+  void _showClientInfoSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: FutureBuilder<Map<String, dynamic>?>(
+          future: AstrologerApi.instance.getIntakeForm(userId: widget.customerId),
+          builder: (context, snapshot) {
+            final intake = snapshot.data;
+            final dob = intake?['birthDate']?.toString() ?? 'Not specified';
+            final tob = intake?['birthTime']?.toString() ?? 'Not specified';
+            final pob = intake?['birthPlace']?.toString() ?? 'Not specified';
+            final topic = intake?['topicOfConcern']?.toString() ?? 'General Consultation';
+            final occupation = intake?['occupation']?.toString();
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.account_circle, color: AppTheme.brandSaffron, size: 28),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        widget.customerName,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 8),
+                Text('Client ID: #${widget.customerId}', style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+                const SizedBox(height: 12),
+                const Text('Kundli & Birth Details:', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      _infoRow(context, 'Date of Birth', dob),
+                      const SizedBox(height: 4),
+                      _infoRow(context, 'Time of Birth', tob),
+                      const SizedBox(height: 4),
+                      _infoRow(context, 'Place of Birth', pob),
+                      const SizedBox(height: 4),
+                      _infoRow(context, 'Concern', topic),
+                      if (occupation != null && occupation.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        _infoRow(context, 'Occupation', occupation),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                AiCopilotCard(
+                  clientName: widget.customerName,
+                  dob: dob,
+                  tob: tob,
+                  pob: pob,
+                  concern: topic,
+                ),
+                const SizedBox(height: 16),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 13)),
+        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }

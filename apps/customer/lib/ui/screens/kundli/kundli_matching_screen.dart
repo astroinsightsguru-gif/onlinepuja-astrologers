@@ -11,6 +11,8 @@ import '../../../state/app_session.dart';
 class KundliMatchingScreen extends StatefulWidget {
   const KundliMatchingScreen({super.key});
 
+  static const route = '/kundli-matching';
+
   @override
   State<KundliMatchingScreen> createState() => _KundliMatchingScreenState();
 }
@@ -71,9 +73,10 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
     });
   }
 
-  static String _fmtDate(String raw) {
-    final d = DateTime.tryParse(raw);
-    return d == null ? raw : DateFormat('yyyy-MM-dd').format(d);
+  static String _fmtDate(dynamic raw) {
+    if (raw is DateTime) return DateFormat('yyyy-MM-dd').format(raw);
+    final d = DateTime.tryParse(raw?.toString() ?? '');
+    return d == null ? (raw?.toString() ?? '') : DateFormat('yyyy-MM-dd').format(d);
   }
 
   Future<void> _match() async {

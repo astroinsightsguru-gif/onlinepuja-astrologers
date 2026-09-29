@@ -67,24 +67,32 @@ class Astrologer {
   static int _i(dynamic v) =>
       v == null ? 0 : (int.tryParse(v.toString()) ?? 0);
 
+  static bool _b(dynamic v) {
+    if (v == null) return false;
+    if (v is bool) return v;
+    if (v is num) return v != 0;
+    final s = v.toString().trim().toLowerCase();
+    return s == '1' || s == 'true' || s == 'yes';
+  }
+
   Astrologer.fromJson(Map<String, dynamic> json)
       : id = _i(json['id']),
         userId = _i(json['userId']),
-        name = json['name'] ?? '',
-        email = json['email'] ?? '',
-        primarySkill = json['primarySkill'] ?? '',
-        allSkill = json['allSkill'] ?? '',
-        languageKnown = json['languageKnown'] ?? '',
-        profileImage = json['profileImage'] ?? '',
+        name = (json['name'] ?? '').toString(),
+        email = (json['email'] ?? '').toString(),
+        primarySkill = (json['primarySkill'] ?? '').toString(),
+        allSkill = (json['allSkill'] ?? '').toString(),
+        languageKnown = (json['languageKnown'] ?? '').toString(),
+        profileImage = (json['profileImage'] ?? '').toString(),
         charge = _d(json['charge']),
         videoCallRate = _d(json['videoCallRate']),
         experienceInYears = _i(json['experienceInYears']),
-        currentCity = json['currentCity'] ?? '',
-        loginBio = json['loginBio'] ?? '',
-        chatStatus = json['chatStatus'] ?? 'Online',
-        callStatus = json['callStatus'] ?? 'Online',
-        isFollow = json['isFollow'] ?? false,
-        isBlock = json['isBlock'] ?? false,
+        currentCity = (json['currentCity'] ?? '').toString(),
+        loginBio = (json['loginBio'] ?? '').toString(),
+        chatStatus = (json['chatStatus'] ?? 'Online').toString(),
+        callStatus = (json['callStatus'] ?? 'Online').toString(),
+        isFollow = _b(json['isFollow']),
+        isBlock = _b(json['isBlock']),
         chatMin = _i(json['chatMin']),
         callMin = _i(json['callMin']),
         rating = json['astrologerRating'] is Map
@@ -93,11 +101,11 @@ class Astrologer {
         reviews = json['astrologerRating'] is Map
             ? _i(json['astrologerRating']['review'])
             : _i(json['reviews']),
-        isFreeAvailable = json['isFreeAvailable'] ?? false,
-        isBoosted = json['is_boosted'] ?? false,
+        isFreeAvailable = _b(json['isFreeAvailable']),
+        isBoosted = _b(json['is_boosted']),
         totalOrder = _i(json['totalOrder']),
-        astroVideo = json['astro_video'],
-        fcmToken = json['fcmToken'];
+        astroVideo = json['astro_video']?.toString(),
+        fcmToken = json['fcmToken']?.toString();
 
   Map<String, dynamic> toJson() => {
         'id': id,

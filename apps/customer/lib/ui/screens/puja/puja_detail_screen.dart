@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
-import 'package:provider/provider.dart';
 
-import '../../../state/app_session.dart';
 import '../checkout/checkout_screen.dart';
 
 /// Puja detail: description, benefits, packages & FAQ
@@ -45,35 +43,40 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
   Future<void> _book() async {
     final packages = widget.puja.packages ?? const <PujaPackage>[];
     if (packages.isEmpty) return;
-    PujaPackage? selected = packages.length == 1 ? packages.first : null;
-    selected ??= await showDialog<PujaPackage>(
-        context: context,
-        builder: (ctx) => SimpleDialog(
-          title: const Text('Choose a package'),
-          children: [
-            for (final p in packages)
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(ctx, p),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(p.name?.toString() ?? 'Package'),
-                  subtitle: p.inclusions == null || p.inclusions!.isEmpty
-                      ? null
-                      : Text(p.inclusions!.join(', ')),
-                  trailing: Text(
-                    '₹${p.priceValue.toStringAsFixed(0)}',
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+    setState(() => _booking = true);
+    try {
+      PujaPackage? selected = packages.length == 1 ? packages.first : null;
+      selected ??= await showDialog<PujaPackage>(
+          context: context,
+          builder: (ctx) => SimpleDialog(
+            title: const Text('Choose a package'),
+            children: [
+              for (final p in packages)
+                SimpleDialogOption(
+                  onPressed: () => Navigator.pop(ctx, p),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(p.name?.toString() ?? 'Package'),
+                    subtitle: p.inclusions == null || p.inclusions!.isEmpty
+                        ? null
+                        : Text(p.inclusions!.join(', ')),
+                    trailing: Text(
+                      '₹${p.priceValue.toStringAsFixed(0)}',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                   ),
                 ),
-              ),
-          ],
-        ),
-      );
-    if (selected == null || !mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => CheckoutScreen.puja(
-          puja: widget.puja, package: selected!),
-    ));
+            ],
+          ),
+        );
+      if (selected == null || !mounted) return;
+      await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CheckoutScreen.puja(
+            puja: widget.puja, package: selected!),
+      ));
+    } finally {
+      if (mounted) setState(() => _booking = false);
+    }
   }
 
   @override

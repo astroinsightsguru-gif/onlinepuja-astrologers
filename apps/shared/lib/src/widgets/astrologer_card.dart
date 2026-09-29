@@ -12,12 +12,14 @@ class AstrologerCard extends StatelessWidget {
     this.onTap,
     this.onChat,
     this.onCall,
+    this.onWaitlist,
   });
 
   final Astrologer astrologer;
   final VoidCallback? onTap;
   final VoidCallback? onChat;
   final VoidCallback? onCall;
+  final VoidCallback? onWaitlist;
 
   @override
   Widget build(BuildContext context) {

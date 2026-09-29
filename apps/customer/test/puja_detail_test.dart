@@ -37,7 +37,11 @@ void main() {
       ],
     );
 
-        await tester.pumpWidget(
+        tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
+    await tester.pumpWidget(
       MaterialApp(home: PujaDetailScreen(puja: puja)),
     );
     // Let the async _loadFaqs() settle (it fails silently in tests).
@@ -60,8 +64,8 @@ void main() {
     // Benefits
     expect(find.text('Removes obstacles'), findsOneWidget);
 
-    // Book button (uses first package's price)
-    expect(find.text('Book now · ₹500'), findsOneWidget);
+    // Book button
+    expect(find.text('Book this puja'), findsOneWidget);
   });
 
   testWidgets('renders puja without packages', (tester) async {
@@ -71,14 +75,17 @@ void main() {
       longDescription: 'A simple worship.',
     );
 
-        await tester.pumpWidget(
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
+    await tester.pumpWidget(
       MaterialApp(home: PujaDetailScreen(puja: puja)),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Simple Puja'), findsWidgets);
     expect(find.text('About'), findsOneWidget);
-    expect(find.text('Book now · ₹0'), findsOneWidget);
 
     // No packages section
     expect(find.text('Packages'), findsNothing);

@@ -72,10 +72,9 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                         const SizedBox(height: 12),
                         FilledButton.icon(
-                          onPressed: () => showSnack(context,
-                              'Withdrawal is handled by the admin panel'),
+                          onPressed: () => _openWithdrawSheet(context, options, balance, session),
                           icon: const Icon(Icons.currency_rupee_rounded),
-                          label: const Text('Withdraw'),
+                          label: const Text('Withdraw Request'),
                         ),
                       ],
                     ),
@@ -90,15 +89,146 @@ class _WalletScreenState extends State<WalletScreen> {
                     child: ListTile(
                       leading: Icon(Icons.account_balance_wallet_outlined,
                           color: scheme.primary),
-                      title: Text(o['name']?.toString() ?? 'Method'),
-                      subtitle: Text(o['details']?.toString() ?? ''),
+                      title: Text(o['method_name']?.toString() ?? o['name']?.toString() ?? 'Payout Method'),
+                      subtitle: Text((o['isActive'] == 1 || o['isActive'] == '1') ? 'Verified & Active' : 'Available on request'),
                       trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => _openWithdrawSheet(context, options, balance, session, initialMethod: o['method_name']?.toString()),
                     ),
                   ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _openWithdrawSheet(
+    BuildContext context,
+    List<Map<String, dynamic>> options,
+    double balance,
+    PartnerSession session, {
+    String? initialMethod,
+  }) {
+    if (balance < 100) {
+      showSnack(context, 'Minimum balance required for withdrawal is ₹100.', error: true);
+      return;
+    }
+
+    final astroId = session.user?.id;
+    if (astroId == null) {
+      showSnack(context, 'Please log in to submit a withdrawal request.', error: true);
+      return;
+    }
+
+    final amountCtrl = TextEditingController(text: balance.clamp(100.0, balance).toStringAsFixed(0));
+    final activeMethods = options
+        .map((o) => (o['method_name'] ?? o['name'] ?? '').toString())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    if (activeMethods.isEmpty) {
+      activeMethods.addAll(['Bank Account', 'UPI']);
+    }
+
+    String selectedMethod = initialMethod ?? activeMethods.first;
+    bool submitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Request Payout',
+                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Available: ${session.flags.currency}${balance.toStringAsFixed(2)} · Min: ₹100',
+                style: TextStyle(color: Theme.of(ctx).colorScheme.outline, fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Withdrawal Amount',
+                  prefixText: '₹ ',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                initialValue: selectedMethod,
+                decoration: const InputDecoration(
+                  labelText: 'Payout Method',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final m in activeMethods)
+                    DropdownMenuItem(value: m, child: Text(m)),
+                ],
+                onChanged: (val) {
+                  if (val != null) setModalState(() => selectedMethod = val);
+                },
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: submitting
+                    ? null
+                    : () async {
+                        final amt = double.tryParse(amountCtrl.text.trim());
+                        if (amt == null || amt < 100) {
+                          showSnack(ctx, 'Minimum withdrawal amount is ₹100', error: true);
+                          return;
+                        }
+                        if (amt > balance) {
+                          showSnack(ctx, 'Amount exceeds available balance', error: true);
+                          return;
+                        }
+                        setModalState(() => submitting = true);
+                        try {
+                          await WalletApi.instance.requestWithdraw(
+                            astrologerId: astroId,
+                            withdrawAmount: amt,
+                            paymentMethod: selectedMethod,
+                          );
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            showSnack(context, 'Withdrawal request of ₹${amt.toStringAsFixed(2)} submitted successfully!');
+                            _reload();
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            showSnack(ctx, 'Failed to submit request: $e', error: true);
+                            setModalState(() => submitting = false);
+                          }
+                        }
+                      },
+                child: submitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Submit Payout Request'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

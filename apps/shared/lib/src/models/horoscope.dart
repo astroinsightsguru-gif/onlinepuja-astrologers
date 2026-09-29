@@ -33,7 +33,7 @@ class HoroscopeSign {
       };
 }
 
-/// Daily horoscope payload from `/getDailyHoroscope`.
+/// Daily / Weekly / Yearly horoscope payload.
 class DailyHoroscope {
   DailyHoroscope({
     this.id,
@@ -45,25 +45,55 @@ class DailyHoroscope {
     this.luckyColor,
     this.mood,
     this.compatibility,
+    this.physique,
+    this.status,
+    this.finances,
+    this.relationship,
+    this.career,
+    this.travel,
+    this.family,
+    this.friends,
+    this.health,
   });
 
   int? id, signId;
   String? signName, date, predictions, luckyNumber, luckyColor, mood;
   String? compatibility;
+  int? physique, status, finances, relationship, career, travel, family, friends, health;
+
+  static int? _parseInt(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val.toInt();
+    if (val is String) {
+      final clean = val.replaceAll('%', '').trim();
+      return int.tryParse(clean) ?? double.tryParse(clean)?.toInt();
+    }
+    return null;
+  }
 
   factory DailyHoroscope.fromJson(Map<String, dynamic> json) => DailyHoroscope(
         id: json['id'],
-        signId: json['signId'] ?? json['sign_id'] ?? json['sign_id'],
-        signName: json['signName'] ?? json['sign_name'],
-        date: json['date'] ?? json['horoscopeDate'],
+        signId: json['signId'] ?? json['sign_id'] ?? json['horoscopeSignId'],
+        signName: json['signName'] ?? json['sign_name'] ?? json['zodiac'],
+        date: json['date'] ?? json['horoscopeDate'] ?? json['start_date'],
         predictions: json['predictions'] ??
             json['prediction'] ??
+            json['bot_response'] ??
             json['horoscope'],
         luckyNumber: json['luckyNumber']?.toString() ??
             json['lucky_number']?.toString(),
         luckyColor: json['luckyColor'] ?? json['lucky_color'],
         mood: json['mood'],
         compatibility: json['compatibility'],
+        physique: _parseInt(json['physique']),
+        status: _parseInt(json['status']),
+        finances: _parseInt(json['finances']),
+        relationship: _parseInt(json['relationship']),
+        career: _parseInt(json['career']),
+        travel: _parseInt(json['travel']),
+        family: _parseInt(json['family']),
+        friends: _parseInt(json['friends']),
+        health: _parseInt(json['health']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -76,5 +106,14 @@ class DailyHoroscope {
         'luckyColor': luckyColor,
         'mood': mood,
         'compatibility': compatibility,
+        'physique': physique,
+        'status': status,
+        'finances': finances,
+        'relationship': relationship,
+        'career': career,
+        'travel': travel,
+        'family': family,
+        'friends': friends,
+        'health': health,
       };
 }

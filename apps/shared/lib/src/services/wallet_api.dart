@@ -1,4 +1,4 @@
-import '../api/api_client.dart';
+﻿import '../api/api_client.dart';
 
 /// Wallet / payment endpoints. Contracts mirror the legacy apps
 /// (`getRechargeAmount`, `addpayment`, `withdrawlmethod/get`).
@@ -29,23 +29,40 @@ class WalletApi {
   /// Record a successful payment (legacy `addpayment`). The web payment
   /// gateway (Razorpay etc.) calls back to the backend; the app calls this
   /// after the gateway confirms the transaction client-side.
-  Future<void> addPayment({
+  Future<String?> addPayment({
     required double amount,
     String? txnId,
     String paymentGateway = 'razorpay',
     Map<String, dynamic>? extra,
   }) async {
-    await _api.post('/addpayment', body: {
+    final decoded = await _api.post('/addpayment', body: {
       'amount': amount,
       'txn_id': txnId,
       'payment_gateway': paymentGateway,
       ...?extra,
     });
+    if (decoded is Map<String, dynamic>) {
+      return decoded['url']?.toString();
+    }
+    return null;
   }
 
   /// Partner withdrawal options (legacy `withdrawlmethod/get`).
   Future<List<Map<String, dynamic>>> withdrawOptions() async {
     final decoded = await _api.post('/withdrawlmethod/get');
     return _list(decoded);
+  }
+
+  /// Submit partner withdrawal request (legacy `withdrawlrequest/add`).
+  Future<void> requestWithdraw({
+    required int astrologerId,
+    required double withdrawAmount,
+    required String paymentMethod,
+  }) async {
+    await _api.post('/withdrawlrequest/add', body: {
+      'astrologerId': astrologerId,
+      'withdrawAmount': withdrawAmount,
+      'paymentMethod': paymentMethod,
+    });
   }
 }
