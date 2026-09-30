@@ -50,4 +50,6 @@ class SystemFlags {
   bool get astromall => call('astromall', '1') == '1';
   bool get blog => call('bloc', '1') == '1';
   bool get panchang => call('todayPanchang', '1') == '1';
+  String get supportPhone => call('supportPhone', call('contactNo', '+91 93059 32724'));
+  String get supportWhatsapp => call('supportWhatsapp', call('whatsappNo', '919305932724'));
 }
