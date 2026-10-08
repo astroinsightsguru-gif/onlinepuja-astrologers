@@ -50,7 +50,7 @@ class _MallScreenState extends State<MallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AstroMall')),
+      appBar: AppBar(title: RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' • AstroMall', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF64748B)))]))),
       body: _error != null
           ? StatusViews.error(context, _error!, onRetry: _load)
           : RefreshIndicator(
@@ -203,3 +203,4 @@ class _MallScreenState extends State<MallScreen> {
     );
   }
 }
+

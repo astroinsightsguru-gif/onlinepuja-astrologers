@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
@@ -53,7 +53,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       name: 'Shri Kashi Vishwanath Jyotirlinga',
       deity: 'Lord Shiva',
       location: 'Varanasi, Uttar Pradesh',
-      timing: 'Mangala Aarti 3:00 AM · Sandhya 7:00 PM',
+      timing: 'Mangala Aarti 3:00 AM � Sandhya 7:00 PM',
       thumbnailUrl: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
       streamUrl: 'https://www.youtube.com/@ShriKashiVishwanathTempleTrust/live',
       description: 'Official Live Sanctum Darshan of the first Jyotirlinga on the holy banks of river Ganga.',
@@ -63,7 +63,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       name: 'Dashashwamedh Ghat Maha Ganga Aarti',
       deity: 'Maa Ganga',
       location: 'Dashashwamedh Ghat, Varanasi',
-      timing: 'Daily Sunset 6:30 PM – 7:30 PM',
+      timing: 'Daily Sunset 6:30 PM � 7:30 PM',
       thumbnailUrl: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80',
       streamUrl: 'https://www.youtube.com/@GangaAartiVaranasiOfficial/live',
       description: 'The world-renowned Grand Sunset Aarti with sacred brass deepams, shankha naad, and vedic chants.',
@@ -73,7 +73,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       name: 'Mahakaleshwar Jyotirlinga',
       deity: 'Lord Mahakal',
       location: 'Ujjain, Madhya Pradesh',
-      timing: 'Bhasma Aarti 4:00 AM · Shringar 7:30 PM',
+      timing: 'Bhasma Aarti 4:00 AM � Shringar 7:30 PM',
       thumbnailUrl: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80',
       streamUrl: 'https://www.youtube.com/@shreemahakaleshwarmandiruj790/live',
       description: 'Official Live holy Darshan & Bhasma Aarti of the South-facing Dakshinmukhi Swayambhu Jyotirlinga.',
@@ -83,7 +83,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       name: 'Somnath Mahadev Jyotirlinga',
       deity: 'Lord Shiva',
       location: 'Prabhas Patan, Gujarat',
-      timing: 'Daily 6:00 AM – 9:30 PM',
+      timing: 'Daily 6:00 AM � 9:30 PM',
       thumbnailUrl: 'https://images.unsplash.com/photo-1621847468516-1ed5d0df56fe?auto=format&fit=crop&w=800&q=80',
       streamUrl: 'https://www.youtube.com/@SomnathTempleOfficial/live',
       description: 'First of the twelve sacred Aadi Jyotirlingas situated on the coast of the Arabian Sea.',
@@ -93,7 +93,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       name: 'Shirdi Sai Baba Samadhi Mandir',
       deity: 'Shirdi Sai Baba',
       location: 'Shirdi, Maharashtra',
-      timing: 'Kakad Aarti 4:30 AM · Dhoop 6:00 PM · Shej 10:00 PM',
+      timing: 'Kakad Aarti 4:30 AM � Dhoop 6:00 PM � Shej 10:00 PM',
       thumbnailUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
       streamUrl: 'https://www.youtube.com/@SaiBabaSansthanTrustShirdi/live',
       description: '24/7 Live Darshan & Aarti from the sacred Samadhi Mandir of Sai Baba.',
@@ -111,7 +111,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Opening ${_selectedFeed.name} live stream…')),
+          SnackBar(content: Text('Opening ${_selectedFeed.name} live stream�')),
         );
       }
     }
@@ -151,7 +151,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         duration: Duration(milliseconds: 1500),
-        content: Text('🔔 Temple bell chimed. Divine vibrations awakened!'),
+        content: Text('?? Temple bell chimed. Divine vibrations awakened!'),
       ),
     );
   }
@@ -163,7 +163,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 2),
-          content: Text('🪔 Sacred Akhand Diya lit in your name at the sanctum!'),
+          content: Text('?? Sacred Akhand Diya lit in your name at the sanctum!'),
         ),
       );
     }
@@ -178,9 +178,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: const Row(
-          children: [
-            Text('Live Temple Darshan'),
+        title: Row(children: [RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' � Live Darshan', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white70))])),
             SizedBox(width: 8),
             Icon(Icons.fiber_manual_record, color: Colors.redAccent, size: 14),
             SizedBox(width: 4),
@@ -261,7 +259,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
                             ),
                             child: const Row(
                               children: [
-                                Text('🪔', style: TextStyle(fontSize: 18)),
+                                Text('??', style: TextStyle(fontSize: 18)),
                                 SizedBox(width: 6),
                                 Text(
                                   'Your Diya is Glowing at the Sanctum',
@@ -316,7 +314,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
                       ..._floatingFlowers.map((pos) => Positioned(
                             bottom: 60,
                             left: MediaQuery.of(context).size.width * pos.dx,
-                            child: const Text('🌸', style: TextStyle(fontSize: 28)),
+                            child: const Text('??', style: TextStyle(fontSize: 28)),
                           )),
                     ],
                   ),
@@ -329,21 +327,21 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
                   child: Row(
                     children: [
                       _actionButton(
-                        icon: '🔔',
+                        icon: '??',
                         label: 'Ring Bell',
                         count: _bellChimes > 0 ? '$_bellChimes' : null,
                         onTap: _ringBell,
                       ),
                       const SizedBox(width: 8),
                       _actionButton(
-                        icon: '🌸',
+                        icon: '??',
                         label: 'Offer Pushpa',
                         count: _flowerCount > 0 ? '$_flowerCount' : null,
                         onTap: _offerFlowers,
                       ),
                       const SizedBox(width: 8),
                       _actionButton(
-                        icon: '🪔',
+                        icon: '??',
                         label: _diyaLit ? 'Diya Lit' : 'Light Diya',
                         highlight: _diyaLit,
                         onTap: _toggleDiya,
@@ -397,7 +395,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
                           );
                         },
                         icon: const Icon(Icons.volunteer_activism_rounded, size: 16),
-                        label: const Text('Offer Chadhava ₹51'),
+                        label: const Text('Offer Chadhava ?51'),
                       ),
                     ],
                   ),
@@ -544,3 +542,4 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     );
   }
 }
+

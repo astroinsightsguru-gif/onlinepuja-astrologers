@@ -89,14 +89,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Talk & Chat with Astrologers',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 16.5,
-                color: isDark ? Colors.white : const Color(0xFF1E293B),
-              ),
-            ),
+            Row(children: [RichText(text: TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: isDark ? Colors.white : const Color(0xFF1E293B), letterSpacing: -0.2)), const TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2))])), const SizedBox(width: 5), const Text('?', style: TextStyle(fontSize: 13))]), const SizedBox(height: 1),
             const Text(
               'Verified Vedic Acharyas & Tarot Readers',
               style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
@@ -1057,3 +1050,4 @@ class _TrustItem extends StatelessWidget {
     );
   }
 }
+

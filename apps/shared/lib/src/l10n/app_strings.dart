@@ -94,7 +94,7 @@ class AppStrings {
 
   static final Map<String, Map<AppLanguage, String>> _translations = {
     'app_title': {
-      AppLanguage.en: 'Online Puja',
+      AppLanguage.en: 'OnlinePuja.live',
       AppLanguage.hi: 'ऑनलाइन पूजा',
       AppLanguage.gu: 'ઓનલાઇન પૂજા',
       AppLanguage.mr: 'ऑनलाइन पूजा',
@@ -325,3 +325,4 @@ class AppStrings {
     },
   };
 }
+

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import '../theme/customer_theme.dart';
 
-import '../widgets/onlinepuja_ai_dialog.dart';
 import 'astrologer/astrologers_screen.dart';
+import 'darshan/live_darshan_screen.dart';
 import 'explore/explore_screen.dart';
 import 'home/consult_home_screen.dart';
+import 'mall/mall_screen.dart';
 import 'profile/profile_screen.dart';
 import 'puja/puja_list_screen.dart';
 
@@ -25,8 +26,8 @@ class MainShellScope extends InheritedWidget {
   bool updateShouldNotify(MainShellScope oldWidget) => false;
 }
 
-/// Luxury sacred navigation shell with 5 footer menus:
-/// 0: Consult (Home) | 1: Puja | 2: Explore | 3: Astrologer | 4: Profile
+/// Luxury sacred navigation shell with 7 scrollable slider footer menus:
+/// 0: Consult | 1: Puja | 2: Astrologers | 3: Live Darshan | 4: Astromall | 5: Explore | 6: Profile
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -38,9 +39,34 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _tab = 0;
+  final ScrollController _navScrollController = ScrollController();
+
+  final List<GlobalKey> _itemKeys = List.generate(7, (_) => GlobalKey());
 
   void _selectTab(int index) {
-    if (mounted) setState(() => _tab = index);
+    if (!mounted) return;
+    setState(() => _tab = index);
+
+    // Auto-scroll the footer slider so the selected tab is comfortably in view
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_navScrollController.hasClients && index < _itemKeys.length) {
+        final currentContext = _itemKeys[index].currentContext;
+        if (currentContext != null) {
+          Scrollable.ensureVisible(
+            currentContext,
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeInOut,
+            alignment: 0.5,
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _navScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,49 +81,14 @@ class _MainShellState extends State<MainShell> {
           children: const [
             ConsultHomeScreen(),
             PujaListScreen(),
-            ExploreScreen(),
             AstrologersScreen(),
+            LiveDarshanScreen(),
+            MallScreen(),
+            ExploreScreen(),
             ProfileScreen(),
           ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: FloatingActionButton.extended(
-            heroTag: 'onlinepuja_ai_fab',
-            elevation: 4,
-            onPressed: () => OnlinePujaAiDialog.show(context),
-            backgroundColor: const Color(0xFFD97706),
-            icon: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFFEF3C7),
-              ),
-              child: const Text('ॐ',
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF78350F))),
-            ),
-            label: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'OnlinePuja AI',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12.5,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                SizedBox(width: 4),
-                Text('✨', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ),
-        ),
+        // Large covering FAB removed - moved to smart top header actions across screens
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             color: isDark ? CustomerTheme.cosmicCardDark : Colors.white,
@@ -111,7 +102,7 @@ class _MainShellState extends State<MainShell> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, -4),
               ),
@@ -119,53 +110,78 @@ class _MainShellState extends State<MainShell> {
           ),
           child: SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: ValueListenableBuilder<AppLanguage>(
-                valueListenable: LocaleManager.instance.currentLanguage,
-                builder: (context, _, _) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+            child: ValueListenableBuilder<AppLanguage>(
+              valueListenable: LocaleManager.instance.currentLanguage,
+              builder: (context, _, _) {
+                return SizedBox(
+                  height: 64,
+                  child: ListView(
+                    controller: _navScrollController,
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     children: [
-                      _navItem(
+                      _sliderItem(
+                        key: _itemKeys[0],
                         index: 0,
                         icon: Icons.auto_awesome_outlined,
                         activeIcon: Icons.auto_awesome_rounded,
                         label: AppStrings.consult,
                         isDark: isDark,
                       ),
-                      _navItem(
+                      _sliderItem(
+                        key: _itemKeys[1],
                         index: 1,
                         icon: Icons.local_fire_department_outlined,
                         activeIcon: Icons.local_fire_department_rounded,
                         label: AppStrings.puja,
                         isDark: isDark,
                       ),
-                      _navItem(
+                      _sliderItem(
+                        key: _itemKeys[2],
                         index: 2,
-                        icon: Icons.explore_outlined,
-                        activeIcon: Icons.explore_rounded,
-                        label: AppStrings.explore,
-                        isDark: isDark,
-                      ),
-                      _navItem(
-                        index: 3,
                         icon: Icons.psychology_outlined,
                         activeIcon: Icons.psychology_rounded,
                         label: AppStrings.astrologers,
                         isDark: isDark,
                       ),
-                      _navItem(
+                      _sliderItem(
+                        key: _itemKeys[3],
+                        index: 3,
+                        icon: Icons.temple_hindu_outlined,
+                        activeIcon: Icons.temple_hindu_rounded,
+                        label: AppStrings.liveDarshan,
+                        isDark: isDark,
+                        badge: "LIVE",
+                      ),
+                      _sliderItem(
+                        key: _itemKeys[4],
                         index: 4,
+                        icon: Icons.storefront_outlined,
+                        activeIcon: Icons.storefront_rounded,
+                        label: AppStrings.astroMall,
+                        isDark: isDark,
+                      ),
+                      _sliderItem(
+                        key: _itemKeys[5],
+                        index: 5,
+                        icon: Icons.explore_outlined,
+                        activeIcon: Icons.explore_rounded,
+                        label: AppStrings.explore,
+                        isDark: isDark,
+                      ),
+                      _sliderItem(
+                        key: _itemKeys[6],
+                        index: 6,
                         icon: Icons.person_outline_rounded,
                         activeIcon: Icons.person_rounded,
                         label: AppStrings.profile,
                         isDark: isDark,
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -173,65 +189,105 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _navItem({
+  Widget _sliderItem({
+    required Key key,
     required int index,
     required IconData icon,
     required IconData activeIcon,
     required String label,
     required bool isDark,
+    String? badge,
   }) {
     final isSelected = _tab == index;
 
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => setState(() => _tab = index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  gradient: isSelected ? CustomerTheme.saffronGradient : null,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: CustomerTheme.brandSaffron
-                                .withValues(alpha: 0.35),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+    return Container(
+      key: key,
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _selectTab(index),
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? CustomerTheme.brandSaffron.withValues(alpha: isDark ? 0.22 : 0.12)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              border: isSelected
+                  ? Border.all(color: CustomerTheme.brandSaffron.withValues(alpha: 0.45), width: 1.2)
+                  : null,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        gradient: isSelected ? CustomerTheme.saffronGradient : null,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: CustomerTheme.brandSaffron.withValues(alpha: 0.35),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        isSelected ? activeIcon : icon,
+                        size: 19,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                      ),
+                    ),
+                    if (badge != null)
+                      Positioned(
+                        top: -3,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                        ]
-                      : null,
+                          child: Text(
+                            badge,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 7.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                child: Icon(
-                  isSelected ? activeIcon : icon,
-                  size: 20,
-                  color: isSelected
-                      ? Colors.white
-                      : (isDark ? Colors.white60 : const Color(0xFF6B7280)),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    color: isSelected
+                        ? CustomerTheme.brandSaffron
+                        : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                    letterSpacing: -0.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                  color: isSelected
-                      ? CustomerTheme.brandSaffron
-                      : (isDark ? Colors.white54 : const Color(0xFF6B7280)),
-                  letterSpacing: -0.1,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
