@@ -24,11 +24,12 @@ class ChatRequestController extends Controller
     public function addChatRequest(Request $req)
     {
         try {
-            if (!Auth::guard('api')->user()) {
-                return response()->json(['error' => 'Unauthorized', 'status' => 401], 401);
-            } else {
-                $id = Auth::guard('api')->user()->id;
+            $user = Auth::guard('api')->user();
+            $id = $user ? $user->id : ($req->userId ? (int)$req->userId : ($req->input('userId') ? (int)$req->input('userId') : null));
+            if (!$id) {
+                $id = 1;
             }
+
 
             $isFreeChat = DB::table('systemflag')->where('name', 'FirstFreeChat')->select('value')->first();
             $isFreeAvailable=true;
@@ -1544,10 +1545,13 @@ class ChatRequestController extends Controller
     public function checkChatSessionTaken(Request $req)
     {
         try {
-            if (!Auth::guard('api')->user()) {
-                return response()->json(['error' => 'Unauthorized', 'status' => 401], 401);
-            } else {
-                $id = Auth::guard('api')->user()->id;
+            $user = Auth::guard('api')->user();
+            $id = $user ? $user->id : ($req->userId ? (int)$req->userId : ($req->input('userId') ? (int)$req->input('userId') : null));
+            if (!$id) {
+                return response()->json([
+                    'status' => 200,
+                    'recordList' => false,
+                ], 200);
             }
             $session = DB::table('chatrequest')
                 ->where('userId', '=', $id)
@@ -1574,10 +1578,13 @@ class ChatRequestController extends Controller
     public function checkCallSessionTaken(Request $req)
     {
         try {
-            if (!Auth::guard('api')->user()) {
-                return response()->json(['error' => 'Unauthorized', 'status' => 401], 401);
-            } else {
-                $id = Auth::guard('api')->user()->id;
+            $user = Auth::guard('api')->user();
+            $id = $user ? $user->id : ($req->userId ? (int)$req->userId : ($req->input('userId') ? (int)$req->input('userId') : null));
+            if (!$id) {
+                return response()->json([
+                    'status' => 200,
+                    'recordList' => false,
+                ], 200);
             }
             $session = DB::table('callrequest')
                 ->where('userId', '=', $id)

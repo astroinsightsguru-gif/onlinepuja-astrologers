@@ -160,17 +160,7 @@ class AstrologerApi {
 
   /// Check if the user already has an open chat with this astrologer
   /// (legacy `checkChatSessionAvailable`).
-  Future<String?> existingChatSession(int astrologerId) async {
-    final decoded = await _api.post('/checkChatSessionAvailable',
-        body: {'astrologerId': astrologerId});
-    if (decoded is Map<String, dynamic>) {
-      final rl = decoded['recordList'];
-      if (rl is Map<String, dynamic> && (rl['chatId'] ?? rl['id']) != null) {
-        return (rl['chatId'] ?? rl['id']).toString();
-      }
-    }
-    return null;
-  }
+  Future<String?> existingChatSession(int astrologerId) async { try { final decoded = await _api.post('/checkChatSessionAvailable', body: {'astrologerId': astrologerId}); if (decoded is Map<String, dynamic>) { final rl = decoded['recordList']; if (rl is Map<String, dynamic> && (rl['chatId'] ?? rl['id']) != null) { return (rl['chatId'] ?? rl['id']).toString(); } } return null; } catch (_) { return null; } }
 
   // ---------------- Call session flow ----------------
 
@@ -393,3 +383,4 @@ class AstrologerApi {
     return '${Env.imageBase}$p';
   }
 }
+

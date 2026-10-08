@@ -249,15 +249,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               AspectRatio(
                 aspectRatio: 16 / 10,
                 child: p.coverImage.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: MiscApi.imageUrl(p.coverImage),
-                        fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => Container(
-                          color: const Color(0xFFFEF3C7),
-                          child: const Icon(Icons.temple_hindu_rounded,
-                              size: 64, color: Color(0xFFD97706)),
-                        ),
-                      )
+                    ? Image.network(MiscApi.imageUrl(p.coverImage), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF78350F), Color(0xFFB45309)], begin: Alignment.topLeft, end: Alignment.bottomRight)), child: const Center(child: Icon(Icons.temple_hindu_rounded, size: 64, color: Colors.white38))))
                     : Container(
                         color: const Color(0xFFFEF3C7),
                         child: const Icon(Icons.temple_hindu_rounded,
@@ -902,3 +894,4 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     );
   }
 }
+
