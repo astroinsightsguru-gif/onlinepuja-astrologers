@@ -1,8 +1,10 @@
-import 'package:provider/provider.dart';
-import '../../../state/app_session.dart';
-import '../profile/wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../state/app_session.dart';
+import '../profile/wallet_screen.dart';
 
 /// Represents a holy charitable cause.
 class SevaCause {
