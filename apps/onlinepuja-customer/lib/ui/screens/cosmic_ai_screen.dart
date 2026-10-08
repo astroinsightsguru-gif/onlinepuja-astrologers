@@ -1,39 +1,76 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
+import 'package:provider/provider.dart';
+import '../../state/app_session.dart';
+import '../theme/customer_theme.dart';
+import 'main_shell.dart';
 
-/// Cosmic AI — free AI astrologer chat. The app talks to the existing backend
-/// proxy `POST /ask-master` (`ApiChatGPTController.askMaster`), which keeps
-/// the provider API key server-side.
-class CosmicAiScreen extends StatefulWidget {
-  const CosmicAiScreen({super.key});
+/// Online Puja Master Vedic AI — High Quality Intelligent Astrology Chatbot
+/// Integrated with Growth OS AI Engine & Master Brain failover chain.
+class OnlinePujaAiScreen extends StatefulWidget {
+  const OnlinePujaAiScreen({super.key});
 
-  static const route = '/cosmic-ai';
+  static const route = '/onlinepuja-ai';
 
   @override
-  State<CosmicAiScreen> createState() => _CosmicAiScreenState();
+  State<OnlinePujaAiScreen> createState() => _OnlinePujaAiScreenState();
 }
+
+/// Backward compatibility alias — merged into unified OnlinePuja AI
+typedef CosmicAiScreen = OnlinePujaAiScreen;
 
 class _AiTurn {
-  _AiTurn(this.text, {required this.mine});
+  _AiTurn(this.text, {required this.mine, this.timestamp, this.suggestions});
   final String text;
   final bool mine;
+  final DateTime? timestamp;
+  final List<String>? suggestions;
 }
 
-class _CosmicAiScreenState extends State<CosmicAiScreen> {
-  final _composer = TextEditingController();
-  final _scroll = ScrollController();
+class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
+  final TextEditingController _composer = TextEditingController();
+  final ScrollController _scroll = ScrollController();
   final List<_AiTurn> _turns = [];
   bool _thinking = false;
   Object? _error;
+  String _selectedTopic = 'All';
 
-  static const _suggestions = [
-    'What does today hold for me?',
-    'Is this a good month to start a business?',
-    'Explain my moon sign in simple words',
-    'Which gemstone suits me?',
+  static const List<Map<String, String>> _modes = [
+    {'id': 'All', 'label': 'Divine Guidance', 'icon': '🕉️'},
+    {'id': 'Kundli', 'label': 'Kundli & Dasha', 'icon': '🪐'},
+    {'id': 'Career', 'label': 'Career & Artha', 'icon': '💼'},
+    {'id': 'Love', 'label': 'Love & Vivah', 'icon': '❤️'},
+    {'id': 'Remedies', 'label': 'Vedic Upay & Puja', 'icon': '🪔'},
+    {'id': 'Health', 'label': 'Swasthya & Peace', 'icon': '🩺'},
   ];
+
+  static const List<String> _initialPrompts = [
+    'What do my planetary transits (Gochar) indicate today?',
+    'Which puja or mantra will remove obstacles in my career?',
+    'Explain my Moon sign & Nakshatra characteristics',
+    'Which sacred gemstone & Rudraksha is auspicious for me?',
+    'Guidance on relationship harmony and Kundli Gun Milan',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Add warm welcome from Master Vedic AI Acharya Vashistha
+    _turns.add(_AiTurn(
+      '🕉️ **हरि ॐ! सादर प्रणाम।**\n\n'
+      'I am **Acharya Vashistha**, your AI Vedic Guide & Astrological Companion powered by the **OnlinePuja.live Vedic AI Engine**.\n\n'
+      'Ask me anything about your **Kundli, Planetary Dashas, Career, Relationships, Gemstones, or Sacred Puja Remedies**. How may I guide you on your spiritual path today?',
+      mine: false,
+      timestamp: DateTime.now(),
+      suggestions: [
+        'Today\'s Graha Gochar prediction',
+        'Suggest an auspicious puja for peace',
+        'Check planetary dosha remedies',
+      ],
+    ));
+  }
 
   @override
   void dispose() {
@@ -45,25 +82,59 @@ class _CosmicAiScreenState extends State<CosmicAiScreen> {
   Future<void> _ask(String text) async {
     final q = text.trim();
     if (q.isEmpty || _thinking) return;
+
+    HapticFeedback.lightImpact();
     _composer.clear();
     setState(() {
-      _turns.add(_AiTurn(q, mine: true));
+      _turns.add(_AiTurn(q, mine: true, timestamp: DateTime.now()));
       _thinking = true;
       _error = null;
     });
     _jump();
+
     try {
-      final decoded = await ApiClient.instance
-          .post('/ask-master', body: {'message': q});
+      AppSession? session;
+      try {
+        session = context.read<AppSession>();
+      } catch (_) {}
+
+      final user = session?.user;
+      final lang = LocaleManager.instance.currentLanguage.value.code;
+
+      final body = {
+        'message': q,
+        'language': lang,
+        'mode': _selectedTopic,
+        if (user != null)
+          'context': {
+            'name': user.name,
+            'birthDate': user.birthDate,
+            'birthPlace': user.birthPlace,
+          },
+      };
+
+      final decoded = await ApiClient.instance.post('/ask-master', body: body);
+
       final dynamic rl = (decoded is Map<String, dynamic>) ? decoded['recordList'] : null;
       final answer = (rl is Map<String, dynamic> ? rl['reply'] : null) ??
-          (decoded is Map<String, dynamic> ? (decoded['reply'] ?? decoded['message'] ?? decoded['answer']) : null) ??
+          (decoded is Map<String, dynamic> ? (decoded['message'] ?? decoded['reply'] ?? decoded['answer']) : null) ??
           decoded?.toString() ??
           '';
+
+      final cleanAnswer = answer.toString().trim();
+      final replyText = cleanAnswer.isEmpty
+          ? '🕉️ Pranam. The planetary energies are aligning. Please ask your divine inquiry again.'
+          : cleanAnswer;
+
       if (!mounted) return;
       setState(() {
         _thinking = false;
-        _turns.add(_AiTurn(answer.toString().trim().isEmpty ? 'Pranam. The cosmic energies are aligning. Please ask again.' : answer.toString().trim(), mine: false));
+        _turns.add(_AiTurn(
+          replyText,
+          mine: false,
+          timestamp: DateTime.now(),
+          suggestions: _generateDynamicFollowUps(q),
+        ));
       });
       _jump();
     } catch (e) {
@@ -72,218 +143,333 @@ class _CosmicAiScreenState extends State<CosmicAiScreen> {
           _thinking = false;
           _error = e;
         });
+        _jump();
       }
     }
+  }
+
+  List<String> _generateDynamicFollowUps(String query) {
+    final lq = query.toLowerCase();
+    if (lq.contains('career') || lq.contains('job') || lq.contains('business') || lq.contains('money')) {
+      return [
+        'Which day is auspicious for career interviews?',
+        'Suggest remedies for financial prosperity',
+        'Recommend a Kubera or Lakshmi Puja',
+      ];
+    }
+    if (lq.contains('love') || lq.contains('marriage') || lq.contains('relationship') || lq.contains('match')) {
+      return [
+        'How does Venus (Shukra) influence my chart?',
+        'Remedies for Mangal / Manglik dosha',
+        'Suggest puja for marital bliss',
+      ];
+    }
+    return [
+      'Which gemstone or Rudraksha suits me?',
+      'Suggest a sacred havan for peace & health',
+      'Tell me today\'s most auspicious Choghadiya',
+    ];
   }
 
   void _jump() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
-        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
 
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    HapticFeedback.mediumImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Vedic advice copied to clipboard 🕉️'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Cosmic AI · ✨')),
-      body: Column(
-        children: [
-          Expanded(
-            child: _turns.isEmpty
-                ? ListView(
-                    padding: const EdgeInsets.all(20),
+      backgroundColor: isDark ? const Color(0xFF0F0B1E) : const Color(0xFFFBF8F2),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF1B132E) : Colors.white,
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: CustomerTheme.goldGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: CustomerTheme.brandGold.withValues(alpha: 0.4),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: const CircleAvatar(
+                radius: 18,
+                backgroundColor: Color(0xFF451A03),
+                child: Text('ॐ', style: TextStyle(color: Color(0xFFFDE68A), fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
                     children: [
-                      const SizedBox(height: 24),
-                      Icon(Icons.auto_awesome, size: 56, color: scheme.primary),
-                      const SizedBox(height: 12),
-                      Text('Ask the cosmos anything',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Free AI astrologer. For personal guidance, chat with a '
-                        'human astrologer in the Consult tab.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: scheme.outline),
+                      Flexible(
+                        child: Text(
+                          'OnlinePuja AI',
+                          style: TextStyle(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : const Color(0xFF1E293B),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      const SizedBox(height: 24),
-                      Text('Popular Inquiries',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: scheme.primary,
-                              )),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          for (final s in _suggestions)
-                            ActionChip(
-                              avatar: const Icon(Icons.auto_awesome, size: 14),
-                              label: Text(s),
-                              onPressed: () => _ask(s),
-                            ),
-                        ],
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD97706),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'GROWTH OS',
+                          style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.w900, color: Colors.white),
+                        ),
                       ),
                     ],
-                  )
-                : _error != null
-                    ? (_error.toString().contains('403') || _error.toString().contains('logged in'))
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.lock_person_rounded, size: 54, color: scheme.primary),
-                                  const SizedBox(height: 14),
-                                  Text(
-                                    'Login Required',
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Please log in to consult the cosmic AI astrologer with personalized charts.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: scheme.outline, fontSize: 13),
-                                  ),
-                                  const SizedBox(height: 18),
-                                  FilledButton.icon(
-                                    onPressed: () => Navigator.of(context).pushNamed('/login'),
-                                    icon: const Icon(Icons.login_rounded, size: 18),
-                                    label: const Text('Log In with Phone'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : StatusViews.error(context, _error!, onRetry: () {
-                            setState(() => _error = null);
-                          })
-                    : ListView.builder(
-                        controller: _scroll,
-                        padding: const EdgeInsets.all(14),
-                        itemCount: _turns.length + (_thinking ? 1 : 0) + (_turns.length >= 2 ? 1 : 0),
-                        itemBuilder: (context, i) {
-                          if (i == _turns.length && _thinking) {
-                            return const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              ),
-                            );
-                          }
-                          if (i >= _turns.length) {
-                            // Smart Astrologer Consultation Card
-                            return Container(
-                              margin: const EdgeInsets.only(top: 14, bottom: 8),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: scheme.primaryContainer.withValues(alpha: 0.35),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: scheme.primary.withValues(alpha: 0.3)),
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: scheme.primary,
-                                    child: const Icon(Icons.support_agent, color: Colors.white, size: 20),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Want deeper Vedic insights?',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: scheme.onSurface)),
-                                        const SizedBox(height: 2),
-                                        Text('Consult live verified astrologers for personalized remedies.',
-                                            style: TextStyle(fontSize: 12, color: scheme.outline)),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  FilledButton.tonal(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Consult', style: TextStyle(fontSize: 12)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                          return _bubble(context, _turns[i]);
-                        },
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-          ),
-          if (_turns.isNotEmpty && !_thinking)
-            Container(
-              height: 38,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  for (final prompt in [
-                    '❤️ Love & Marriage',
-                    '💼 Career & Wealth',
-                    '🩺 Health & Peace',
-                    '🔮 Lucky Gemstone',
-                    '✨ Remedies for me',
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ActionChip(
-                        avatar: const Icon(Icons.auto_awesome, size: 13),
-                        label: Text(prompt, style: const TextStyle(fontSize: 12)),
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        onPressed: () => _ask(prompt),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Acharya Vashistha • 24/7 Vedic Intelligence',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
                 ],
               ),
             ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Clear Chat',
+            onPressed: () {
+              setState(() {
+                _turns.clear();
+                _turns.add(_AiTurn(
+                  '🕉️ **सादर प्रणाम।** New consultation started. How may I assist your astrological chart now?',
+                  mine: false,
+                  timestamp: DateTime.now(),
+                ));
+              });
+            },
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(44),
+          child: Container(
+            height: 44,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF171026) : const Color(0xFFF9F5EC),
+              border: Border(
+                bottom: BorderSide(
+                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                ),
+              ),
+            ),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              itemCount: _modes.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (context, i) {
+                final m = _modes[i];
+                final selected = _selectedTopic == m['id'];
+                return InkWell(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _selectedTopic = m['id']!);
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      gradient: selected ? CustomerTheme.saffronGradient : null,
+                      color: selected
+                          ? null
+                          : isDark
+                              ? const Color(0xFF241A3E)
+                              : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: selected
+                            ? Colors.transparent
+                            : isDark
+                                ? Colors.white12
+                                : Colors.black.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(m['icon']!, style: const TextStyle(fontSize: 12)),
+                        const SizedBox(width: 5),
+                        Text(
+                          m['label']!,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            color: selected
+                                ? Colors.white
+                                : isDark
+                                    ? Colors.white70
+                                    : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scroll,
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+              itemCount: _turns.length + (_thinking ? 1 : 0),
+              itemBuilder: (context, i) {
+                if (i == _turns.length && _thinking) {
+                  return _buildThinkingBubble(isDark);
+                }
+                return _buildTurnBubble(context, _turns[i], isDark);
+              },
+            ),
+          ),
+
+          // Quick prompt chips
+          if (!_thinking)
+            Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                itemCount: _initialPrompts.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  final prompt = _initialPrompts[i];
+                  return ActionChip(
+                    avatar: const Icon(Icons.auto_awesome, size: 12, color: Color(0xFFD97706)),
+                    label: Text(prompt, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                    backgroundColor: isDark ? const Color(0xFF23193D) : Colors.white,
+                    side: BorderSide(color: isDark ? Colors.white12 : const Color(0xFFE5E7EB)),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    onPressed: () => _ask(prompt),
+                  );
+                },
+              ),
+            ),
+
+          // Composer Input Bar
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1B132E) : Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
+              ),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _composer,
-                      minLines: 1,
-                      maxLines: 4,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: _ask,
-                      decoration: const InputDecoration(
-                          hintText: 'Ask about love, career, health…'),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF281E45) : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.08),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        controller: _composer,
+                        minLines: 1,
+                        maxLines: 4,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: _ask,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black87,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Ask your astrological or puja question…',
+                          hintStyle: TextStyle(
+                            color: isDark ? Colors.white38 : Colors.black38,
+                            fontSize: 13.5,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: scheme.primary,
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: CustomerTheme.saffronGradient,
+                    ),
                     child: IconButton(
-                      icon: const Icon(Icons.send_rounded,
-                          color: Colors.white, size: 20),
+                      icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                       onPressed: () => _ask(_composer.text),
                     ),
                   ),
@@ -296,182 +482,288 @@ class _CosmicAiScreenState extends State<CosmicAiScreen> {
     );
   }
 
-  Widget _bubble(BuildContext context, _AiTurn t) {
-    final scheme = Theme.of(context).colorScheme;
+  Widget _buildThinkingBubble(bool isDark) {
     return Align(
-      alignment: t.mine ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.88),
         decoration: BoxDecoration(
-          color: t.mine
-              ? AppTheme.brandSaffron
-              : scheme.surface,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomLeft: Radius.circular(t.mine ? 18 : 4),
-            bottomRight: Radius.circular(t.mine ? 4 : 18),
-          ),
-          border: t.mine
-              ? null
-              : Border.all(color: scheme.outline.withValues(alpha: 0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+          color: isDark ? const Color(0xFF23193D) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFD97706).withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD97706)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Acharya Vashistha is reading the Vedic planetary positions…',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+              ),
             ),
           ],
         ),
-        child: _buildFormattedMessage(context, t.text, scheme, t.mine),
       ),
     );
   }
 
-  Widget _buildFormattedMessage(BuildContext context, String text, ColorScheme scheme, bool isMine) {
-    if (isMine) {
-      return Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.35, fontWeight: FontWeight.w500),
+  Widget _buildTurnBubble(BuildContext context, _AiTurn turn, bool isDark) {
+    if (turn.mine) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: CustomerTheme.saffronGradient,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(18),
+              topRight: Radius.circular(18),
+              bottomLeft: Radius.circular(18),
+              bottomRight: Radius.circular(4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFD97706).withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Text(
+            turn.text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       );
     }
 
+    // AI Turn (Acharya Vashistha)
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.92),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1F1735) : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(4),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+          border: Border.all(
+            color: isDark ? const Color(0xFF4C1D95).withValues(alpha: 0.5) : const Color(0xFFFDE68A),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top author header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF281E45) : const Color(0xFFFFFBEB),
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(18),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Text('🕉️', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Acharya Vashistha',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, size: 15),
+                    tooltip: 'Copy Guidance',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    color: isDark ? Colors.white60 : Colors.black45,
+                    onPressed: () => _copyToClipboard(turn.text),
+                  ),
+                ],
+              ),
+            ),
+
+            // Message text body
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: _renderFormattedSpiritualText(turn.text, isDark),
+            ),
+
+            // Deep Action CTAs (Consult Human Pandit / Book Puja)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        side: const BorderSide(color: Color(0xFFD97706)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        MainShellScope.of(context)?.selectTab(2); // Astrologers tab
+                      },
+                      icon: const Icon(Icons.phone_in_talk_rounded, size: 15, color: Color(0xFFD97706)),
+                      label: const Text('Live Astrologer', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF92400E),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        MainShellScope.of(context)?.selectTab(1); // Puja tab
+                      },
+                      icon: const Icon(Icons.local_fire_department_rounded, size: 15, color: Colors.white),
+                      label: const Text('Book Puja Upay', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Dynamic follow-up chips if present
+            if (turn.suggestions != null && turn.suggestions!.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: turn.suggestions!.map((s) {
+                    return InkWell(
+                      onTap: () => _ask(s),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF281E45) : const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.chat_bubble_outline_rounded, size: 11, color: Color(0xFFD97706)),
+                            const SizedBox(width: 5),
+                            Text(
+                              s,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _renderFormattedSpiritualText(String text, bool isDark) {
     final lines = text.split('\n');
-    final List<Widget> widgets = [];
-    final numberedRegex = RegExp(r'^(\d+[\.\)])\s*(.*)');
+    final List<Widget> list = [];
 
-    for (int i = 0; i < lines.length; i++) {
-      final line = lines[i].trim();
+    for (final raw in lines) {
+      final line = raw.trim();
       if (line.isEmpty) {
-        widgets.add(const SizedBox(height: 6));
-        continue;
-      }
-
-      if (line == '---' || line == '***') {
-        widgets.add(Divider(
-          height: 18,
-          thickness: 1,
-          color: scheme.outline.withValues(alpha: 0.2),
-        ));
+        list.add(const SizedBox(height: 6));
         continue;
       }
 
       if (line.startsWith('### ') || line.startsWith('## ') || line.startsWith('# ')) {
-        final headingText = line.replaceFirst(RegExp(r'^#+\s*'), '');
-        widgets.add(Padding(
+        final title = line.replaceFirst(RegExp(r'^#+\s*'), '');
+        list.add(Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 4),
           child: Text(
-            headingText,
-            style: const TextStyle(
-              fontSize: 15,
+            title,
+            style: TextStyle(
+              fontSize: 14.5,
               fontWeight: FontWeight.w800,
-              color: AppTheme.brandDeep,
-              height: 1.25,
+              color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
             ),
           ),
         ));
-        continue;
-      }
-
-      if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
-        final bulletContent = line.replaceFirst(RegExp(r'^[-*•]\s*'), '');
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '• ',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: scheme.primary,
-                ),
-              ),
-              Expanded(
-                child: _buildInlineMarkdown(bulletContent, scheme),
-              ),
-            ],
+      } else if (line.startsWith('1.') || line.startsWith('2.') || line.startsWith('3.') || line.startsWith('4.')) {
+        list.add(Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Text(
+            line,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : Colors.black87,
+              height: 1.4,
+            ),
           ),
         ));
-        continue;
-      }
-
-      final numberMatch = numberedRegex.firstMatch(line);
-      if (numberMatch != null) {
-        final numPrefix = numberMatch.group(1)!;
-        final restContent = numberMatch.group(2)!;
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$numPrefix ',
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.bold,
-                  color: scheme.primary,
-                ),
-              ),
-              Expanded(
-                child: _buildInlineMarkdown(restContent, scheme),
-              ),
-            ],
+      } else {
+        list.add(Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            line.replaceAll('**', ''),
+            style: TextStyle(
+              fontSize: 13.5,
+              color: isDark ? Colors.white70 : const Color(0xFF374151),
+              height: 1.45,
+            ),
           ),
         ));
-        continue;
       }
-
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: _buildInlineMarkdown(line, scheme),
-      ));
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: widgets,
-    );
-  }
-
-  Widget _buildInlineMarkdown(String text, ColorScheme scheme) {
-    final spans = <TextSpan>[];
-    final regex = RegExp(r'\*\*(.*?)\*\*');
-    int lastIndex = 0;
-
-    for (final match in regex.allMatches(text)) {
-      if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: text.substring(lastIndex, match.start),
-          style: TextStyle(color: scheme.onSurface, fontSize: 13.5, height: 1.4),
-        ));
-      }
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: TextStyle(
-          color: scheme.onSurface,
-          fontWeight: FontWeight.bold,
-          fontSize: 13.5,
-          height: 1.4,
-        ),
-      ));
-      lastIndex = match.end;
-    }
-
-    if (lastIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastIndex),
-        style: TextStyle(color: scheme.onSurface, fontSize: 13.5, height: 1.4),
-      ));
-    }
-
-    return RichText(
-      text: TextSpan(children: spans),
+      children: list,
     );
   }
 }

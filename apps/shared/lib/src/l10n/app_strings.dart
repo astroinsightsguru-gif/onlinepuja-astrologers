@@ -97,7 +97,8 @@ class AppStrings {
   static String get kundliMatching => tr('kundli_matching');
   static String get panchang => tr('panchang');
   static String get horoscope => tr('horoscope');
-  static String get cosmicAi => tr('cosmic_ai');
+  static String get onlinePujaAi => tr('online_puja_ai');
+  static String get cosmicAi => onlinePujaAi;
   static String get japaMala => tr('japa_mala');
   static String get mySankalp => tr('my_sankalp');
   static String get choghadiyaRadar => tr('choghadiya_radar');
@@ -385,15 +386,25 @@ class AppStrings {
       AppLanguage.te: 'రాశిఫలాలు',
       AppLanguage.kn: 'ರಾಶಿಫಲ',
     },
+    'online_puja_ai': {
+      AppLanguage.en: 'OnlinePuja AI',
+      AppLanguage.hi: 'ऑनलाइन पूजा AI गुरु',
+      AppLanguage.gu: 'ઓનલાઇન પૂજા AI ગુરુ',
+      AppLanguage.mr: 'ऑनलाइन पूजा AI गुरू',
+      AppLanguage.bn: 'অনলাইন পূজা এআই গুরু',
+      AppLanguage.ta: 'ஆன்லைன் பூஜை AI',
+      AppLanguage.te: 'ఆన్‌లైన్ పూజ AI',
+      AppLanguage.kn: 'ಆನ್‌ಲೈನ್ ಪೂಜೆ AI',
+    },
     'cosmic_ai': {
-      AppLanguage.en: 'Cosmic AI',
-      AppLanguage.hi: 'कॉस्मिक AI गुरु',
-      AppLanguage.gu: 'કોસ્મિક AI ગુરુ',
-      AppLanguage.mr: 'कॉस्मिक AI गुरू',
-      AppLanguage.bn: 'কসমিক এআই গুরু',
-      AppLanguage.ta: 'காஸ்மிக் AI',
-      AppLanguage.te: 'కాస్మిక్ AI',
-      AppLanguage.kn: 'ಕಾಸ್ಮಿಕ್ AI',
+      AppLanguage.en: 'OnlinePuja AI',
+      AppLanguage.hi: 'ऑनलाइन पूजा AI गुरु',
+      AppLanguage.gu: 'ઓનલાઇન પૂજા AI ગુરુ',
+      AppLanguage.mr: 'ऑनलाइन पूजा AI गुरू',
+      AppLanguage.bn: 'অনলাইন পূজা এআই গুরু',
+      AppLanguage.ta: 'ஆன்லைன் பூஜை AI',
+      AppLanguage.te: 'ఆన్‌లైన్ పూజ AI',
+      AppLanguage.kn: 'ಆನ್‌ಲೈನ್ ಪೂಜೆ AI',
     },
     'japa_mala': {
       AppLanguage.en: 'Japa Mala',

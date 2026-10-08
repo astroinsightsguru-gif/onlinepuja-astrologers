@@ -59,7 +59,8 @@ class OnlinePujaApp extends StatelessWidget {
         KundliMatchingScreen.route: (_) => const KundliMatchingScreen(),
         PujaListScreen.route: (_) => const PujaListScreen(),
         MallScreen.route: (_) => const MallScreen(),
-        CosmicAiScreen.route: (_) => const CosmicAiScreen(),
+        OnlinePujaAiScreen.route: (_) => const OnlinePujaAiScreen(),
+        CosmicAiScreen.route: (_) => const OnlinePujaAiScreen(),
         BlogScreen.route: (_) => const BlogScreen(),
       },
       onGenerateRoute: (settings) {

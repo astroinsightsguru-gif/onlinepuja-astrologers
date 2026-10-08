@@ -252,12 +252,12 @@ class ExploreScreen extends StatelessWidget {
                     screen: const MallScreen(),
                   ),
                   _FeatureItem(
-                    title: 'Cosmic AI Guru',
-                    subtitle: '24/7 Instant Vedic AI companion',
+                    title: 'OnlinePuja AI',
+                    subtitle: 'Acharya Vashistha • 24/7 Vedic Astrologer',
                     icon: Icons.auto_awesome,
-                    badge: 'FREE AI',
+                    badge: 'INTELLIGENT AI',
                     gradient: const [Color(0xFF8B5CF6), Color(0xFF4C1D95)],
-                    screen: const CosmicAiScreen(),
+                    screen: const OnlinePujaAiScreen(),
                   ),
                   _FeatureItem(
                     title: 'Vedic Blogs',

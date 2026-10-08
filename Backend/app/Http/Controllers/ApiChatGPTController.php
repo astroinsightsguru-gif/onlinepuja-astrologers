@@ -10,91 +10,107 @@ use Illuminate\Http\Request;
 
 class ApiChatGPTController extends Controller
 {
-    protected ;
+    protected AiEngineService $aiEngine;
 
-    public function __construct(AiEngineService )
+    public function __construct(AiEngineService $aiEngine)
     {
-        ->aiEngine = ;
+        $this->aiEngine = $aiEngine;
     }
 
-    public function ask(Request )
+    public function ask(Request $request)
     {
-         = ->validate([
+        $validated = $request->validate([
             'message' => 'required|string',
             'astrologerId' => 'nullable'
         ]);
 
-         = Auth::guard('api')->user();
-         =  ? [
-            'name'       => ->name,
-            'birthDate'  => ->birthDate,
-            'birthPlace' => ->birthPlace,
+        $user = Auth::guard('api')->user();
+        $context = $user ? [
+            'name'       => $user->name,
+            'birthDate'  => $user->birthDate,
+            'birthPlace' => $user->birthPlace,
         ] : null;
 
-         = ->aiEngine->generateText(['message'], null, );
+        $response = $this->aiEngine->generateText($validated['message'], null, $context);
 
         return response()->json([
-            'message' => ,
+            'message' => $response,
             'status'  => 200,
         ], 200);
     }
 
-    public function askMaster(Request )
+    public function askMaster(Request $request)
     {
-         = ->validate([
+        $validated = $request->validate([
             'message' => 'required|string',
+            'context' => 'nullable|array',
+            'language' => 'nullable|string',
         ]);
 
-         = Auth::guard('api')->user();
-         =  ? [
-            'name'       => ->name,
-            'birthDate'  => ->birthDate,
-            'birthPlace' => ->birthPlace,
-        ] : null;
+        $user = Auth::guard('api')->user();
+        $context = $validated['context'] ?? ($user ? [
+            'name'       => $user->name,
+            'birthDate'  => $user->birthDate,
+            'birthPlace' => $user->birthPlace,
+            'gender'     => $user->gender ?? null,
+        ] : null);
 
-         = null;
+        $systemPrompt = "You are Acharya Vashistha, the Divine Master Vedic Astrologer and Spiritual AI for OnlinePuja.live. "
+            . "You have deep mastery over Parashari Jyotish, Jaimini Sutras, KP System, Prashna Kundli, Vedic Vastu, and Panchang. "
+            . "Your goal is to provide deeply empathetic, authentic, respectful Vedic astrological answers. "
+            . "Structure your response with: "
+            . "1. 🕉️ Mangal Shloka / Vedic Greeting (Pranam / Om Tat Sat). "
+            . "2. 🪐 Planetary Analysis / Graha Dasha breakdown (Sun, Moon, Jupiter, Saturn, Rahu/Ketu). "
+            . "3. 💡 Divine Clarity & Practical Guidance on love, career, wealth, health, or family. "
+            . "4. 🪔 Vedic Upay / Remedies (Mantra japa, auspicious gemstones, Rudraksha, sacred puja/havan recommendations on OnlinePuja.live). "
+            . "Always speak in a divine, reverent, and uplifting tone. Respond in the language used by the user (Hindi, English, or regional language).";
+
         try {
-             = AiAstrologer::where('type', 'master')->value('system_intruction');
-        } catch (\Exception ) {}
+            $dbPrompt = AiAstrologer::where('type', 'master')->value('system_intruction');
+            if (!empty($dbPrompt)) {
+                $systemPrompt = $dbPrompt . "\n" . $systemPrompt;
+            }
+        } catch (\Throwable $e) {}
 
-         = ->aiEngine->generateText(
-            ['message'],
-            ,
-            
+        $reply = $this->aiEngine->generateText(
+            $validated['message'],
+            $systemPrompt,
+            $context
         );
 
         return response()->json([
-            'message' => ,
+            'message' => $reply,
             'status'  => 200,
+            'master_name' => 'Acharya Vashistha (Master Vedic AI)',
         ], 200);
     }
 
-    public function generateImage(Request )
+    public function generateImage(Request $request)
     {
-         = ->validate([
+        $validated = $request->validate([
             'prompt' => 'required|string',
             'size'   => 'nullable|string',
         ]);
 
-         = ->aiEngine->generateImage(['prompt'], ['size'] ?? '1024x1024');
+        $result = $this->aiEngine->generateImage($validated['prompt'], 'photorealistic', '1:1');
 
-        return response()->json(, ['success'] ? 200 : 500);
+        return response()->json($result, (!empty($result['success']) && $result['success']) ? 200 : 500);
     }
 
-    public function generateVideo(Request )
+    public function generateVideo(Request $request)
     {
-         = ->validate([
+        $validated = $request->validate([
             'prompt'    => 'required|string',
             'image_url' => 'nullable|url',
             'duration'  => 'nullable|integer',
         ]);
 
-         = ->aiEngine->generateVideo(
-            ['prompt'],
-            ['image_url'] ?? null,
-            ['duration'] ?? 5
+        $result = $this->aiEngine->generateVideo(
+            $validated['prompt'],
+            $validated['image_url'] ?? null,
+            $validated['duration'] ?? 5
         );
 
-        return response()->json(, ['success'] ? 200 : 500);
+        return response()->json($result, (!empty($result['success']) && $result['success']) ? 200 : 500);
     }
 }
