@@ -156,22 +156,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 18),
 
-          // Rates & Pricing Strip
-          const Text(
-            'Consultation Tariff Rates',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          // Rates & Pricing Strip Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Consultation Tariff Rates',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => _showRatesEditor(context, session),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: PartnerTheme.saffron.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: PartnerTheme.saffron.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.tune_rounded, size: 14, color: PartnerTheme.saffron),
+                      SizedBox(width: 4),
+                      Text(
+                        'Set Rates',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                          color: PartnerTheme.saffron,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              _rateCard('Audio Call', '₹35/min', Icons.call_rounded,
-                  PartnerTheme.emerald, dark),
+              _rateCard(
+                'Audio Call',
+                '₹${(u?.charge ?? 25).toInt()}/min',
+                Icons.call_rounded,
+                PartnerTheme.emerald,
+                dark,
+                onTap: () => _showRatesEditor(context, session),
+              ),
               const SizedBox(width: 8),
-              _rateCard('Video Call', '₹50/min', Icons.videocam_rounded,
-                  PartnerTheme.purple, dark),
+              _rateCard(
+                'Video Call',
+                '₹${(u?.videoCallRate ?? 50).toInt()}/min',
+                Icons.videocam_rounded,
+                PartnerTheme.purple,
+                dark,
+                onTap: () => _showRatesEditor(context, session),
+              ),
               const SizedBox(width: 8),
-              _rateCard('Chat Session', '₹25/min', Icons.chat_bubble_rounded,
-                  PartnerTheme.saffron, dark),
+              _rateCard(
+                'Chat Session',
+                '₹${(u?.charge ?? 25).toInt()}/min',
+                Icons.chat_bubble_rounded,
+                PartnerTheme.saffron,
+                dark,
+                onTap: () => _showRatesEditor(context, session),
+              ),
+              const SizedBox(width: 8),
+              _rateCard(
+                'Report',
+                '₹${(u?.reportRate ?? 199).toInt()}',
+                Icons.description_rounded,
+                PartnerTheme.amber,
+                dark,
+                onTap: () => _showRatesEditor(context, session),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -342,7 +403,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          // App Language Selector (15 Indian Languages)
+          PartnerCard(
+            padding: const EdgeInsets.all(16),
+            child: ValueListenableBuilder<AppLanguage>(
+              valueListenable: LocaleManager.instance.currentLanguage,
+              builder: (context, lang, _) {
+                return Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: PartnerTheme.saffron.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.translate_rounded,
+                          color: PartnerTheme.saffron, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'App Language / भाषा',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${lang.label} (${lang.englishName}) • 15 Indian Languages',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: dark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () => LanguagePickerSheet.show(context),
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        side: BorderSide(
+                          color: PartnerTheme.saffron.withValues(alpha: 0.5),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Change',
+                        style: TextStyle(
+                          color: PartnerTheme.saffron,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 14),
 
           // Appearance Theme Switcher
           PartnerCard(
@@ -486,41 +612,406 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _rateCard(
-      String title, String rate, IconData icon, Color color, bool dark) {
+    String title,
+    String rate,
+    IconData icon,
+    Color color,
+    bool dark, {
+    VoidCallback? onTap,
+  }) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(height: 6),
-            Text(
-              rate,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
-            const SizedBox(height: 2),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: dark ? Colors.white60 : Colors.black54,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(height: 6),
+                Text(
+                  rate,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                    color: dark ? Colors.white60 : Colors.black54,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  void _showRatesEditor(BuildContext context, PartnerSession session) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final u = session.user;
+    final chatCtrl =
+        TextEditingController(text: (u?.charge ?? 25).toInt().toString());
+    final audioCtrl =
+        TextEditingController(text: (u?.charge ?? 25).toInt().toString());
+    final videoCtrl =
+        TextEditingController(text: (u?.videoCallRate ?? 50).toInt().toString());
+    final reportCtrl =
+        TextEditingController(text: (u?.reportRate ?? 199).toInt().toString());
+    final emerCtrl = TextEditingController(
+        text: (u?.emergencyAudioCharge ?? 70).toInt().toString());
+    bool acceptEmergency = u?.emergencyCallStatus ?? false;
+    bool saving = false;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+              ),
+              decoration: BoxDecoration(
+                color: dark ? PartnerTheme.darkSurface : Colors.white,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border.all(
+                  color:
+                      dark ? PartnerTheme.darkBorder : const Color(0xFFE2D9CC),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 44,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: PartnerTheme.luxuryGold,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.currency_rupee_rounded,
+                              size: 18, color: Colors.white),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Set Consultation Tariffs',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                'Manage what devotees pay per minute of consultation',
+                                style:
+                                    TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _rateInput(
+                            'Audio Call Rate',
+                            audioCtrl,
+                            '₹/min',
+                            Icons.call_rounded,
+                            PartnerTheme.emerald,
+                            dark,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _rateInput(
+                            'Video Call Rate',
+                            videoCtrl,
+                            '₹/min',
+                            Icons.videocam_rounded,
+                            PartnerTheme.purple,
+                            dark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _rateInput(
+                            'Chat Session Rate',
+                            chatCtrl,
+                            '₹/min',
+                            Icons.chat_bubble_rounded,
+                            PartnerTheme.saffron,
+                            dark,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _rateInput(
+                            'Detailed Report Fee',
+                            reportCtrl,
+                            '₹/order',
+                            Icons.description_rounded,
+                            PartnerTheme.amber,
+                            dark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            dark ? PartnerTheme.darkBg : const Color(0xFFF9F6F0),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: dark
+                              ? PartnerTheme.darkBorder
+                              : const Color(0xFFE5DDD0),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Emergency Off-Hours Rate',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                Text(
+                                  'Accept urgent sessions when offline at premium tariff',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    color:
+                                        dark ? Colors.white60 : Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: acceptEmergency,
+                            activeThumbColor: Colors.white,
+                            activeTrackColor: PartnerTheme.saffron,
+                            onChanged: (v) =>
+                                setModalState(() => acceptEmergency = v),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (acceptEmergency) ...[
+                      const SizedBox(height: 10),
+                      _rateInput(
+                        'Emergency Surcharge Rate',
+                        emerCtrl,
+                        '₹/min',
+                        Icons.bolt_rounded,
+                        PartnerTheme.crimson,
+                        dark,
+                      ),
+                    ],
+                    const SizedBox(height: 22),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: PartnerTheme.saffronGradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow:
+                            PartnerTheme.glow(PartnerTheme.saffron, blur: 12),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: saving
+                              ? null
+                              : () async {
+                                  setModalState(() => saving = true);
+                                  try {
+                                    final chat = double.tryParse(
+                                            chatCtrl.text.trim()) ??
+                                        25;
+                                    final audio = double.tryParse(
+                                            audioCtrl.text.trim()) ??
+                                        25;
+                                    final video = double.tryParse(
+                                            videoCtrl.text.trim()) ??
+                                        50;
+                                    final report = double.tryParse(
+                                            reportCtrl.text.trim()) ??
+                                        199;
+                                    final emer = double.tryParse(
+                                            emerCtrl.text.trim()) ??
+                                        70;
+
+                                    await session.updateRates(
+                                      charge: chat,
+                                      audioCallRate: audio,
+                                      videoCallRate: video,
+                                      reportRate: report,
+                                      emergencyAudioCharge: emer,
+                                      emergencyChatCharge: emer,
+                                      emergencyVideoCharge: emer * 1.3,
+                                      emergencyCallStatus: acceptEmergency,
+                                      emergencyChatStatus: acceptEmergency,
+                                    );
+                                    if (sheetCtx.mounted) {
+                                      Navigator.pop(sheetCtx);
+                                      showSnack(context,
+                                          'Tariff rates updated successfully!');
+                                    }
+                                  } catch (e) {
+                                    if (sheetCtx.mounted) {
+                                      showSnack(
+                                          context, 'Failed to update rates: $e',
+                                          error: true);
+                                    }
+                                  } finally {
+                                    if (sheetCtx.mounted) {
+                                      setModalState(() => saving = false);
+                                    }
+                                  }
+                                },
+                          child: Center(
+                            child: saving
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                              Colors.white),
+                                    ),
+                                  )
+                                : const Text(
+                                    'SAVE TARIFF RATES',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13.5,
+                                      letterSpacing: 0.6,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _rateInput(
+    String label,
+    TextEditingController ctrl,
+    String suffix,
+    IconData icon,
+    Color color,
+    bool dark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: color, size: 18),
+            suffixText: suffix,
+            suffixStyle:
+                const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            filled: true,
+            fillColor: dark ? PartnerTheme.darkBg : const Color(0xFFF7F5F0),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: dark ? PartnerTheme.darkBorder : const Color(0xFFE2D9CC),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: dark ? PartnerTheme.darkBorder : const Color(0xFFE2D9CC),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: color, width: 1.6),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

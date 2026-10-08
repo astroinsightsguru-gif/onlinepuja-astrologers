@@ -256,6 +256,20 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
             ),
             onPressed: _showClientInfoSheet,
           ),
+          // Suggest Remedy / Puja
+          IconButton(
+            tooltip: 'Prescribe Puja / Remedy',
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: PartnerTheme.saffron.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.temple_hindu_rounded,
+                  color: PartnerTheme.saffron, size: 18),
+            ),
+            onPressed: _showRemedyPujaSheet,
+          ),
           // End Consultation Button
           IconButton(
             tooltip: 'End Session',
@@ -448,6 +462,12 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
                                   ),
                                 ),
                                 IconButton(
+                                  icon: const Icon(Icons.temple_hindu_rounded,
+                                      size: 20, color: PartnerTheme.saffron),
+                                  tooltip: 'Prescribe Puja Remedy',
+                                  onPressed: _showRemedyPujaSheet,
+                                ),
+                                IconButton(
                                   icon: const Icon(Icons.auto_awesome,
                                       size: 20, color: PartnerTheme.amber),
                                   tooltip: 'AI Remedies',
@@ -496,6 +516,106 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   Widget _bubble(BuildContext context, ChatMessage m, bool dark) {
     final mine = m.isMine;
+    final isRemedy = m.text.contains('[Vedic Remedy Recommendation]');
+
+    if (isRemedy) {
+      return Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.all(14),
+          constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.82),
+          decoration: BoxDecoration(
+            color: dark ? const Color(0xFF2A1C10) : const Color(0xFFFFF8ED),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: PartnerTheme.gold.withValues(alpha: 0.7),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: PartnerTheme.saffron.withValues(alpha: 0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      gradient: PartnerTheme.saffronGradient,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.temple_hindu_rounded,
+                        color: Colors.white, size: 14),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'VEDIC REMEDY PRESCRIBED',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.8,
+                        color: PartnerTheme.saffron,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: PartnerTheme.emerald.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'Dispatched',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: PartnerTheme.emerald,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                m.text.replaceAll('🌸 [Vedic Remedy Recommendation]: ', ''),
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                  color: dark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.check_circle_rounded,
+                      size: 13, color: PartnerTheme.emerald),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Recorded in devotee Puja & Sankalp vault',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: dark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -541,6 +661,41 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
     );
   }
 
+  void _showRemedyPujaSheet() {
+    final session = context.read<PartnerSession>();
+    final astroId = session.user?.id ?? 1;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _RemedyPujaPickerSheet(
+        astrologerId: astroId,
+        customerId: widget.customerId,
+        customerName: widget.customerName,
+        sessionId: _sessionId,
+        onDispatched: (pujaTitle, price) {
+          final priceText = price != null ? ' (₹ $price)' : '';
+          final text =
+              '🌸 [Vedic Remedy Recommendation]: $pujaTitle$priceText is prescribed for your planetary dosha / life alignment. Tap remedies in app to book sankalp.';
+          setState(() {
+            _messages = [
+              ..._messages,
+              ChatMessage(
+                sessionId: _sessionId ?? 'chat',
+                fromUserId: astroId.toString(),
+                text: text,
+                sentAt: DateTime.now(),
+                isMine: true,
+              ),
+            ];
+          });
+          _fetch(forceScroll: true);
+        },
+      ),
+    );
+  }
+
   void _showClientInfoSheet() {
     showModalBottomSheet(
       context: context,
@@ -569,6 +724,379 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet dialog for pandits to browse authentic pujas and prescribe
+/// remedies directly into the client's consultation stream.
+class _RemedyPujaPickerSheet extends StatefulWidget {
+  const _RemedyPujaPickerSheet({
+    required this.astrologerId,
+    required this.customerId,
+    required this.customerName,
+    this.sessionId,
+    required this.onDispatched,
+  });
+
+  final int astrologerId;
+  final int customerId;
+  final String customerName;
+  final String? sessionId;
+  final void Function(String title, dynamic price) onDispatched;
+
+  @override
+  State<_RemedyPujaPickerSheet> createState() => _RemedyPujaPickerSheetState();
+}
+
+class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
+  final _searchCtrl = TextEditingController();
+  late Future<List<Map<String, dynamic>>> _future;
+  String _query = '';
+  int? _dispatchingId;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = PartnerApi.instance.astrologerPujaList(
+      astrologerId: widget.astrologerId,
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _dispatch(Map<String, dynamic> puja) async {
+    final id = puja['id'];
+    if (id == null) return;
+    setState(() => _dispatchingId = id is int ? id : int.tryParse(id.toString()));
+
+    try {
+      await PartnerApi.instance.sendPujaToUser(
+        astrologerId: widget.astrologerId,
+        userId: widget.customerId,
+        pujaId: _dispatchingId!,
+        sessionId: widget.sessionId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        widget.onDispatched(
+          puja['puja_title']?.toString() ?? 'Vedic Puja',
+          puja['puja_price'],
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Prescribed "${puja['puja_title']}" to ${widget.customerName}!',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: PartnerTheme.emerald,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _dispatchingId = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final bg = dark ? PartnerTheme.darkSurface : Colors.white;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, -6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: PartnerTheme.saffronGradient,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(Icons.temple_hindu_rounded,
+                    color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Prescribe Puja & Remedies',
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Recommend sacred Vedic remedies to ${widget.customerName}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: dark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close_rounded),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Search Filter Field
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: dark ? PartnerTheme.darkCard : const Color(0xFFF6F2E9),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: dark
+                    ? PartnerTheme.darkBorder
+                    : const Color(0xFFE5DDD0),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.search_rounded,
+                    size: 20, color: Colors.grey),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+                    decoration: const InputDecoration(
+                      hintText: 'Search Maha Mrityunjaya, Navgrah, etc...',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                if (_query.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _searchCtrl.clear();
+                      setState(() => _query = '');
+                    },
+                    child: const Icon(Icons.clear_rounded, size: 18),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Pujas List
+          Expanded(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _future,
+              builder: (context, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return StatusViews.loading(context);
+                }
+                if (snap.hasError) {
+                  return StatusViews.error(context, snap.error!);
+                }
+                final list = snap.data ?? const [];
+                final filtered = list.where((p) {
+                  final title = p['puja_title']?.toString().toLowerCase() ?? '';
+                  final place = p['puja_place']?.toString().toLowerCase() ?? '';
+                  return title.contains(_query) || place.contains(_query);
+                }).toList();
+
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.search_off_rounded,
+                            size: 40, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text(
+                          'No pujas match "$_query"',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, ___) => const SizedBox(height: 10),
+                  itemBuilder: (context, i) {
+                    final item = filtered[i];
+                    final title = item['puja_title']?.toString() ?? 'Puja';
+                    final place = item['puja_place']?.toString() ?? 'Sacred Temple';
+                    final price = item['puja_price'];
+                    final duration = item['puja_duration']?.toString() ?? '45';
+                    final id = item['id'];
+                    final isDispatching = _dispatchingId == id;
+
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: dark ? PartnerTheme.darkCard : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: dark
+                              ? PartnerTheme.darkBorder
+                              : const Color(0xFFEAE2D5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              gradient: PartnerTheme.saffronGradient,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.temple_hindu_rounded,
+                                  color: Colors.white, size: 22),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on_outlined,
+                                        size: 13,
+                                        color: dark
+                                            ? Colors.white60
+                                            : Colors.black54),
+                                    const SizedBox(width: 2),
+                                    Expanded(
+                                      child: Text(
+                                        place,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          color: dark
+                                              ? Colors.white60
+                                              : Colors.black54,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Text(
+                                      price != null ? '₹ $price · ${duration}m' : '${duration}m',
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: PartnerTheme.amber,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: PartnerTheme.saffron,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: isDispatching ? null : () => _dispatch(item),
+                            child: isDispatching
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Text(
+                                    'Prescribe',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

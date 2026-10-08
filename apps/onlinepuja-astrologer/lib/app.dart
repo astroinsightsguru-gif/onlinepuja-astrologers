@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'state/app_session.dart';
 import 'ui/screens/auth/login_screen.dart';
 import 'ui/screens/auth/otp_screen.dart';
+import 'ui/screens/auth/partner_register_screen.dart';
 import 'ui/screens/call/call_session_screen.dart';
 import 'ui/screens/chat/chat_session_screen.dart';
 import 'ui/screens/home/home_shell.dart';
@@ -30,6 +31,7 @@ class OnlinePujaPartnerApp extends StatelessWidget {
         SplashScreen.route: (_) => const SplashScreen(),
         LoginScreen.route: (_) => const LoginScreen(),
         OtpScreen.route: (_) => const OtpScreen(),
+        PartnerRegisterScreen.route: (_) => const PartnerRegisterScreen(),
         HomeShell.route: (_) => const HomeShell(),
         OrdersFulfillmentScreen.route: (_) => const OrdersFulfillmentScreen(),
         ProfileScreen.route: (_) => const ProfileScreen(),

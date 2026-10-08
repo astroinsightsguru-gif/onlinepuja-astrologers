@@ -10,6 +10,8 @@ import '../../widgets/partner_widgets.dart';
 class PartnerRegisterScreen extends StatefulWidget {
   const PartnerRegisterScreen({super.key});
 
+  static const route = '/register';
+
   @override
   State<PartnerRegisterScreen> createState() => _PartnerRegisterScreenState();
 }

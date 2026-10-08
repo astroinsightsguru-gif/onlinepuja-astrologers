@@ -85,6 +85,94 @@ class PartnerSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update consultation tariff rates and emergency pricing
+  Future<void> updateRates({
+    double? charge,
+    double? audioCallRate,
+    double? videoCallRate,
+    double? reportRate,
+    double? emergencyChatCharge,
+    double? emergencyAudioCharge,
+    double? emergencyVideoCharge,
+    bool? emergencyChatStatus,
+    bool? emergencyCallStatus,
+  }) async {
+    await PartnerApi.instance.updateRates(
+      astrologerId: astrologerId,
+      charge: charge,
+      audioCallRate: audioCallRate,
+      videoCallRate: videoCallRate,
+      reportRate: reportRate,
+      emergencyChatCharge: emergencyChatCharge,
+      emergencyAudioCharge: emergencyAudioCharge,
+      emergencyVideoCharge: emergencyVideoCharge,
+      emergencyChatStatus: emergencyChatStatus,
+      emergencyCallStatus: emergencyCallStatus,
+    );
+    if (user != null) {
+      if (charge != null) user!.charge = charge;
+      if (videoCallRate != null) user!.videoCallRate = videoCallRate;
+      if (reportRate != null) user!.reportRate = reportRate;
+      if (emergencyChatCharge != null) {
+        user!.emergencyChatCharge = emergencyChatCharge;
+      }
+      if (emergencyAudioCharge != null) {
+        user!.emergencyAudioCharge = emergencyAudioCharge;
+      }
+      if (emergencyVideoCharge != null) {
+        user!.emergencyVideoCharge = emergencyVideoCharge;
+      }
+      if (emergencyChatStatus != null) {
+        user!.emergencyChatStatus = emergencyChatStatus;
+      }
+      if (emergencyCallStatus != null) {
+        user!.emergencyCallStatus = emergencyCallStatus;
+      }
+      await SessionStore.instance.saveUser(user!);
+    }
+    notifyListeners();
+  }
+
+  /// Update astrologer Bank & UPI payout KYC account details.
+  Future<void> updateBankDetails({
+    required int astrologerId,
+    String? bankName,
+    String? accountNumber,
+    String? accountHolderName,
+    String? ifscCode,
+    String? bankBranch,
+    String? accountType,
+    String? upi,
+    String? pancardNo,
+    String? aadharNo,
+  }) async {
+    await PartnerApi.instance.updateBankDetails(
+      astrologerId: astrologerId,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      accountHolderName: accountHolderName,
+      ifscCode: ifscCode,
+      bankBranch: bankBranch,
+      accountType: accountType,
+      upi: upi,
+      pancardNo: pancardNo,
+      aadharNo: aadharNo,
+    );
+    if (user != null) {
+      if (bankName != null) user!.bankName = bankName;
+      if (accountNumber != null) user!.accountNumber = accountNumber;
+      if (accountHolderName != null) user!.accountHolderName = accountHolderName;
+      if (ifscCode != null) user!.ifscCode = ifscCode;
+      if (bankBranch != null) user!.bankBranch = bankBranch;
+      if (accountType != null) user!.accountType = accountType;
+      if (upi != null) user!.upi = upi;
+      if (pancardNo != null) user!.pancardNo = pancardNo;
+      if (aadharNo != null) user!.aadharNo = aadharNo;
+      await SessionStore.instance.saveUser(user!);
+    }
+    notifyListeners();
+  }
+
   /// Refresh profile + wallet.
   Future<void> refreshUser() async {
     final id = user?.id;

@@ -206,6 +206,9 @@ Route::post('astrologer/setDiscountPrice', [AstrologerController::class, 'setDis
 //Astrologer
 Route::post('astrologer/add', [AstrologerController::class, 'addAstrologer']);
 Route::post('astrologer/update', [AstrologerController::class, 'updateAstrologer']);
+Route::post('astrologer/updateRates', [AstrologerController::class, 'updateRates']);
+Route::post('astrologer/updateStatus', [AstrologerController::class, 'updateStatus']);
+Route::post('astrologer/updateBankDetails', [AstrologerController::class, 'updateBankDetails']);
 Route::post('getAstrologer', [AstrologerController::class, 'getAstrologer']);
 Route::post('getCounsellor', [AstrologerController::class, 'getCounsellor']);
 Route::post('astrologer/delete', [AstrologerController::class, 'deleteAstrologer']);
@@ -372,6 +375,8 @@ Route::post('chatRequest/getIntakeForm', [ChatRequestController::class, 'getUser
 Route::post('checkChatSessionAvailable', [ChatRequestController::class, 'checkChatSessionTaken'])->name('api.checkChatSessionTaken');
 Route::post('checkCallSessionAvailable', [ChatRequestController::class, 'checkCallSessionTaken'])->name('api.checkCallSessionTaken');
 Route::post('checkFreeSessionAvailable', [ChatRequestController::class, 'checkFreeSessionAvailable']);
+Route::post('sessionChat/add', [ChatRequestController::class, 'addSessionChatMessage']);
+Route::post('sessionChat/get', [ChatRequestController::class, 'getSessionChatMessages']);
 
 // For toptup
 Route::post('updatechatMinute', [ChatRequestController::class, 'updatechatMinute'])->name('api.updatechatMinute');

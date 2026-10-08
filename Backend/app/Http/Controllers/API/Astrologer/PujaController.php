@@ -17,14 +17,24 @@ class PujaController extends Controller
 {
     public function astrologerPujaList(Request $request)
     {
-       
         try {
-            $pujas = Puja::where('astrologerId', $request->astrologerId)
-            ->where('created_by', 'astrologer')
-            ->where('puja_start_datetime', '>', Carbon::now())
+            $astroId = $request->input('astrologerId') ?? $request->astrologerId;
+            $pujas = Puja::where(function($q) use ($astroId) {
+                if ($astroId) {
+                    $q->where('astrologerId', $astroId);
+                }
+                $q->orWhere('created_by', 'admin')
+                  ->orWhereNull('created_by')
+                  ->orWhere('isAdminApproved', 'Approved');
+            })
+            ->where(function($q) {
+                $q->whereNull('puja_start_datetime')
+                  ->orWhere('puja_start_datetime', '>=', Carbon::now()->subDays(1));
+            })
             ->select('id', 'puja_title', 'puja_place', 'puja_price', 'long_description', 'puja_start_datetime', 'puja_end_datetime', 'isAdminApproved', 'puja_images', 'puja_duration')
             ->orderBy('id', 'DESC')
             ->get();
+
             return response()->json([
                 'recordList' => $pujas,
                 'status' => 200,
@@ -36,7 +46,6 @@ class PujaController extends Controller
                 'status' => 500,
             ], 500);
         }
-
     }
 
     public function addAstrologerPuja(Request $request)
@@ -204,50 +213,55 @@ class PujaController extends Controller
                 return response()->json(['error' => $validator->messages(), 'status' => 400], 400);
             }
 
-            $puja = Puja::where('id', $request->puja_id)
-            ->where('astrologerId', $request->astrologerId)
-            ->where('created_by','astrologer')
-            ->firstOrFail();
-        
-            if($puja){
-                if($puja->isAdminApproved !="Approved"){
-                    return response()->json([
-                        "status" => 400,
-                        "message" => 'Puja is not approved from admin',
-                    ],400);
-                }
+            $puja = Puja::where('id', $request->puja_id)->first();
+            if (!$puja) {
+                return response()->json([
+                    "status" => 404,
+                    "message" => 'Puja not found',
+                ], 404);
+            }
 
-                if (Carbon::parse($puja->puja_start_datetime)->lte(Carbon::now())) {
-                    return response()->json([
-                        "status" => 400,
-                        "message" => 'Puja start date/time must be in the future.',
-                    ], 400);
-                }
+            if ($puja->isAdminApproved == "Rejected") {
+                return response()->json([
+                    "status" => 400,
+                    "message" => 'Puja is not active',
+                ], 400);
+            }
 
-                $existingPuja = DB::table('user_pujarequest_by_astrologers')
+            $existingPuja = DB::table('user_pujarequest_by_astrologers')
                 ->where('astrologerId', $request->astrologerId)
                 ->where('userId', $request->userId)
                 ->where('puja_id', $request->puja_id)
                 ->first();
 
-                if ($existingPuja) {
-                    return response()->json([
-                    "status" => 400,
-                        'message' => 'This puja is already suggested to user.'
-                    ],400);
-                }
-
+            if (!$existingPuja) {
                 $pujaData = [
                     'astrologerId' => $request->astrologerId, 
                     'puja_id' => $request->puja_id,
                     'userId' => $request->userId,
-                    'puja_start_datetime' => $puja->puja_start_datetime,
-                    'puja_end_datetime' => $puja->puja_end_datetime,
+                    'puja_start_datetime' => $puja->puja_start_datetime ?? Carbon::now()->addDays(2),
+                    'puja_end_datetime' => $puja->puja_end_datetime ?? Carbon::now()->addDays(3),
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ];
-
                 DB::table('user_pujarequest_by_astrologers')->insert($pujaData);
+            }
+
+            // Post into session_chats if active session
+            $sessionId = $request->input('sessionId') ?? $request->sessionId;
+            $priceText = $puja->puja_price ? ' (₹ ' . (int)$puja->puja_price . ')' : '';
+            $msgText = "🌸 [Vedic Remedy Recommendation]: " . $puja->puja_title . $priceText . " is prescribed for your planetary dosha / life alignment. Tap remedies in app to book sankalp.";
+            if ($sessionId) {
+                try {
+                    DB::table('session_chats')->insert([
+                        'sessionId' => (string)$sessionId,
+                        'fromUserId' => (string)$request->astrologerId,
+                        'message' => $msgText,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                } catch (\Throwable $e) {/* best-effort */}
+            }
 
                 $userDeviceDetail = DB::table('user_device_details as device')
                 ->JOIN('users', 'users.id', '=', 'device.userId')
@@ -282,16 +296,10 @@ class PujaController extends Controller
                         DB::table('user_notifications')->insert($notification);
                 }
 
-                return response()->json([
-                    "status" => 200,
-                    "message" => 'Puja sent successfully',
-                ]);
-            }else{
-                return response()->json([
-                    "status" => 400,
-                    "message" => 'No Puja Found',
-                ],400);
-            }
+            return response()->json([
+                "status" => 200,
+                "message" => 'Puja sent successfully',
+            ]);
         } catch (\Exception$e) {
             return response()->json([
                 'error' => false,

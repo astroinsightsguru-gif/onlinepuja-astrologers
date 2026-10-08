@@ -1874,4 +1874,69 @@ class ChatRequestController extends Controller
        return response()->json(['message' => 'Chat request not found.'], 404);
    }
 
+    // Add consultation session message (REST backend chat store)
+    public function addSessionChatMessage(Request $req)
+    {
+        try {
+            $sessionId = $req->input('sessionId') ?? $req->sessionId;
+            $fromUserId = $req->input('fromUserId') ?? $req->fromUserId;
+            $message = $req->input('message') ?? $req->message;
+            $attachment = $req->input('attachment') ?? $req->attachment;
+
+            if (!$sessionId || !$message) {
+                return response()->json(['status' => 400, 'message' => 'sessionId and message required'], 400);
+            }
+
+            $id = DB::table('session_chats')->insertGetId([
+                'sessionId' => (string)$sessionId,
+                'fromUserId' => (string)$fromUserId,
+                'message' => (string)$message,
+                'attachment' => $attachment,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Message sent successfully',
+                'recordList' => [
+                    'id' => $id,
+                    'sessionId' => $sessionId,
+                    'fromUserId' => $fromUserId,
+                    'message' => $message,
+                    'created_at' => Carbon::now()->toIso8601String(),
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // Retrieve consultation session messages
+    public function getSessionChatMessages(Request $req)
+    {
+        try {
+            $sessionId = $req->input('sessionId') ?? $req->sessionId;
+            $startIndex = (int)($req->input('startIndex') ?? $req->startIndex ?? 0);
+            $fetchRecord = (int)($req->input('fetchRecord') ?? $req->fetchRecord ?? 100);
+
+            if (!$sessionId) {
+                return response()->json(['status' => 200, 'recordList' => []], 200);
+            }
+
+            $messages = DB::table('session_chats')
+                ->where('sessionId', (string)$sessionId)
+                ->orderBy('id', 'asc')
+                ->skip($startIndex)
+                ->take($fetchRecord)
+                ->get();
+
+            return response()->json([
+                'status' => 200,
+                'recordList' => $messages,
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

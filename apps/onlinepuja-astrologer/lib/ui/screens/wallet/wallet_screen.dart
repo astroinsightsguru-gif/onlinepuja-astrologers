@@ -234,6 +234,114 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 const SizedBox(height: 22),
 
+                // Linked Bank & UPI Account Card
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Linked Bank & UPI Account',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                    ),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: PartnerTheme.saffron,
+                      ),
+                      icon: const Icon(Icons.edit_rounded, size: 14),
+                      label: const Text('Edit / Update',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      onPressed: () => _openBankDetailsEditorSheet(context, session),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                PartnerCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: PartnerTheme.emerald.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.account_balance_rounded,
+                                color: PartnerTheme.emerald, size: 24),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  session.user?.bankName?.isNotEmpty == true
+                                      ? session.user!.bankName!
+                                      : 'Bank Account Not Linked',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  session.user?.accountNumber?.isNotEmpty == true
+                                      ? 'A/C: ••••••${session.user!.accountNumber!.length > 4 ? session.user!.accountNumber!.substring(session.user!.accountNumber!.length - 4) : session.user!.accountNumber} · IFSC: ${session.user?.ifscCode ?? "N/A"}'
+                                      : 'Tap edit to add your bank account & IFSC',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: dark ? Colors.white60 : Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: session.user?.accountNumber?.isNotEmpty == true
+                                  ? PartnerTheme.emerald.withValues(alpha: 0.12)
+                                  : Colors.orange.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              session.user?.accountNumber?.isNotEmpty == true ? 'Active' : 'Pending',
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: session.user?.accountNumber?.isNotEmpty == true
+                                    ? PartnerTheme.emerald
+                                    : Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (session.user?.upi?.isNotEmpty == true) ...[
+                        const SizedBox(height: 12),
+                        const Divider(height: 1),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Icon(Icons.qr_code_2_rounded,
+                                size: 16, color: PartnerTheme.saffron),
+                            const SizedBox(width: 8),
+                            Text(
+                              'UPI ID: ${session.user!.upi!}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
                 // Payout Methods
                 const Text(
                   'Configured Payout Methods',
@@ -591,6 +699,304 @@ class _WalletScreenState extends State<WalletScreen> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+      ),
+    );
+  }
+
+  void _openBankDetailsEditorSheet(BuildContext context, PartnerSession session) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final bg = dark ? PartnerTheme.darkSurface : Colors.white;
+
+    final nameCtrl = TextEditingController(text: session.user?.accountHolderName ?? session.user?.name ?? '');
+    final bankCtrl = TextEditingController(text: session.user?.bankName ?? '');
+    final acctCtrl = TextEditingController(text: session.user?.accountNumber ?? '');
+    final ifscCtrl = TextEditingController(text: session.user?.ifscCode ?? '');
+    final branchCtrl = TextEditingController(text: session.user?.bankBranch ?? '');
+    final upiCtrl = TextEditingController(text: session.user?.upi ?? '');
+    final panCtrl = TextEditingController(text: session.user?.pancardNo ?? '');
+
+    bool saving = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.88,
+            ),
+            padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottomInset),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: PartnerTheme.saffronGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.account_balance_rounded,
+                          color: Colors.white, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Payout Bank & UPI Account',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Earnings will disburse to this verified account',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                const Text('Account Holder Full Name',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Acharya Ramesh Sharma',
+                    filled: true,
+                    fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text('Bank Name',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: bankCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. State Bank of India, HDFC Bank',
+                    filled: true,
+                    fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Account Number',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: acctCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: '00000000000',
+                              filled: true,
+                              fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('IFSC Code',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: ifscCtrl,
+                            textCapitalization: TextCapitalization.characters,
+                            decoration: InputDecoration(
+                              hintText: 'SBIN0001234',
+                              filled: true,
+                              fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('UPI ID (Instant Payout)',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: upiCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'name@upi or 9876543210@paytm',
+                              filled: true,
+                              fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('PAN Card Number',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: panCtrl,
+                            textCapitalization: TextCapitalization.characters,
+                            decoration: InputDecoration(
+                              hintText: 'ABCDE1234F',
+                              filled: true,
+                              fillColor: dark ? PartnerTheme.darkCard : const Color(0xFFF7F4EC),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 22),
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    gradient: PartnerTheme.saffronGradient,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: PartnerTheme.glow(PartnerTheme.saffron, blur: 8),
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final acct = acctCtrl.text.trim();
+                            final ifsc = ifscCtrl.text.trim();
+                            if (acct.isEmpty && upiCtrl.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please enter an Account Number or UPI ID')),
+                              );
+                              return;
+                            }
+                            setModalState(() => saving = true);
+                            try {
+                              await session.updateBankDetails(
+                                astrologerId: session.user?.id ?? 1,
+                                accountHolderName: nameCtrl.text.trim(),
+                                bankName: bankCtrl.text.trim(),
+                                accountNumber: acct,
+                                ifscCode: ifsc.toUpperCase(),
+                                bankBranch: branchCtrl.text.trim(),
+                                upi: upiCtrl.text.trim(),
+                                pancardNo: panCtrl.text.trim().toUpperCase(),
+                              );
+                              if (mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Payout account details saved successfully!'),
+                                    backgroundColor: PartnerTheme.emerald,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                setModalState(() => saving = false);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Save failed: $e'), backgroundColor: Colors.red),
+                                );
+                              }
+                            }
+                          },
+                    child: saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Save Payout Details',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

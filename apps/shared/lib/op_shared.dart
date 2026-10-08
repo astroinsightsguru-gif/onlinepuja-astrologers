@@ -34,4 +34,5 @@ export 'src/widgets/brand.dart';
 export 'src/widgets/incoming_call_dialog.dart';
 export 'src/widgets/consultation_feedback_dialog.dart';
 export 'src/widgets/ai_copilot_card.dart';
+export 'src/widgets/language_picker_sheet.dart';
 

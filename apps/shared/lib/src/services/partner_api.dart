@@ -26,18 +26,54 @@ class PartnerApi {
     return null;
   }
 
-  /// Flip chat/call availability (legacy `astrologer/update` with the
-  /// astrologer profile payload). Only the changed fields are sent.
+  /// Flip chat/call availability via lightweight endpoint.
   Future<void> setStatus({
     required int astrologerId,
     String? chatStatus,
     String? callStatus,
   }) async {
-    await _api.post('/astrologer/update', body: {
-      'id': astrologerId,
-      'chatStatus': ?chatStatus,
-      'callStatus': ?callStatus,
+    await _api.post('/astrologer/updateStatus', body: {
+      'astrologerId': astrologerId,
+      if (chatStatus != null) 'chatStatus': chatStatus,
+      if (callStatus != null) 'callStatus': callStatus,
     });
+  }
+
+  /// Update astrologer consultation rates & emergency pricing.
+  Future<Map<String, dynamic>?> updateRates({
+    required int astrologerId,
+    double? charge,
+    double? audioCallRate,
+    double? videoCallRate,
+    double? reportRate,
+    double? emergencyChatCharge,
+    double? emergencyAudioCharge,
+    double? emergencyVideoCharge,
+    bool? emergencyChatStatus,
+    bool? emergencyCallStatus,
+  }) async {
+    final decoded = await _api.post('/astrologer/updateRates', body: {
+      'astrologerId': astrologerId,
+      if (charge != null) 'charge': charge,
+      if (audioCallRate != null) 'audioCallRate': audioCallRate,
+      if (videoCallRate != null) 'videoCallRate': videoCallRate,
+      if (reportRate != null) 'reportRate': reportRate,
+      if (emergencyChatCharge != null)
+        'emergency_chat_charge': emergencyChatCharge,
+      if (emergencyAudioCharge != null)
+        'emergency_audio_charge': emergencyAudioCharge,
+      if (emergencyVideoCharge != null)
+        'emergency_video_charge': emergencyVideoCharge,
+      if (emergencyChatStatus != null)
+        'emergencyChatStatus': emergencyChatStatus ? 1 : 0,
+      if (emergencyCallStatus != null)
+        'emergencyCallStatus': emergencyCallStatus ? 1 : 0,
+    });
+    if (decoded is Map<String, dynamic>) {
+      final rl = decoded['recordList'];
+      if (rl is Map<String, dynamic>) return rl;
+    }
+    return null;
   }
 
   /// Incoming chat requests (legacy `chatRequest/get`).
@@ -137,4 +173,55 @@ class PartnerApi {
         'report': reportText,
         'reportFile': fileUrl,
       });
+
+  /// Update astrologer Bank and UPI payout KYC details.
+  Future<Map<String, dynamic>> updateBankDetails({
+    required int astrologerId,
+    String? bankName,
+    String? accountNumber,
+    String? accountHolderName,
+    String? ifscCode,
+    String? bankBranch,
+    String? accountType,
+    String? upi,
+    String? pancardNo,
+    String? aadharNo,
+  }) async {
+    final decoded = await _api.post('/astrologer/updateBankDetails', body: {
+      'astrologerId': astrologerId,
+      if (bankName != null) 'bankName': bankName,
+      if (accountNumber != null) 'accountNumber': accountNumber,
+      if (accountHolderName != null) 'accountHolderName': accountHolderName,
+      if (ifscCode != null) 'ifscCode': ifscCode,
+      if (bankBranch != null) 'bankBranch': bankBranch,
+      if (accountType != null) 'accountType': accountType,
+      if (upi != null) 'upi': upi,
+      if (pancardNo != null) 'pancardNo': pancardNo,
+      if (aadharNo != null) 'aadharNo': aadharNo,
+    });
+    if (decoded is Map<String, dynamic>) {
+      final rl = decoded['recordList'];
+      if (rl is Map<String, dynamic>) return rl;
+    }
+    return const {};
+  }
+
+  /// Recommend a Vedic Puja / Remedy to a client during or after consultation.
+  Future<bool> sendPujaToUser({
+    required int astrologerId,
+    required int userId,
+    required int pujaId,
+    String? sessionId,
+  }) async {
+    final decoded = await _api.post('/sendPujatoUser', body: {
+      'astrologerId': astrologerId,
+      'userId': userId,
+      'puja_id': pujaId,
+      if (sessionId != null) 'sessionId': sessionId,
+    });
+    if (decoded is Map<String, dynamic>) {
+      return decoded['status'] == 200 || decoded['status'] == true;
+    }
+    return false;
+  }
 }

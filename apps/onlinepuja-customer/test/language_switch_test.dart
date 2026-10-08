@@ -68,6 +68,41 @@ void main() {
     LocaleManager.instance.setLanguage(AppLanguage.kn);
     expect(AppStrings.freeKundli, 'ಉಚಿತ ಕುಂಡಲಿ');
     expect(AppStrings.kundliMatching, 'ಗುಣ ಮಿಲನ');
+
+    // Sanskrit verification
+    LocaleManager.instance.setLanguage(AppLanguage.sa);
+    expect(AppStrings.consult, 'परामर्शः');
+    expect(AppStrings.freeKundli, 'निःशुल्क कुण्डली');
+
+    // Malayalam verification
+    LocaleManager.instance.setLanguage(AppLanguage.ml);
+    expect(AppStrings.consult, 'കൂടിയാലോചന');
+    expect(AppStrings.freeKundli, 'സൗജന്യ ജാതകം');
+
+    // Odia verification
+    LocaleManager.instance.setLanguage(AppLanguage.or);
+    expect(AppStrings.consult, 'ପରାମର୍ଶ');
+    expect(AppStrings.freeKundli, 'ମାଗଣା କୁଣ୍ଡଳୀ');
+
+    // Punjabi verification
+    LocaleManager.instance.setLanguage(AppLanguage.pa);
+    expect(AppStrings.consult, 'ਸਲਾਹ ਲਵੋ');
+    expect(AppStrings.freeKundli, 'ਮੁਫ਼ਤ ਕੁੰਡਲੀ');
+
+    // Assamese verification
+    LocaleManager.instance.setLanguage(AppLanguage.as_);
+    expect(AppStrings.consult, 'পৰামৰ্শ');
+    expect(AppStrings.freeKundli, 'বিনামূলীয়া কুণ্ডলী');
+
+    // Bhojpuri verification
+    LocaleManager.instance.setLanguage(AppLanguage.bho);
+    expect(AppStrings.consult, 'सलाह लीं');
+    expect(AppStrings.freeKundli, 'मुफ्त कुण्डली');
+
+    // Maithili verification
+    LocaleManager.instance.setLanguage(AppLanguage.mai);
+    expect(AppStrings.consult, 'विमर्श');
+    expect(AppStrings.freeKundli, 'मुफ्त कुण्डली');
   });
 
   testWidgets('Widgets bound to LocaleManager reactively update when language switches',
