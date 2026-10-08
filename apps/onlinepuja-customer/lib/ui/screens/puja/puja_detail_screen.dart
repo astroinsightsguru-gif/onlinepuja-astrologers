@@ -219,19 +219,19 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   ),
                   elevation: 2,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'PARTICIPATE',
-                      style: TextStyle(
+                      AppStrings.participate,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Icon(Icons.arrow_forward_rounded, size: 18),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_rounded, size: 18),
                   ],
                 ),
               ),
@@ -432,14 +432,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
 
                 if (packages.isNotEmpty) ...[
                   // 3. Select Package (Sri Mandir interactive cards)
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.card_giftcard_rounded,
+                      const Icon(Icons.card_giftcard_rounded,
                           size: 20, color: Color(0xFFD97706)),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        'Choose Your Puja Package',
-                        style: TextStyle(
+                        AppStrings.choosePackage,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF1E293B),
@@ -476,14 +476,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.auto_stories_rounded,
+                            const Icon(Icons.auto_stories_rounded,
                                 size: 18, color: Color(0xFFD97706)),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
-                              'Significance & Vidhi',
-                              style: TextStyle(
+                              AppStrings.significanceVidhi,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF1E293B),
@@ -519,14 +519,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.stars_rounded,
+                            const Icon(Icons.stars_rounded,
                                 size: 18, color: Color(0xFFD97706)),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
-                              'Divine Blessings & Benefits',
-                              style: TextStyle(
+                              AppStrings.divineBenefits,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF92400E),

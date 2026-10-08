@@ -76,17 +76,20 @@ class _MainShellState extends State<MainShell> {
     return MainShellScope(
       selectTab: _selectTab,
       child: Scaffold(
-        body: IndexedStack(
-          index: _tab,
-          children: const [
-            ConsultHomeScreen(),
-            PujaListScreen(),
-            AstrologersScreen(),
-            LiveDarshanScreen(),
-            MallScreen(),
-            ExploreScreen(),
-            ProfileScreen(),
-          ],
+        body: ValueListenableBuilder<AppLanguage>(
+          valueListenable: LocaleManager.instance.currentLanguage,
+          builder: (context, _, __) => IndexedStack(
+            index: _tab,
+            children: const [
+              ConsultHomeScreen(),
+              PujaListScreen(),
+              AstrologersScreen(),
+              LiveDarshanScreen(),
+              MallScreen(),
+              ExploreScreen(),
+              ProfileScreen(),
+            ],
+          ),
         ),
         // Large covering FAB removed - moved to smart top header actions across screens
         bottomNavigationBar: Container(

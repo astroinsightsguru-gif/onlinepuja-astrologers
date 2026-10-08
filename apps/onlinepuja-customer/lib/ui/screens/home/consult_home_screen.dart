@@ -402,7 +402,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Search verified astrologers, pujas, kundli…',
+                      AppStrings.searchPlaceholder,
                       style: TextStyle(
                         color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 13,
@@ -424,16 +424,16 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xFFFDE68A)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("🕉️ ", style: TextStyle(fontSize: 10)),
+                  const Text("🕉️ ", style: TextStyle(fontSize: 10)),
                   Flexible(
                     child: Text(
-                      "Today's Shubh Muhurat: Amrit Kaal Active",
+                      AppStrings.shubhMuhuratActive,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF92400E),
@@ -609,14 +609,14 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
   /// Clean, 4x2 Curated Vedic Sanctum Grid (Zero horizontal clutter)
   Widget _curatedVedicGrid(BuildContext context, ColorScheme scheme, bool isDark) {
     final tools = [
-      ('Free Kundli', Icons.auto_graph_rounded, const Color(0xFFFFEBEE), const Color(0xFFC62828), const KundliListScreen()),
-      ('Kundli Match', Icons.favorite_rounded, const Color(0xFFFCE4EC), const Color(0xFFAD1457), const KundliMatchingScreen()),
-      ('Panchang', Icons.wb_twilight_rounded, const Color(0xFFFFF8E1), const Color(0xFFF57F17), const PanchangScreen()),
-      ('Horoscope', Icons.nightlight_round, const Color(0xFFEDE7F6), const Color(0xFF512DA8), const DailyHoroscopeScreen()),
-      ('KP Calendar', Icons.shield_moon_rounded, const Color(0xFFE8EAF6), const Color(0xFF283593), const KpCalendarScreen()),
-      ('Cosmic AI', Icons.auto_awesome_rounded, const Color(0xFFFEF3C7), const Color(0xFFD97706), const CosmicAiScreen()),
-      ('Japa Mala', Icons.circle_outlined, const Color(0xFFF3E5F5), const Color(0xFF6A1B9A), const JapaMalaScreen()),
-      ('My Sankalp', Icons.savings_rounded, const Color(0xFFE0F2F1), const Color(0xFF00695C), const SankalpVaultScreen()),
+      (AppStrings.freeKundli, Icons.auto_graph_rounded, const Color(0xFFFFEBEE), const Color(0xFFC62828), const KundliListScreen()),
+      (AppStrings.kundliMatching, Icons.favorite_rounded, const Color(0xFFFCE4EC), const Color(0xFFAD1457), const KundliMatchingScreen()),
+      (AppStrings.panchang, Icons.wb_twilight_rounded, const Color(0xFFFFF8E1), const Color(0xFFF57F17), const PanchangScreen()),
+      (AppStrings.horoscope, Icons.nightlight_round, const Color(0xFFEDE7F6), const Color(0xFF512DA8), const DailyHoroscopeScreen()),
+      (AppStrings.kpCalendar, Icons.shield_moon_rounded, const Color(0xFFE8EAF6), const Color(0xFF283593), const KpCalendarScreen()),
+      (AppStrings.cosmicAi, Icons.auto_awesome_rounded, const Color(0xFFFEF3C7), const Color(0xFFD97706), const CosmicAiScreen()),
+      (AppStrings.japaMala, Icons.circle_outlined, const Color(0xFFF3E5F5), const Color(0xFF6A1B9A), const JapaMalaScreen()),
+      (AppStrings.mySankalp, Icons.savings_rounded, const Color(0xFFE0F2F1), const Color(0xFF00695C), const SankalpVaultScreen()),
     ];
 
     return Padding(
@@ -636,7 +636,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
               ),
               Expanded(
                 child: Text(
-                  'Vedic Sanctum & Daily Rituals',
+                  AppStrings.vedicSanctumTitle,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.2,
@@ -733,7 +733,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   const SizedBox(width: 7),
                   Flexible(
                     child: Text(
-                      'Talk & Chat with Astrologers',
+                      AppStrings.talkChatAstrologers,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.2,
@@ -749,14 +749,14 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                       color: const Color(0xFFDCFCE7),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.fiber_manual_record, color: Color(0xFF16A34A), size: 7),
-                        SizedBox(width: 3),
+                        const Icon(Icons.fiber_manual_record, color: Color(0xFF16A34A), size: 7),
+                        const SizedBox(width: 3),
                         Text(
-                          'Online',
-                          style: TextStyle(
+                          AppStrings.online,
+                          style: const TextStyle(
                             color: Color(0xFF15803D),
                             fontSize: 9.5,
                             fontWeight: FontWeight.w800,
@@ -769,7 +769,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   GestureDetector(
                     onTap: () => _goToTab(2), // Astrologers tab
                     child: Text(
-                      'View All (${list.length}) →',
+                      '${AppStrings.viewAll} (${list.length}) →',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -965,7 +965,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   const SizedBox(width: 7),
                   Expanded(
                     child: Text(
-                      'Sacred Pujas & Chadhava',
+                      AppStrings.sacredPujasChadhava,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.2,
@@ -977,7 +977,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   GestureDetector(
                     onTap: () => _goToTab(1), // Puja tab
                     child: Text(
-                      'View All →',
+                      '${AppStrings.viewAll} →',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
