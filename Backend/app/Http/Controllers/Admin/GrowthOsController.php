@@ -66,7 +66,52 @@ class GrowthOsController extends Controller
 
         $recentChats = DB::table('brain_chats')->orderByDesc('id')->limit(8)->get();
 
-        return view('pages.growth-os.dashboard', compact('goal', 'snapshots', 'pace', 'expected', 'totalTraffic', 'elapsed', 'horizon', 'stats', 'recentChats'));
+        // Autonomous activity timeline — what the Brain actually did (blogging,
+        // social, SEO), so an operator can see the system working (or failing)
+        // at a glance instead of guessing from published counts.
+        $activityLog = DB::table('brain_run_log')->orderByDesc('id')->limit(15)->get();
+
+        $activity24h = DB::table('brain_run_log')
+            ->where('created_at', '>=', now()->subDay())
+            ->selectRaw("category, SUM(items_ok) ok, SUM(items_failed) failed, COUNT(*) runs")
+            ->groupBy('category')
+            ->get()
+            ->keyBy('category');
+
+        // Channel health — the last brain:doctor report.
+        $health = $this->latestHealthReport();
+
+        return view('pages.growth-os.dashboard', compact('goal', 'snapshots', 'pace', 'expected', 'totalTraffic', 'elapsed', 'horizon', 'stats', 'recentChats', 'activityLog', 'activity24h', 'health'));
+    }
+
+    /**
+     * The most recent `brain:doctor` results, or an empty shape when it has
+     * never run — so the view can say "unknown" rather than imply health.
+     *
+     * @return array{ran_at:?string,stale:bool,results:array<int,array<string,string>>}
+     */
+    protected function latestHealthReport(): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('brain_run_log')) {
+            return ['ran_at' => null, 'stale' => true, 'results' => []];
+        }
+
+        $row = DB::table('brain_run_log')
+            ->where('task', 'brain:doctor')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $row) {
+            return ['ran_at' => null, 'stale' => true, 'results' => []];
+        }
+
+        $detail = json_decode((string) $row->detail, true);
+
+        return [
+            'ran_at' => $row->created_at,
+            'stale' => \Carbon\Carbon::parse($row->created_at)->lt(now()->subDays(2)),
+            'results' => is_array($detail['results'] ?? null) ? $detail['results'] : [],
+        ];
     }
 
     /** 2. SEO Keywords & Silo Matrix */

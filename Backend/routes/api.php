@@ -552,3 +552,5 @@ Route::post('getTrainingVideo', [TrainingVideoController::class, 'getTrainingVid
 
 Route::post('faq-list',[DashboardController::class, 'faqList'])->name('api.user.faqList');
 
+// OnlinePuja AI (Powered by Brain & Growth OS failover chain)
+Route::post('onlinepuja-ai/chat', [\App\Http\Controllers\API\User\OnlinePujaAiController::class, 'chat'])->name('api.onlinepuja_ai.chat');

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/customer_theme.dart';
 
+import '../widgets/onlinepuja_ai_dialog.dart';
 import 'astrologer/astrologers_screen.dart';
 import 'explore/explore_screen.dart';
-import 'history/history_screen.dart';
 import 'profile/profile_screen.dart';
+import 'puja/puja_list_screen.dart';
 
-/// Luxury sacred navigation shell: Consult / Explore / History / Profile
+/// Luxury sacred navigation shell: Consult / Puja / Explore / Profile
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -28,10 +29,48 @@ class _MainShellState extends State<MainShell> {
         index: _tab,
         children: const [
           AstrologersScreen(),
+          PujaListScreen(),
           ExploreScreen(),
-          HistoryScreen(),
           ProfileScreen(),
         ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: FloatingActionButton.extended(
+          heroTag: 'onlinepuja_ai_fab',
+          elevation: 4,
+          onPressed: () => OnlinePujaAiDialog.show(context),
+          backgroundColor: const Color(0xFFD97706),
+          icon: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFFFEF3C7),
+            ),
+            child: const Text('ॐ',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF78350F))),
+          ),
+          label: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'OnlinePuja AI',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12.5,
+                  color: Colors.white,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              SizedBox(width: 4),
+              Text('✨', style: TextStyle(fontSize: 12)),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -68,16 +107,16 @@ class _MainShellState extends State<MainShell> {
                 ),
                 _navItem(
                   index: 1,
-                  icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore_rounded,
-                  label: 'Explore',
+                  icon: Icons.local_fire_department_outlined,
+                  activeIcon: Icons.local_fire_department_rounded,
+                  label: 'Puja',
                   isDark: isDark,
                 ),
                 _navItem(
                   index: 2,
-                  icon: Icons.history_rounded,
-                  activeIcon: Icons.history_toggle_off_rounded,
-                  label: 'History',
+                  icon: Icons.explore_outlined,
+                  activeIcon: Icons.explore_rounded,
+                  label: 'Explore',
                   isDark: isDark,
                 ),
                 _navItem(

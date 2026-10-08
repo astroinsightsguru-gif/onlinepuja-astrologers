@@ -176,6 +176,19 @@ class MiscApi {
         body: {'userId': userId});
   }
 
+  /// Ask OnlinePuja AI Astrologer & Puja Guide
+  Future<String> askOnlinePujaAi(String message,
+      {List<Map<String, String>>? context}) async {
+    final decoded = await _api.post('/onlinepuja-ai/chat', auth: false, body: {
+      'message': message,
+      if (context != null) 'context': context,
+    });
+    if (decoded is Map<String, dynamic>) {
+      return (decoded['reply'] ?? decoded['message'] ?? '').toString();
+    }
+    return '';
+  }
+
   /// Resolved image URL helper for blog/story/gift images.
   static String imageUrl(String path) {
     final p = path.trim();

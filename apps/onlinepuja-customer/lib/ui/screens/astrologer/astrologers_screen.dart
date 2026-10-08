@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/customer_theme.dart';
+import '../../widgets/onlinepuja_ai_dialog.dart';
 
 import '../../../app.dart';
 import '../../../state/app_session.dart';
@@ -182,7 +183,6 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _searchBar(context, scheme),
-                  _freeConsultationBanner(context, scheme),
                   _heroBannerCarousel(context, scheme),
                   _quickShortcuts(context, scheme),
                   _liveAstrologerStories(context, scheme),
@@ -303,6 +303,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
 
   Widget _quickShortcuts(BuildContext context, ColorScheme scheme) {
     final shortcuts = [
+      ('OnlinePuja\nAI', Icons.auto_awesome_rounded, const Color(0xFFFEF3C7), const Color(0xFFD97706), null, () {
+        OnlinePujaAiDialog.show(context);
+      }),
       ('Chat with\nAstrologer', Icons.chat_bubble_outline_rounded, const Color(0xFFE8F5E9), const Color(0xFF2E7D32), null, () {
         setState(() => _selectedSkill = 'All');
         _scrollToAstrologers();

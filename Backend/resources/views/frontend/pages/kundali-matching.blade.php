@@ -1,4 +1,5 @@
 @extends('frontend.layout.master')
+@section('content')
 <style>
     .error {
         color: red;
@@ -11,7 +12,6 @@
         border-color: red;
     }
 </style>
-@section('content')
 <div class="pt-1 pb-1 d-none d-md-block onlinepuja-breadcrumb">
     <div class="container">
         <div class="row afterLoginDisplay">

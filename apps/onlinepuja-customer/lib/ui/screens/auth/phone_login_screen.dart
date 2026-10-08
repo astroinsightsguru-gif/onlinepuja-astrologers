@@ -66,10 +66,12 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   Future<void> _continueWithGoogle() async {
     setState(() => _sending = true);
     try {
+      const clientId =
+          '943854607420-9q5ro9tfc1ms9n3987ovb8vsidlcs04r.apps.googleusercontent.com';
       final googleSignIn = GoogleSignIn(
+        clientId: clientId,
+        serverClientId: clientId,
         scopes: ['email', 'profile'],
-        serverClientId:
-            '943854607420-9q5ro9tfc1ms9n3987ovb8vsidlcs04r.apps.googleusercontent.com',
       );
       final account = await googleSignIn.signIn();
       if (account == null) {

@@ -57,7 +57,6 @@
     <link href="{{ asset('public/frontend/onlinepujacdn/dashaspeaks/web/content/onlinepuja/css/font/stylesheet.css') }}"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/fontawesome.min.css" />
-    </noscript>
 
     <link rel="stylesheet"
         href="{{ asset('public/frontend/onlinepujacdn/dashaspeaks/web/content/onlinepuja/css/carousel/owl.carousel.min.css') }}">
@@ -84,19 +83,19 @@
 
 
 </head>
-@include('frontend.layout.header')
 
 <body class="english country-in Is-Offer ">
+    @include('frontend.layout.header')
+
     <div class="wrapper">
 
         @yield('content')
 
     </div>
-</body>
 
-@include('frontend.layout.footer')
+    @include('frontend.layout.footer')
 
-@yield('scripts')
+    @yield('scripts')
 
 
 <script
@@ -188,5 +187,5 @@ function googleTranslateInit() {
     }
 }
     </script>
-
+</body>
 </html>

@@ -82,60 +82,63 @@ class PujaController extends Controller
         try {
             $currentDatetime = \Carbon\Carbon::now();
 
+            $categoryId = $request->input('category_id');
+            $hasCatFilter = !empty($categoryId) && $categoryId !== '0' && $categoryId !== 'all';
+
+            // Build base query
+            $buildQuery = function () use ($hasCatFilter, $categoryId) {
+                $q = Puja::where('puja_status', 1)->where('created_by', 'admin');
+                if ($hasCatFilter) {
+                    $q->where('category_id', $categoryId);
+                }
+                return $q;
+            };
+
             // Upcoming puja fetch
-            $Pujalist = Puja::where('puja_status', 1)
-                ->where('created_by', 'admin')
+            $Pujalist = $buildQuery()
                 ->where(function ($query) use ($currentDatetime) {
                     $query->where('puja_start_datetime', '>', $currentDatetime)
                         ->orWhereNull('puja_start_datetime')
                         ->orWhereNull('puja_end_datetime');
                 })
                 ->whereRaw('(puja_start_datetime IS NULL OR puja_end_datetime IS NULL OR puja_start_datetime != puja_end_datetime)')
+                ->orderBy('puja_start_datetime', 'asc')
                 ->get()
                 ->filter(function ($puja) {
-                    // Skip if start and end datetime are equal
                     if ($puja->puja_start_datetime && $puja->puja_end_datetime && $puja->puja_start_datetime == $puja->puja_end_datetime) {
                         return false;
                     }
                     return true;
-                })
-                ->map(function ($puja) {
-                    $puja->packages = $puja->package(); // Assuming relation or method
-
-                    // Convert puja_images paths to full URLs
-                    if ($puja->puja_images && is_array($puja->puja_images)) {
-                        $puja->puja_images = array_map(function ($image) {
-                            return asset($image);
-                        }, $puja->puja_images);
-                    }
-
-                    return $puja;
                 });
 
             // Fallback if upcoming puja is empty
             if ($Pujalist->isEmpty()) {
-                $Pujalist = Puja::where('puja_status', 1)
-                    ->where('created_by', 'admin')
+                $Pujalist = $buildQuery()
                     ->whereRaw('(puja_start_datetime IS NULL OR puja_end_datetime IS NULL OR puja_start_datetime != puja_end_datetime)')
+                    ->orderBy('id', 'desc')
                     ->get()
                     ->filter(function ($puja) {
                         if ($puja->puja_start_datetime && $puja->puja_end_datetime && $puja->puja_start_datetime == $puja->puja_end_datetime) {
                             return false;
                         }
                         return true;
-                    })
-                    ->map(function ($puja) {
-                        $puja->packages = $puja->package();
-
-                        if ($puja->puja_images && is_array($puja->puja_images)) {
-                            $puja->puja_images = array_map(function ($image) {
-                                return asset($image);
-                            }, $puja->puja_images);
-                        }
-
-                        return $puja;
                     });
             }
+
+            // Map packages and asset URLs
+            $Pujalist = $Pujalist->map(function ($puja) {
+                $puja->packages = $puja->package();
+                $cat = $puja->category;
+                $puja->category_name = $cat ? $cat->name : '';
+
+                if ($puja->puja_images && is_array($puja->puja_images)) {
+                    $puja->puja_images = array_map(function ($image) {
+                        return asset($image);
+                    }, $puja->puja_images);
+                }
+
+                return $puja;
+            })->values();
 
             return response()->json([
                 'recordList' => $Pujalist,
@@ -151,6 +154,11 @@ class PujaController extends Controller
     }
 
 
+
+    public function getPujaDetails(Request $request)
+    {
+        return $this->getPujaDeatails($request);
+    }
 
     public function getPujaDeatails(Request $request)
     {

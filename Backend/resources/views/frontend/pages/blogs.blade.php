@@ -1,5 +1,6 @@
 @extends('frontend.layout.master')
 
+@push('styles')
 <style>
     .loader_full__LR0ml {
         transition: opacity .4s ease;
@@ -192,6 +193,7 @@
         color: #ffffff !important;
     }
 </style>
+@endpush
 
 @section('content')
 <div class="py-5">

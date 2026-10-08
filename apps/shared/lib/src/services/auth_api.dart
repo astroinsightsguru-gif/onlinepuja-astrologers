@@ -58,7 +58,10 @@ class AuthApi {
       'contactNo': contactNo,
       'countryCode': countryCode,
       'fromApp': '1',
-      if (name != null && name.isNotEmpty) 'username': name,
+      if (name != null && name.isNotEmpty) ...{
+        'username': name,
+        'name': name,
+      },
       if (email != null && email.isNotEmpty) 'email': email,
       if (fcmToken != null) 'deviceInfo': {'fcmToken': fcmToken},
       if (referralCode != null && referralCode.isNotEmpty)

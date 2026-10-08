@@ -1,10 +1,10 @@
 @extends('frontend.layout.master')
+@section('content')
 <style>
    .error-message{
     font-size: 0.8rem;
    } 
 </style>
-@section('content')
 <div class="container">
     <div class="row">
         <div class="col-12 contactbox align-self-center text-center" style="margin-top :0!important">

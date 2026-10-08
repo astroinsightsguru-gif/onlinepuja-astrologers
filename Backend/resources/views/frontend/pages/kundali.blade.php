@@ -1,4 +1,5 @@
 @extends('frontend.layout.master')
+@section('content')
 <style>
     .pac-container:after {
         content: none !important;
@@ -13,7 +14,6 @@
         border-color: red;
     }
 </style>
-@section('content')
     <div class="pt-1 pb-1 bg-red d-none d-md-block onlinepuja-breadcrumb">
         <div class="container">
             <div class="row afterLoginDisplay">

@@ -36,10 +36,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _placing = false;
   Object? _error;
 
+  late final TextEditingController _devoteeNameCtrl;
+  late final TextEditingController _gotraCtrl;
+  late final TextEditingController _sankalpWishCtrl;
+  late final TextEditingController _whatsappCtrl;
+
   @override
   void initState() {
     super.initState();
+    final user = context.read<AppSession>().user;
+    _devoteeNameCtrl = TextEditingController(text: user?.name ?? '');
+    _gotraCtrl = TextEditingController(text: 'Kashyap');
+    _sankalpWishCtrl = TextEditingController(text: 'Health, Prosperity & Peace');
+    _whatsappCtrl = TextEditingController(text: user?.contactNo ?? '');
     _loadAddresses();
+  }
+
+  @override
+  void dispose() {
+    _devoteeNameCtrl.dispose();
+    _gotraCtrl.dispose();
+    _sankalpWishCtrl.dispose();
+    _whatsappCtrl.dispose();
+    super.dispose();
   }
 
   double get _price {
@@ -116,6 +135,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             'orderAddressId': address.id,
             'addressId': address.id,
             'amount': _price,
+            'devoteeName': _devoteeNameCtrl.text.trim(),
+            'gotra': _gotraCtrl.text.trim(),
+            'sankalpWish': _sankalpWishCtrl.text.trim(),
+            'whatsappNumber': _whatsappCtrl.text.trim(),
           },
         );
         final redirectUrl = res['redirect']?.toString();
@@ -203,7 +226,109 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    Text('Deliver to',
+                    if (widget.puja != null) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFFDE68A)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFF59E0B).withOpacity(0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.temple_hindu_rounded,
+                                    size: 20, color: Color(0xFFD97706)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Vedic Sankalp Information',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF92400E),
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Our Vedic Pandits will chant your sacred Name and Gotra during the live ritual.',
+                              style: TextStyle(
+                                  fontSize: 12, color: Color(0xFF64748B)),
+                            ),
+                            const SizedBox(height: 14),
+                            TextField(
+                              controller: _devoteeNameCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Devotee / Family Head Name *',
+                                prefixIcon:
+                                    Icon(Icons.person_outline, size: 20),
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _gotraCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Gotra (or Kashyap)',
+                                      prefixIcon:
+                                          Icon(Icons.stars_outlined, size: 20),
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _whatsappCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'WhatsApp No. *',
+                                      prefixIcon: Icon(
+                                          Icons.phone_iphone_rounded,
+                                          size: 20),
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: _sankalpWishCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Sankalp Wish / Manoratha',
+                                hintText:
+                                    'e.g. Health, Business Success, Peace',
+                                prefixIcon: Icon(
+                                    Icons.volunteer_activism_outlined,
+                                    size: 20),
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    Text(widget.puja != null ? 'Deliver Holy Prasad to' : 'Deliver to',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
