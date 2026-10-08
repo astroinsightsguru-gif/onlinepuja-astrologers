@@ -69,9 +69,24 @@ class _PujaListScreenState extends State<PujaListScreen> {
     return s;
   }
 
+  List<Puja> get _filteredItems {
+    if (_items == null) return const [];
+    if (_selectedDeity == "All") return _items!;
+    final query = _selectedDeity.toLowerCase();
+    return _items!.where((p) {
+      final title = p.title.toLowerCase();
+      final sub = (p.subtitle ?? '').toLowerCase();
+      if (query.contains('shradh')) {
+        return title.contains('shradh') || title.contains('pitru') || title.contains('tarpan');
+      }
+      return title.contains(query) || sub.contains(query);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final displayItems = _filteredItems;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F7F2),
@@ -298,20 +313,20 @@ class _PujaListScreenState extends State<PujaListScreen> {
                       child: Center(child: CircularProgressIndicator(strokeWidth: 2.4, color: Color(0xFFD97706))),
                     ),
                   )
-                else if (_items!.isEmpty)
+                else if (displayItems.isEmpty)
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height: 300,
-                      child: StatusViews.empty(context, message: 'No pujas found in this category'),
+                      child: StatusViews.empty(context, message: 'No pujas found for $_selectedDeity'),
                     ),
                   )
                 else
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 90),
                     sliver: SliverList.separated(
-                      itemCount: _items!.length,
+                      itemCount: displayItems.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 16),
-                      itemBuilder: (context, i) => _buildSriMandirPujaCard(context, _items![i], scheme),
+                      itemBuilder: (context, i) => _buildSriMandirPujaCard(context, displayItems[i], scheme),
                     ),
                   ),
               ],
