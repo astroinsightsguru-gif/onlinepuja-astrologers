@@ -1717,54 +1717,21 @@ class AstrologerController extends Controller
                 if (in_array($req->contactNo, ['9898989898', '9797979797'])) {
                     $otp = '111111';
                 } else {
-                    // 🔹 Fetch MSG91 credentials
-                    $msg91AuthKey = DB::table('systemflag')->where('name', 'msg91AuthKey')->value('value');
-                    $msg91TemplateId = DB::table('systemflag')->where('name', 'msg91SendOtpTemplateId')->value('value');
+                    try {
+                        $otpResult = app(\App\Services\OtpService::class)->send(
+                            $req->contactNo,
+                            $otp,
+                            $req->countryCode ?? '91'
+                        );
 
-                    if (empty($msg91AuthKey) || empty($msg91TemplateId)) {
-                        $otp = '111111';
-                    } else {
-                        $mobileNumber = ($req->countryCode ?? '91') . $req->contactNo;
-
-                        $payload = [
-                            'template_id'      => $msg91TemplateId,
-                            'short_url'        => '0',
-                            'realTimeResponse' => '1',
-                            'recipients'       => [
-                                [
-                                    'mobiles' => $mobileNumber,
-                                    'otp'     => (string) $otp,
-                                ]
-                            ],
-                        ];
-
-                        $curl = curl_init();
-                        curl_setopt_array($curl, [
-                            CURLOPT_URL => 'https://control.msg91.com/api/v5/flow',
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 5,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'POST',
-                            CURLOPT_POSTFIELDS => json_encode($payload),
-                            CURLOPT_HTTPHEADER => [
-                                'accept: application/json',
-                                "authkey: $msg91AuthKey",
-                                'content-type: application/json'
-                            ],
-                        ]);
-
-                        $response = curl_exec($curl);
-                        $err = curl_error($curl);
-                        curl_close($curl);
-
-                        $resData = json_decode($response, true);
-
-                        if ($err || empty($resData['type']) || $resData['type'] != 'success') {
-                            // Fall back to 111111 when external gateway fails so login is never blocked
+                        if (!$otpResult['ok']) {
+                            // If all gateways fail, log and fall back to 111111 so login is never blocked
+                            \Illuminate\Support\Facades\Log::warning("OTP delivery failed across all channels for {$req->contactNo}: " . ($otpResult['error'] ?? 'unknown'));
                             $otp = '111111';
                         }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error("OtpService exception for {$req->contactNo}: " . $e->getMessage());
+                        $otp = '111111';
                     }
                 }
             }

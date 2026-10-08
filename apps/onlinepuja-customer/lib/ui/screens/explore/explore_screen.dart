@@ -13,6 +13,7 @@ import '../kundli/kundli_matching_screen.dart';
 import '../mall/mall_screen.dart';
 import '../panchang/panchang_screen.dart';
 import '../puja/puja_list_screen.dart';
+import '../kp/kp_calendar_screen.dart';
 import 'prashna_oracle_screen.dart';
 import 'swapna_shastra_screen.dart';
 
@@ -117,6 +118,14 @@ class ExploreScreen extends StatelessWidget {
                   icon: Icons.wb_twilight_rounded,
                   gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
                   screen: const PanchangScreen(),
+                ),
+                _FeatureItem(
+                  title: 'KP Calendar',
+                  subtitle: '249 Sub-Lords & Ruling Planets',
+                  icon: Icons.shield_moon_rounded,
+                  badge: 'KP SYSTEM',
+                  gradient: const [Color(0xFF4F46E5), Color(0xFF3730A3)],
+                  screen: const KpCalendarScreen(),
                 ),
                 _FeatureItem(
                   title: 'Prashna Oracle',

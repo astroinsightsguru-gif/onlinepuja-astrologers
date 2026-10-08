@@ -20,6 +20,7 @@ import '../notifications_screen.dart';
 import '../panchang/panchang_screen.dart';
 import '../profile/wallet_screen.dart';
 import '../puja/puja_detail_screen.dart';
+import '../kp/kp_calendar_screen.dart';
 
 /// Divine Vedic Home Portal (Consult Tab):
 /// - Clean header with drawer, wallet, notification bell & language toggle
@@ -109,29 +110,42 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
           ],
         ),
         actions: [
-          // Language toggle
-          TextButton(
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: () => setState(() => _isHindi = !_isHindi),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                border: Border.all(color: scheme.outline.withValues(alpha: 0.4)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _isHindi ? 'HI' : 'EN',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: scheme.onSurface,
+          // Language selector
+          ValueListenableBuilder<AppLanguage>(
+            valueListenable: LocaleManager.instance.currentLanguage,
+            builder: (context, currentLang, _) {
+              return TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-              ),
-            ),
+                onPressed: () => _showLanguageSelector(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: CustomerTheme.brandSaffron.withOpacity(0.12),
+                    border: Border.all(color: CustomerTheme.brandSaffron.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.language, size: 12, color: CustomerTheme.brandSaffron),
+                      const SizedBox(width: 4),
+                      Text(
+                        currentLang.code.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: CustomerTheme.brandSaffron,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 4),
           // Wallet button
@@ -187,6 +201,135 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.language, color: CustomerTheme.brandSaffron, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          AppStrings.selectLanguage,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A132F),
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Choose your preferred language for consultations, pujas & horoscopes:',
+                  style: TextStyle(fontSize: 13, color: Colors.black54),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 2.7,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: AppLanguage.values.length,
+                    itemBuilder: (context, idx) {
+                      final lang = AppLanguage.values[idx];
+                      final isSelected =
+                          LocaleManager.instance.currentLanguage.value == lang;
+                      return InkWell(
+                        onTap: () {
+                          LocaleManager.instance.setLanguage(lang);
+                          Navigator.pop(ctx);
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? CustomerTheme.brandSaffron.withOpacity(0.12)
+                                : const Color(0xFFF9F7F2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? CustomerTheme.brandSaffron
+                                  : Colors.black12,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    lang.label,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: isSelected
+                                          ? CustomerTheme.brandSaffron
+                                          : const Color(0xFF1A132F),
+                                    ),
+                                  ),
+                                  Text(
+                                    lang.englishName,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isSelected
+                                          ? CustomerTheme.brandSaffron.withOpacity(0.8)
+                                          : Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: CustomerTheme.brandSaffron,
+                                  size: 18,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -424,6 +567,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
       ('Kundli\nMatching', Icons.favorite_rounded, const Color(0xFFFCE4EC), const Color(0xFFAD1457), const KundliMatchingScreen(), null),
       ('Daily\nHoroscope', Icons.nightlight_round, const Color(0xFFEDE7F6), const Color(0xFF512DA8), const DailyHoroscopeScreen(), null),
       ("Today's\nPanchang", Icons.wb_twilight_rounded, const Color(0xFFFFF8E1), const Color(0xFFF57F17), const PanchangScreen(), null),
+      ('KP\nCalendar', Icons.shield_moon_rounded, const Color(0xFFE8EAF6), const Color(0xFF283593), const KpCalendarScreen(), null),
       ('Live\nDarshan', Icons.temple_hindu_rounded, const Color(0xFFF3E5F5), const Color(0xFF6A1B9A), const LiveDarshanScreen(), null),
       ('Astro\nMall', Icons.storefront_rounded, const Color(0xFFE0F2F1), const Color(0xFF00695C), const MallScreen(), null),
     ];

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:op_shared/op_shared.dart';
 import '../theme/customer_theme.dart';
 
 import '../widgets/onlinepuja_ai_dialog.dart';
@@ -120,45 +121,50 @@ class _MainShellState extends State<MainShell> {
             top: false,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _navItem(
-                    index: 0,
-                    icon: Icons.auto_awesome_outlined,
-                    activeIcon: Icons.auto_awesome_rounded,
-                    label: 'Consult',
-                    isDark: isDark,
-                  ),
-                  _navItem(
-                    index: 1,
-                    icon: Icons.local_fire_department_outlined,
-                    activeIcon: Icons.local_fire_department_rounded,
-                    label: 'Puja',
-                    isDark: isDark,
-                  ),
-                  _navItem(
-                    index: 2,
-                    icon: Icons.explore_outlined,
-                    activeIcon: Icons.explore_rounded,
-                    label: 'Explore',
-                    isDark: isDark,
-                  ),
-                  _navItem(
-                    index: 3,
-                    icon: Icons.psychology_outlined,
-                    activeIcon: Icons.psychology_rounded,
-                    label: 'Astrologer',
-                    isDark: isDark,
-                  ),
-                  _navItem(
-                    index: 4,
-                    icon: Icons.person_outline_rounded,
-                    activeIcon: Icons.person_rounded,
-                    label: 'Profile',
-                    isDark: isDark,
-                  ),
-                ],
+              child: ValueListenableBuilder<AppLanguage>(
+                valueListenable: LocaleManager.instance.currentLanguage,
+                builder: (context, _, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _navItem(
+                        index: 0,
+                        icon: Icons.auto_awesome_outlined,
+                        activeIcon: Icons.auto_awesome_rounded,
+                        label: AppStrings.consult,
+                        isDark: isDark,
+                      ),
+                      _navItem(
+                        index: 1,
+                        icon: Icons.local_fire_department_outlined,
+                        activeIcon: Icons.local_fire_department_rounded,
+                        label: AppStrings.puja,
+                        isDark: isDark,
+                      ),
+                      _navItem(
+                        index: 2,
+                        icon: Icons.explore_outlined,
+                        activeIcon: Icons.explore_rounded,
+                        label: AppStrings.explore,
+                        isDark: isDark,
+                      ),
+                      _navItem(
+                        index: 3,
+                        icon: Icons.psychology_outlined,
+                        activeIcon: Icons.psychology_rounded,
+                        label: AppStrings.astrologers,
+                        isDark: isDark,
+                      ),
+                      _navItem(
+                        index: 4,
+                        icon: Icons.person_outline_rounded,
+                        activeIcon: Icons.person_rounded,
+                        label: AppStrings.profile,
+                        isDark: isDark,
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

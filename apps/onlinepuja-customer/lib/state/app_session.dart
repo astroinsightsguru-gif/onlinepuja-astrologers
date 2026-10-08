@@ -24,6 +24,7 @@ class AppSession extends ChangeNotifier {
     ApiClient.instance.tokenTypeResolver =
         () => SessionStore.instance.tokenType;
     await SessionStore.instance.load();
+    await LocaleManager.instance.init();
     user = SessionStore.instance.user;
     flags = SessionStore.instance.flags;
     booted = true;
