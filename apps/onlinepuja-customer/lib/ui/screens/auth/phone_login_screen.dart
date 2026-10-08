@@ -100,6 +100,23 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     }
   }
 
+  Future<void> _skipLogin() async {
+    setState(() => _sending = true);
+    try {
+      final session = context.read<AppSession>();
+      await session.continueAsGuest();
+      if (!mounted) return;
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(MainShell.route, (r) => false);
+    } catch (e) {
+      if (mounted) {
+        showSnack(context, 'Guest login: $e', error: true);
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -122,22 +139,61 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Sacred Sun Emblem
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: CustomerTheme.goldGradient,
-                          boxShadow: [
+          child: Column(
+            children: [
+              // Top-right Skip Button
+              Padding(
+                padding: const EdgeInsets.only(top: 8, right: 16),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: TextButton.icon(
+                    onPressed: _sending ? null : _skipLogin,
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                    label: const Text(
+                      'Skip',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor:
+                          isDark ? Colors.white : CustomerTheme.brandKumkum,
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.12)
+                          : CustomerTheme.brandGold.withValues(alpha: 0.2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: CustomerTheme.brandGold.withValues(alpha: 0.4),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Sacred Sun Emblem
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: CustomerTheme.goldGradient,
+                                boxShadow: [
                             BoxShadow(
                               color: CustomerTheme.brandGold
                                   .withValues(alpha: isDark ? 0.35 : 0.45),
@@ -351,6 +407,32 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 14),
+
+                    // Skip & Explore as Guest Button
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: CustomerTheme.brandGold.withValues(alpha: 0.6),
+                          width: 1.2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        foregroundColor:
+                            isDark ? Colors.white : CustomerTheme.brandKumkum,
+                      ),
+                      onPressed: _sending ? null : _skipLogin,
+                      icon: const Icon(Icons.explore_outlined, size: 20),
+                      label: const Text(
+                        'Skip & Explore as Guest',
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
 
                     // Privacy Note
@@ -382,7 +464,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  ),
+),
+);
+}
 }

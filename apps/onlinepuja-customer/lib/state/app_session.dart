@@ -73,6 +73,23 @@ class AppSession extends ChangeNotifier {
     }
   }
 
+  /// Continue as a guest devotee (allows full app browsing without phone OTP).
+  Future<void> continueAsGuest() async {
+    user = User(
+      id: 999999,
+      name: 'Guest Devotee',
+      contactNo: '9999999999',
+      email: 'guest@onlinepuja.live',
+      walletAmount: 501.0,
+    );
+    await SessionStore.instance.saveSession(
+      token: 'guest_token_preview',
+      tokenType: 'Bearer',
+      user: user!,
+    );
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     await AuthApi.instance.logout();
     user = null;
