@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../state/app_session.dart';
 import '../profile/wallet_screen.dart';
+import '../profile/family_gotra_vault_screen.dart';
 
 /// Unified checkout for AstroMall products and Puja packages
 /// (legacy `checkoutScreen.dart` + `deliveryAddressScreen.dart`).
@@ -51,6 +52,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _sankalpWishCtrl = TextEditingController(text: 'Health, Prosperity & Peace');
     _whatsappCtrl = TextEditingController(text: user?.contactNo ?? '');
     _loadAddresses();
+    _loadGotraVault();
+  }
+
+  Future<void> _loadGotraVault() async {
+    final userId = context.read<AppSession>().user?.id ?? 0;
+    if (userId > 0) {
+      try {
+        final vault = await MiscApi.instance.getGotraVault(userId: userId);
+        final gotra = vault['gotra']?.toString();
+        if (gotra != null && gotra.isNotEmpty && mounted) {
+          setState(() {
+            _gotraCtrl.text = gotra;
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   @override
@@ -314,15 +331,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 Expanded(
                                   child: TextField(
                                     controller: _gotraCtrl,
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       labelText: 'Gotra (or Kashyap)',
-                                      prefixIcon:
-                                          Icon(Icons.stars_outlined, size: 20),
-                                      border: OutlineInputBorder(),
+                                      prefixIcon: const Icon(Icons.stars_outlined, size: 20),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.account_tree_outlined, size: 18, color: Color(0xFFD97706)),
+                                        tooltip: 'Family Gotra Vault',
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (_) => const FamilyGotraVaultScreen()),
+                                          );
+                                          _loadGotraVault();
+                                        },
+                                      ),
+                                      border: const OutlineInputBorder(),
                                       isDense: true,
                                     ),
                                   ),
                                 ),
+
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: TextField(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:op_shared/op_shared.dart';
+import 'choghadiya_radar_screen.dart';
 
 /// Today's panchang and live Choghadiya for a selected location.
 class PanchangScreen extends StatefulWidget {
@@ -81,6 +82,16 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vedic Panchang & Choghadiya', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        actions: [
+          IconButton(
+            tooltip: 'Live Choghadiya Radar Clock',
+            icon: const Icon(Icons.radar_rounded, color: Color(0xFFD97706)),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChoghadiyaRadarScreen()),
+            ),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

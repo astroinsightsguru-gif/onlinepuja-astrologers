@@ -11,6 +11,8 @@ import '../history/history_screen.dart';
 import '../kundli/kundli_list_screen.dart';
 import '../notifications_screen.dart';
 import '../orders/prasadam_tracker_screen.dart';
+import '../puja/sankalp_vault_screen.dart';
+import 'family_gotra_vault_screen.dart';
 import 'wallet_screen.dart';
 
 /// Devotee Profile & Account Sanctum
@@ -89,6 +91,30 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const PrasadamTrackerScreen(),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1, indent: 56),
+                  _profileListTile(
+                    icon: Icons.video_collection_rounded,
+                    title: 'Sankalp Video & Holy Prasad Vault',
+                    subtitle: 'Pandit ritual clips, courier AWB tracking & certificates',
+                    color: const Color(0xFFD97706),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const SankalpVaultScreen(),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1, indent: 56),
+                  _profileListTile(
+                    icon: Icons.account_tree_rounded,
+                    title: 'Family Gotra & Lineage Vault',
+                    subtitle: 'Sacred gotra, kuldevta & ancestral names for pujas',
+                    color: const Color(0xFF8B5CF6),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const FamilyGotraVaultScreen(),
                       ),
                     ),
                   ),

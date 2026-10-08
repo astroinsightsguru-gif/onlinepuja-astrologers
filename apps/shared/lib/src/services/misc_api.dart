@@ -189,6 +189,67 @@ class MiscApi {
     return '';
   }
 
+  // ---------------- Growth Engine & Vedic APIs ----------------
+
+  /// Get user's Family Gotra & Lineage Vault from live backend.
+  Future<Map<String, dynamic>> getGotraVault({int? userId}) async {
+    final decoded = await _api.get('/user/gotra-vault', query: {
+      if (userId != null) 'userId': userId.toString(),
+    });
+    if (decoded is Map<String, dynamic> && decoded['data'] is Map<String, dynamic>) {
+      return decoded['data'] as Map<String, dynamic>;
+    }
+    return const {};
+  }
+
+  /// Save user's Family Gotra Vault to live backend.
+  Future<void> saveGotraVault({
+    required int userId,
+    required String gotra,
+    String? kuldevta,
+    List<dynamic>? familyMembers,
+  }) async {
+    await _api.post('/user/gotra-vault', body: {
+      'userId': userId,
+      'gotra': gotra,
+      'kuldevta': kuldevta ?? '',
+      'family_members': familyMembers ?? [],
+    });
+  }
+
+  /// Get Sankalp Delivery Videos & Prasad Courier Tracking from live backend.
+  Future<List<Map<String, dynamic>>> getSankalpVault({int? userId}) async {
+    final decoded = await _api.get('/user/sankalp-vault', query: {
+      if (userId != null) 'userId': userId.toString(),
+    });
+    if (decoded is Map<String, dynamic> && decoded['records'] is List) {
+      return (decoded['records'] as List).whereType<Map<String, dynamic>>().toList();
+    }
+    return const [];
+  }
+
+  /// Check if user is eligible for ₹1 First Consultation Offer.
+  Future<Map<String, dynamic>> checkFirstConsultOffer({int? userId}) async {
+    final decoded = await _api.get('/user/checkFirstConsultOffer', query: {
+      if (userId != null) 'userId': userId.toString(),
+    });
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+    return const {'eligible': false};
+  }
+
+  /// Get live Choghadiya & Rahu Kaal calculations from live backend.
+  Future<Map<String, dynamic>> getChoghadiya({String? date}) async {
+    final decoded = await _api.get('/panchang/choghadiya', query: {
+      if (date != null) 'date': date,
+    });
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+    return const {};
+  }
+
   /// Resolved image URL helper for blog/story/gift images.
   static String imageUrl(String path) {
     final p = path.trim();

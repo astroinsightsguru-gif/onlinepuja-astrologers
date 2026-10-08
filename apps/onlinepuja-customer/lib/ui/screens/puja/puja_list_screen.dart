@@ -76,12 +76,30 @@ class _PujaListScreenState extends State<PujaListScreen> {
     return _items!.where((p) {
       final title = p.title.toLowerCase();
       final sub = (p.subtitle ?? '').toLowerCase();
-      if (query.contains('shradh')) {
-        return title.contains('shradh') || title.contains('pitru') || title.contains('tarpan');
+      final desc = (p.longDescription ?? '').toString().toLowerCase();
+      final combined = '$title $sub $desc';
+      if (query == 'durga') {
+        return combined.contains('durga') || combined.contains('navratri') || combined.contains('kanya') || combined.contains('devi') || combined.contains('saptashati');
       }
-      return title.contains(query) || sub.contains(query);
+      if (query == 'shiva') {
+        return combined.contains('shiva') || combined.contains('rudra') || combined.contains('mrityunjay') || combined.contains('mahadev') || combined.contains('kashi') || combined.contains('lingam');
+      }
+      if (query == 'ganesh') {
+        return combined.contains('ganesh') || combined.contains('vinayak') || combined.contains('ganpati') || combined.contains('modak');
+      }
+      if (query == 'lakshmi') {
+        return combined.contains('lakshmi') || combined.contains('laxmi') || combined.contains('kubera') || combined.contains('dhanteras') || combined.contains('diwali');
+      }
+      if (query == 'vishnu') {
+        return combined.contains('vishnu') || combined.contains('satyanarayan') || combined.contains('krishna') || combined.contains('ram') || combined.contains('ekadashi');
+      }
+      if (query.contains('shradh')) {
+        return combined.contains('shradh') || combined.contains('pitru') || combined.contains('tarpan') || combined.contains('gaya');
+      }
+      return combined.contains(query);
     }).toList();
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -43,6 +43,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
   late Future<List<Astrologer>> _astroFuture;
   late Future<List<Puja>> _pujaFuture;
   Map<String, dynamic>? _homeData;
+  Map<String, dynamic>? _firstConsultOffer;
   int _bannerIndex = 0;
   bool _isHindi = false;
 
@@ -65,8 +66,15 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
 
   Future<void> _loadHomeData() async {
     try {
+      final session = context.read<AppSession>();
       final data = await MiscApi.instance.customerHome();
-      if (mounted) setState(() => _homeData = data);
+      final promo = await MiscApi.instance.checkFirstConsultOffer(userId: session.user?.id);
+      if (mounted) {
+        setState(() {
+          _homeData = data;
+          _firstConsultOffer = promo;
+        });
+      }
     } catch (_) {}
   }
 
@@ -1015,6 +1023,76 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                 ],
               ),
             ),
+            if (_firstConsultOffer?['eligible'] == true)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFF59E0B)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFF59E0B).withOpacity(0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Text("🎉", style: TextStyle(fontSize: 22)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "FIRST CONSULTATION AT ₹1 ONLY!",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF92400E),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            Text(
+                              "5 mins introductory Vedic guidance with verified Astrologers",
+                              style: TextStyle(fontSize: 10.5, color: Color(0xFF78350F)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFEA580C), Color(0xFFD97706)],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFEA580C).withOpacity(0.3),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          "₹1 / min",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             SizedBox(
               height: 180,
               child: ListView.separated(
@@ -1074,14 +1152,40 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                rate,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 12.5,
-                                  color: Color(0xFFD97706),
+                              if (_firstConsultOffer?['eligible'] == true && a.charge > 0) ...[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      "₹1/min",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12.5,
+                                        color: Color(0xFFEA580C),
+                                      ),
+                                    ),
+                                    Text(
+                                      rate,
+                                      style: const TextStyle(
+                                        fontSize: 9.5,
+                                        decoration: TextDecoration.lineThrough,
+                                        color: Colors.black45,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                              ] else ...[
+                                Text(
+                                  rate,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 12.5,
+                                    color: Color(0xFFD97706),
+                                  ),
+                                ),
+                              ],
+
                               FilledButton(
                                 style: FilledButton.styleFrom(
                                   backgroundColor: const Color(0xFF1B8A5A),

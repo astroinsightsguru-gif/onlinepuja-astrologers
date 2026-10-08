@@ -24,15 +24,17 @@ class AnnadaanController extends Controller
                 $user = User::find($req->userId);
             }
 
+            $data = $req->all();
             $raw = json_decode($req->getContent(), true);
-            if (!is_array($raw)) $raw = [];
+            if (is_array($raw)) {
+                $data = array_merge($data, $raw);
+            }
 
-            $causeTitle = $req->input('causeTitle') 
-                ?: ($raw['causeTitle'] ?? ($req->input('cause_title') ?: ($raw['cause_title'] ?? null)));
-            $devoteeName = $req->input('devoteeName') 
-                ?: ($raw['devoteeName'] ?? ($req->input('devotee_name') ?: ($raw['devotee_name'] ?? null)));
-            $amount = (float)($req->input('amount') ?: ($raw['amount'] ?? 0));
-            $gotra = $req->input('gotra') ?: ($raw['gotra'] ?? 'Kashyap');
+            $causeTitle = $data['causeTitle'] ?? $data['cause_title'] ?? $req->get('causeTitle');
+            $devoteeName = $data['devoteeName'] ?? $data['devotee_name'] ?? $req->get('devoteeName');
+            $amount = (float)($data['amount'] ?? $req->get('amount') ?? 0);
+            $gotra = $data['gotra'] ?? $req->get('gotra') ?? 'Kashyap';
+            $userId = $user ? $user->id : ($data['userId'] ?? $data['user_id'] ?? $req->get('userId') ?? null);
 
             if (empty($causeTitle) || empty($devoteeName) || $amount <= 0) {
                 return response()->json([
@@ -42,11 +44,7 @@ class AnnadaanController extends Controller
                 ], 400);
             }
 
-            $userId = $user ? $user->id : ($req->userId ? (int)$req->userId : null);
-            $amount = (float)$req->amount;
-            $devoteeName = $req->devoteeName;
-            $gotra = $req->gotra ?: 'Kashyap';
-            $causeTitle = $req->causeTitle;
+
 
             // Check wallet if user exists
             $wallet = $userId ? DB::table('user_wallets')->where('userId', $userId)->first() : null;

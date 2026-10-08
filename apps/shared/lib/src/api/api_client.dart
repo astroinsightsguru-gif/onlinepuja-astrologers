@@ -76,12 +76,23 @@ class ApiClient {
   }
 
   /// GET and decode JSON; throws [ApiException] on failure.
-  Future<dynamic> get(String path, {bool auth = true}) async {
-    final url = path.startsWith('http') ? path : '${Env.apiBase}$path';
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? query,
+    Map<String, dynamic>? queryParameters,
+    bool auth = true,
+  }) async {
+    final base = path.startsWith('http') ? path : '${Env.apiBase}$path';
+    final q = query ?? queryParameters;
+    final uri = q != null && q.isNotEmpty
+        ? Uri.parse(base).replace(
+            queryParameters: q.map((k, v) => MapEntry(k, v?.toString() ?? '')),
+          )
+        : Uri.parse(base);
     final http.Response response;
     try {
       response = await http
-          .get(Uri.parse(url), headers: headers(auth: auth))
+          .get(uri, headers: headers(auth: auth))
           .timeout(const Duration(seconds: 30));
     } catch (e) {
       throw ApiException('Network error, please try again.', errors: {'_': e.toString()});

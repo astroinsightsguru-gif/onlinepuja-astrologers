@@ -12,7 +12,9 @@ import '../kundli/kundli_list_screen.dart';
 import '../kundli/kundli_matching_screen.dart';
 import '../mall/mall_screen.dart';
 import '../panchang/panchang_screen.dart';
+import '../panchang/choghadiya_radar_screen.dart';
 import '../puja/puja_list_screen.dart';
+import '../puja/sankalp_vault_screen.dart';
 import '../kp/kp_calendar_screen.dart';
 import 'prashna_oracle_screen.dart';
 import 'swapna_shastra_screen.dart';
@@ -120,6 +122,14 @@ class ExploreScreen extends StatelessWidget {
                   screen: const PanchangScreen(),
                 ),
                 _FeatureItem(
+                  title: 'Choghadiya Radar',
+                  subtitle: 'Live Shubh/Labh & Rahu Kaal',
+                  icon: Icons.timer_outlined,
+                  badge: 'LIVE MUHURAT',
+                  gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
+                  screen: const ChoghadiyaRadarScreen(),
+                ),
+                _FeatureItem(
                   title: 'KP Calendar',
                   subtitle: '249 Sub-Lords & Ruling Planets',
                   icon: Icons.shield_moon_rounded,
@@ -162,6 +172,14 @@ class ExploreScreen extends StatelessWidget {
                   badge: 'LIVE SANKALP',
                   gradient: const [Color(0xFFEF4444), Color(0xFFB91C1C)],
                   screen: const PujaListScreen(),
+                ),
+                _FeatureItem(
+                  title: 'Sankalp Vault',
+                  subtitle: 'Ritual videos & Prasad courier AWB',
+                  icon: Icons.video_collection_rounded,
+                  badge: 'VAULT',
+                  gradient: const [Color(0xFFEA580C), Color(0xFFC2410C)],
+                  screen: const SankalpVaultScreen(),
                 ),
                 _FeatureItem(
                   title: 'Live Darshan',

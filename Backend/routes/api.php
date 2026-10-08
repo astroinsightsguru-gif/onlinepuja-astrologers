@@ -558,3 +558,10 @@ Route::post('onlinepuja-ai/chat', [\App\Http\Controllers\API\User\OnlinePujaAiCo
 // Annadaan & Gau Seva Charity
 Route::post('annadaan/donate', [\App\Http\Controllers\API\User\AnnadaanController::class, 'donate'])->name('api.annadaan.donate');
 
+// Growth Engine & Vedic Feature Integration
+Route::get('user/gotra-vault', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getGotraVault'])->name('api.user.gotra_vault.get');
+Route::post('user/gotra-vault', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'saveGotraVault'])->name('api.user.gotra_vault.save');
+Route::get('user/sankalp-vault', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getSankalpVault'])->name('api.user.sankalp_vault');
+Route::get('user/checkFirstConsultOffer', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'checkFirstConsultOffer'])->name('api.user.first_consult_offer');
+Route::get('panchang/choghadiya', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getChoghadiya'])->name('api.panchang.choghadiya');
+
