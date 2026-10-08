@@ -578,7 +578,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
         final displayList = (onlineList.isNotEmpty ? onlineList : all).take(10).toList();
 
         return Container(
-          height: 106,
+          height: 128,
           margin: const EdgeInsets.only(top: 4, bottom: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,7 +614,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                   itemBuilder: (context, i) {
                     final a = displayList[i];
                     final name = a.name.split(' ').first;
-                    final rate = a.charge > 0 ? 'â‚¹${a.charge}/m' : 'FREE';
+                    final rate = a.charge > 0 ? '₹${a.charge.toInt()}/m' : 'FREE';
 
                     return GestureDetector(
                       onTap: () => context.openAstrologer(a.id ?? 0).then((_) => _reload()),
