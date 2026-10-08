@@ -114,12 +114,12 @@ class _MainShellState extends State<MainShell> {
               valueListenable: LocaleManager.instance.currentLanguage,
               builder: (context, _, _) {
                 return SizedBox(
-                  height: 64,
+                  height: 68,
                   child: ListView(
                     controller: _navScrollController,
                     scrollDirection: Axis.horizontal,
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     children: [
                       _sliderItem(
                         key: _itemKeys[0],
@@ -210,7 +210,7 @@ class _MainShellState extends State<MainShell> {
           borderRadius: BorderRadius.circular(16),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 3),
             decoration: BoxDecoration(
               color: isSelected
                   ? CustomerTheme.brandSaffron.withValues(alpha: isDark ? 0.22 : 0.12)

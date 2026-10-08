@@ -28,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: RichText(text: TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: isDark ? Colors.white : const Color(0xFF1E293B), letterSpacing: -0.2)), const TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' � Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF64748B)))])) ,
+        title: RichText(text: TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: isDark ? Colors.white : const Color(0xFF1E293B), letterSpacing: -0.2)), const TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' - Profile', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF64748B)))])) ,
         actions: [
           IconButton(
             tooltip: 'Notifications',
@@ -211,7 +211,7 @@ class ProfileScreen extends StatelessWidget {
     bool isDark,
   ) {
     final displayName = u?.displayName ?? '';
-    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '🕉️';
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'ð-ï¸';
 
     return SacredCard(
       padding: const EdgeInsets.all(18),
@@ -512,7 +512,7 @@ class ProfileScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.chat_rounded, color: Colors.green),
               title: const Text('WhatsApp Support'),
-              subtitle: Text('${context.read<AppSession>().flags.supportPhone} · Instant reply'),
+              subtitle: Text('${context.read<AppSession>().flags.supportPhone} Â- Instant reply'),
               onTap: () {
                 final wa = context.read<AppSession>().flags.supportWhatsapp;
                 Navigator.pop(ctx);

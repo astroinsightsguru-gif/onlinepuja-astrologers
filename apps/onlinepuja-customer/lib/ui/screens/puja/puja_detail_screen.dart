@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
@@ -431,36 +430,38 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
 
                 const SizedBox(height: 20),
 
-                // 3. Select Package (Sri Mandir interactive cards)
-                const Row(
-                  children: [
-                    Icon(Icons.card_giftcard_rounded,
-                        size: 20, color: Color(0xFFD97706)),
-                    SizedBox(width: 8),
-                    Text(
-                      'Choose Your Puja Package',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                if (packages.isNotEmpty) ...[
+                  // 3. Select Package (Sri Mandir interactive cards)
+                  const Row(
+                    children: [
+                      Icon(Icons.card_giftcard_rounded,
+                          size: 20, color: Color(0xFFD97706)),
+                      SizedBox(width: 8),
+                      Text(
+                        'Choose Your Puja Package',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1E293B),
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Select the seva tier for your family’s sankalp',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Package List
+                  for (int i = 0; i < packages.length; i++) ...[
+                    _packageCard(packages[i], i),
+                    const SizedBox(height: 10),
                   ],
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Select the seva tier for your family’s sankalp',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 12),
 
-                // Package List
-                for (int i = 0; i < packages.length; i++) ...[
-                  _packageCard(packages[i], i),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                 ],
-
-                const SizedBox(height: 20),
 
                 // 4. About the Puja
                 if ((p.longDescription ?? '').toString().isNotEmpty) ...[

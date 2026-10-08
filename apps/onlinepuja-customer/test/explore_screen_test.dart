@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:onlinepuja_customer/state/app_session.dart';
 import 'package:onlinepuja_customer/ui/screens/explore/explore_screen.dart';
 
-/// Widget tests for [ExploreScreen] — the hub grid linking all feature tiles.
+/// Widget tests for ExploreScreen
 void main() {
-  /// Wraps [ExploreScreen] in the providers it (and its children) may need.
+  /// Wraps ExploreScreen in the providers it needs.
   Widget wrapWidget(Widget child) => ChangeNotifierProvider(
         create: (_) => AppSession(),
         child: MaterialApp(home: child),
@@ -31,7 +31,7 @@ void main() {
 
     // Subtitles
     expect(find.text('Birth chart, planets & dasha'), findsOneWidget);
-    expect(find.text('Today\'s almanac'), findsOneWidget);
+    expect(find.text("Today's almanac"), findsOneWidget);
     expect(find.text('Daily predictions by sign'), findsOneWidget);
     expect(find.text('Book sacred pujas'), findsOneWidget);
     expect(find.text('Gemstones & spiritual items'), findsOneWidget);
@@ -48,7 +48,6 @@ void main() {
     await tester.ensureVisible(find.text('Kundli'));
     await tester.tap(find.text('Kundli'));
     await tester.pump();
-    // "Kundli" appears in both the Explore card (behind) + the new AppBar
     expect(find.text('Kundli'), findsWidgets);
   });
 

@@ -147,18 +147,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
         titleSpacing: 16,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Row(
               children: [
-                Text(
-                  'Puja & Chadhava Seva',
-                  style: TextStyle(
-                    fontSize: 16.5,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
-                    letterSpacing: -0.2,
-                  ),
-                ),
+                RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2))])),
                 SizedBox(width: 6),
                 Text('🛕', style: TextStyle(fontSize: 15)),
               ],
@@ -1121,3 +1113,4 @@ class _PujaPerk extends StatelessWidget {
     );
   }
 }
+

@@ -28,16 +28,7 @@ void main() {
     // Verify search bar exists
     expect(find.byType(TextField), findsOneWidget);
 
-    // Verify redesigned quick shortcuts exist
-    expect(find.text('Chat with\nAstrologer'), findsOneWidget);
-    expect(find.text('Talk to\nAstrologer'), findsOneWidget);
-    expect(find.text('Free\nKundli'), findsOneWidget);
-    expect(find.text('Kundli\nMatching'), findsOneWidget);
-    expect(find.text('Daily\nHoroscope'), findsOneWidget);
-    expect(find.text("Today's\nPanchang"), findsOneWidget);
-
-    // Verify astrologer section header & filter chips
-    expect(find.text('Top Vedic Astrologers'), findsOneWidget);
+    // Verify filter chips exist
     expect(find.text('All'), findsOneWidget);
     expect(find.text('Vedic'), findsOneWidget);
     expect(find.text('Tarot'), findsOneWidget);

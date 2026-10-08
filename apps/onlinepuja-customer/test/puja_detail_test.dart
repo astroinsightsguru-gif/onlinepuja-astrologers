@@ -4,10 +4,6 @@ import 'package:op_shared/op_shared.dart';
 import 'package:onlinepuja_customer/ui/screens/puja/puja_detail_screen.dart';
 
 /// Widget tests for [PujaDetailScreen].
-///
-/// The screen calls PujaApi for FAQs in initState, but the main content
-/// (title, packages, benefits, book button) renders from the injected
-/// `Puja` model — no waiting required.
 void main() {
   testWidgets('renders puja title, packages, benefits, and book button',
       (tester) async {
@@ -18,7 +14,7 @@ void main() {
       place: 'Varanasi',
       longDescription:
           'Celebrate the remover of obstacles with this sacred puja.',
-            benefits: ['Removes obstacles', 'Brings prosperity'],
+      benefits: ['Removes obstacles', 'Brings prosperity'],
       startDatetime: '2024-08-15 10:00:00',
       endDatetime: '2024-08-16 10:00:00',
       packages: [
@@ -37,38 +33,38 @@ void main() {
       ],
     );
 
-        tester.view.physicalSize = const Size(800, 1400);
+    tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() => tester.view.resetPhysicalSize());
 
     await tester.pumpWidget(
       MaterialApp(home: PujaDetailScreen(puja: puja)),
     );
-    // Let the async _loadFaqs() settle (it fails silently in tests).
     await tester.pumpAndSettle();
 
     // Title appears in AppBar + body
     expect(find.text('Ganesh Chaturthi Puja'), findsWidgets);
 
     // Section headers
-    expect(find.text('About'), findsOneWidget);
-    expect(find.text('Benefits'), findsOneWidget);
-    expect(find.text('Packages'), findsOneWidget);
+    expect(find.text('Choose Your Puja Package'), findsOneWidget);
+    expect(find.text('Significance & Vidhi'), findsOneWidget);
+    expect(find.text('Divine Blessings & Benefits'), findsOneWidget);
 
     // Package data
-    expect(find.text('Standard'), findsOneWidget);
+    expect(find.text('Standard'), findsWidgets);
     expect(find.text('Premium'), findsOneWidget);
-    expect(find.text('₹500'), findsOneWidget);
+    expect(find.text('₹500'), findsWidgets);
     expect(find.text('₹1000'), findsOneWidget);
 
     // Benefits
     expect(find.text('Removes obstacles'), findsOneWidget);
 
-    // Book button
-    expect(find.text('Book this puja'), findsOneWidget);
+    // Participate CTA button
+    expect(find.text('PARTICIPATE'), findsOneWidget);
   });
 
-  testWidgets('renders puja without packages', (tester) async {
+  testWidgets('renders puja with default fallback packages when none provided',
+      (tester) async {
     final puja = Puja(
       id: 2,
       title: 'Simple Puja',
@@ -85,9 +81,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Simple Puja'), findsWidgets);
-    expect(find.text('About'), findsOneWidget);
+    expect(find.text('Significance & Vidhi'), findsOneWidget);
 
-    // No packages section
-    expect(find.text('Packages'), findsNothing);
+    // Default fallback packages are presented so devotee can book
+    expect(find.text('Choose Your Puja Package'), findsOneWidget);
+    expect(find.text('Individual Sankalp'), findsWidgets);
+    expect(find.text('₹501'), findsWidgets);
   });
 }

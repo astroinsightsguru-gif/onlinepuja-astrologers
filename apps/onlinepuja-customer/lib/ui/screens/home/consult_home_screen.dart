@@ -90,40 +90,44 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
       appBar: AppBar(
         titleSpacing: 0,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(5),
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: CustomerTheme.goldGradient,
               ),
               child: const Text('ॐ',
                   style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF78350F))),
             ),
-            const SizedBox(width: 8),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'OnlinePuja',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.3,
-                        ),
-                  ),
-                  const TextSpan(
-                    text: '.live',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      color: Color(0xFFD97706),
-                      letterSpacing: -0.3,
+            const SizedBox(width: 6),
+            Flexible(
+              child: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'OnlinePuja',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.3,
+                          ),
                     ),
-                  ),
-                ],
+                    const TextSpan(
+                      text: '.live',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                        color: Color(0xFFD97706),
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -411,31 +415,34 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
           ),
           const SizedBox(height: 6),
           // Auspicious Muhurat status pill
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFFDE68A)),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("🕉️ ", style: TextStyle(fontSize: 10)),
-                    Text(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFFDE68A)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("🕉️ ", style: TextStyle(fontSize: 10)),
+                  Flexible(
+                    child: Text(
                       "Today's Shubh Muhurat: Amrit Kaal Active",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF92400E),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -627,13 +634,14 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(width: 7),
-              Text(
-                'Vedic Sanctum & Daily Rituals',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                    ),
+              Expanded(
+                child: Text(
+                  'Vedic Sanctum & Daily Rituals',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                      ),
+                ),
               ),
             ],
           ),
@@ -723,16 +731,20 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 7),
-                  Text(
-                    'Talk & Chat with Astrologers',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
-                        ),
+                  Flexible(
+                    child: Text(
+                      'Talk & Chat with Astrologers',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: const Color(0xFFDCFCE7),
                       borderRadius: BorderRadius.circular(10),
@@ -740,8 +752,8 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.fiber_manual_record, color: Color(0xFF16A34A), size: 8),
-                        SizedBox(width: 4),
+                        Icon(Icons.fiber_manual_record, color: Color(0xFF16A34A), size: 7),
+                        SizedBox(width: 3),
                         Text(
                           'Online',
                           style: TextStyle(
@@ -753,7 +765,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                       ],
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => _goToTab(2), // Astrologers tab
                     child: Text(
@@ -951,14 +963,17 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 7),
-                  Text(
-                    'Sacred Pujas & Chadhava',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
-                        ),
+                  Expanded(
+                    child: Text(
+                      'Sacred Pujas & Chadhava',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const Spacer(),
                   GestureDetector(
                     onTap: () => _goToTab(1), // Puja tab
                     child: Text(

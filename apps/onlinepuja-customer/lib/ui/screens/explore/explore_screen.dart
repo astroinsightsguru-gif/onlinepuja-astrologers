@@ -29,11 +29,34 @@ class ExploreScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: RichText(text: TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: isDark ? Colors.white : const Color(0xFF1E293B), letterSpacing: -0.2)), const TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' � Explore', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : const Color(0xFF64748B)))])),
+        title: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'OnlinePuja',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const TextSpan(
+                text: '.live',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFFD97706),
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               gradient: CustomerTheme.goldGradient,
               borderRadius: BorderRadius.circular(16),
@@ -41,15 +64,15 @@ class ExploreScreen extends StatelessWidget {
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.auto_awesome, size: 13, color: Colors.white),
+                Icon(Icons.explore_rounded, size: 14, color: Colors.white),
                 SizedBox(width: 4),
                 Text(
-                  'VEDIC TOOLS',
+                  'Explore',
                   style: TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
@@ -70,181 +93,184 @@ class ExploreScreen extends StatelessWidget {
                   end: Alignment.bottomCenter,
                 ),
         ),
-        child: ListView(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          children: [
-            // 1. Live Muhurat Radar Card
-            _muhuratRadar(context, isDark),
-            const SizedBox(height: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Live Muhurat Radar Card
+              _muhuratRadar(context, isDark),
+              const SizedBox(height: 12),
 
-            // 2. Cosmic Mantra & Vibrations Banner
-            _cosmicMantraCard(context),
-            const SizedBox(height: 20),
+              // 2. Cosmic Mantra & Vibrations Banner
+              _cosmicMantraCard(context),
+              const SizedBox(height: 20),
 
-            // 3. Section: Vedic Astrology & Astrological Charts
-            const SectionHeader(
-              title: 'Vedic Astrology & Guidance',
-              subtitle: 'Planetary alignments, birth charts & future insights',
-              icon: Icons.auto_graph_rounded,
-            ),
-            const SizedBox(height: 8),
-            _featuresGrid(
-              context,
-              [
-                _FeatureItem(
-                  title: 'Kundli',
-                  subtitle: 'Birth chart, planets & dasha',
-                  icon: Icons.auto_graph_rounded,
-                  badge: 'POPULAR',
-                  gradient: const [Color(0xFFF97316), Color(0xFFEA580C)],
-                  screen: const KundliListScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Kundli Matching',
-                  subtitle: '36 Guna Milan & compatibility',
-                  icon: Icons.favorite_rounded,
-                  badge: 'FREE',
-                  gradient: const [Color(0xFFEC4899), Color(0xFFBE185D)],
-                  screen: const KundliMatchingScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Horoscope',
-                  subtitle: 'Daily predictions by sign',
-                  icon: Icons.nightlight_round,
-                  gradient: const [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-                  screen: const DailyHoroscopeScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Panchang',
-                  subtitle: 'Today\'s almanac',
-                  icon: Icons.wb_twilight_rounded,
-                  gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
-                  screen: const PanchangScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Choghadiya Radar',
-                  subtitle: 'Live Shubh/Labh & Rahu Kaal',
-                  icon: Icons.timer_outlined,
-                  badge: 'LIVE MUHURAT',
-                  gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
-                  screen: const ChoghadiyaRadarScreen(),
-                ),
-                _FeatureItem(
-                  title: 'KP Calendar',
-                  subtitle: '249 Sub-Lords & Ruling Planets',
-                  icon: Icons.shield_moon_rounded,
-                  badge: 'KP SYSTEM',
-                  gradient: const [Color(0xFF4F46E5), Color(0xFF3730A3)],
-                  screen: const KpCalendarScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Prashna Oracle',
-                  subtitle: 'Instant Horary answers & guidance',
-                  icon: Icons.psychology_alt_rounded,
-                  gradient: const [Color(0xFF06B6D4), Color(0xFF0E7490)],
-                  screen: const PrashnaOracleScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Swapna Shastra',
-                  subtitle: 'Decode spiritual dream omens',
-                  icon: Icons.bedtime_rounded,
-                  gradient: const [Color(0xFF6366F1), Color(0xFF4338CA)],
-                  screen: const SwapnaShastraScreen(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              // 3. Section: Vedic Astrology & Astrological Charts
+              const SectionHeader(
+                title: 'Vedic Astrology & Guidance',
+                subtitle: 'Planetary alignments, birth charts & future insights',
+                icon: Icons.auto_graph_rounded,
+              ),
+              const SizedBox(height: 8),
+              _featuresGrid(
+                context,
+                [
+                  _FeatureItem(
+                    title: 'Kundli',
+                    subtitle: 'Birth chart, planets & dasha',
+                    icon: Icons.auto_graph_rounded,
+                    badge: 'POPULAR',
+                    gradient: const [Color(0xFFF97316), Color(0xFFEA580C)],
+                    screen: const KundliListScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Kundli Matching',
+                    subtitle: '36 Guna Milan & compatibility',
+                    icon: Icons.favorite_rounded,
+                    badge: 'FREE',
+                    gradient: const [Color(0xFFEC4899), Color(0xFFBE185D)],
+                    screen: const KundliMatchingScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Horoscope',
+                    subtitle: 'Daily predictions by sign',
+                    icon: Icons.nightlight_round,
+                    gradient: const [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+                    screen: const DailyHoroscopeScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Panchang',
+                    subtitle: "Today's almanac",
+                    icon: Icons.wb_twilight_rounded,
+                    gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
+                    screen: const PanchangScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Choghadiya Radar',
+                    subtitle: 'Live Shubh/Labh & Rahu Kaal',
+                    icon: Icons.timer_outlined,
+                    badge: 'LIVE MUHURAT',
+                    gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
+                    screen: const ChoghadiyaRadarScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'KP Calendar',
+                    subtitle: '249 Sub-Lords & Ruling Planets',
+                    icon: Icons.shield_moon_rounded,
+                    badge: 'KP SYSTEM',
+                    gradient: const [Color(0xFF4F46E5), Color(0xFF3730A3)],
+                    screen: const KpCalendarScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Prashna Oracle',
+                    subtitle: 'Instant Horary answers & guidance',
+                    icon: Icons.psychology_alt_rounded,
+                    gradient: const [Color(0xFF06B6D4), Color(0xFF0E7490)],
+                    screen: const PrashnaOracleScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Swapna Shastra',
+                    subtitle: 'Decode spiritual dream omens',
+                    icon: Icons.bedtime_rounded,
+                    gradient: const [Color(0xFF6366F1), Color(0xFF4338CA)],
+                    screen: const SwapnaShastraScreen(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
 
-            // 4. Section: Sacred Rituals & Sanctum
-            const SectionHeader(
-              title: 'Sacred Rituals & Worship',
-              subtitle: 'Online Pujas, live holy darshan & charity',
-              icon: Icons.local_fire_department_rounded,
-            ),
-            const SizedBox(height: 8),
-            _featuresGrid(
-              context,
-              [
-                _FeatureItem(
-                  title: 'Puja',
-                  subtitle: 'Book sacred pujas',
-                  icon: Icons.local_fire_department_rounded,
-                  badge: 'LIVE SANKALP',
-                  gradient: const [Color(0xFFEF4444), Color(0xFFB91C1C)],
-                  screen: const PujaListScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Sankalp Vault',
-                  subtitle: 'Ritual videos & Prasad courier AWB',
-                  icon: Icons.video_collection_rounded,
-                  badge: 'VAULT',
-                  gradient: const [Color(0xFFEA580C), Color(0xFFC2410C)],
-                  screen: const SankalpVaultScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Live Darshan',
-                  subtitle: 'Kashi, Somnath & Ganga Aarti',
-                  icon: Icons.temple_hindu_rounded,
-                  badge: 'LIVE 24/7',
-                  gradient: const [Color(0xFFF59E0B), Color(0xFFB45309)],
-                  screen: const LiveDarshanScreen(),
-                ),
-                _FeatureItem(
-                  title: '108 Japa Mala',
-                  subtitle: 'Digital Rudraksha mantra counter',
-                  icon: Icons.fingerprint_rounded,
-                  gradient: const [Color(0xFF10B981), Color(0xFF047857)],
-                  screen: const JapaMalaScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Annadaan & Seva',
-                  subtitle: 'Gau seva & holy temple charity',
-                  icon: Icons.volunteer_activism_rounded,
-                  badge: 'PUNYA',
-                  gradient: const [Color(0xFF14B8A6), Color(0xFF0F766E)],
-                  screen: const AnnadaanScreen(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              // 4. Section: Sacred Rituals & Worship
+              const SectionHeader(
+                title: 'Sacred Rituals & Worship',
+                subtitle: 'Online Pujas, live holy darshan & charity',
+                icon: Icons.local_fire_department_rounded,
+              ),
+              const SizedBox(height: 8),
+              _featuresGrid(
+                context,
+                [
+                  _FeatureItem(
+                    title: 'Puja',
+                    subtitle: 'Book sacred pujas',
+                    icon: Icons.local_fire_department_rounded,
+                    badge: 'LIVE SANKALP',
+                    gradient: const [Color(0xFFEF4444), Color(0xFFB91C1C)],
+                    screen: const PujaListScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Sankalp Vault',
+                    subtitle: 'Ritual videos & Prasad courier AWB',
+                    icon: Icons.video_collection_rounded,
+                    badge: 'VAULT',
+                    gradient: const [Color(0xFFEA580C), Color(0xFFC2410C)],
+                    screen: const SankalpVaultScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Live Darshan',
+                    subtitle: 'Kashi, Somnath & Ganga Aarti',
+                    icon: Icons.temple_hindu_rounded,
+                    badge: 'LIVE 24/7',
+                    gradient: const [Color(0xFFF59E0B), Color(0xFFB45309)],
+                    screen: const LiveDarshanScreen(),
+                  ),
+                  _FeatureItem(
+                    title: '108 Japa Mala',
+                    subtitle: 'Digital Rudraksha mantra counter',
+                    icon: Icons.fingerprint_rounded,
+                    gradient: const [Color(0xFF10B981), Color(0xFF047857)],
+                    screen: const JapaMalaScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Annadaan & Seva',
+                    subtitle: 'Gau seva & holy temple charity',
+                    icon: Icons.volunteer_activism_rounded,
+                    badge: 'PUNYA',
+                    gradient: const [Color(0xFF14B8A6), Color(0xFF0F766E)],
+                    screen: const AnnadaanScreen(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
 
-            // 5. Section: Cosmic Mall & Wisdom
-            const SectionHeader(
-              title: 'AstroMall & Cosmic AI',
-              subtitle: 'Energized remedies, certified gems & AI chats',
-              icon: Icons.storefront_rounded,
-            ),
-            const SizedBox(height: 8),
-            _featuresGrid(
-              context,
-              [
-                _FeatureItem(
-                  title: 'AstroMall',
-                  subtitle: 'Gemstones & spiritual items',
-                  icon: Icons.storefront_rounded,
-                  badge: 'CERTIFIED',
-                  gradient: const [Color(0xFFF97316), Color(0xFFC2410C)],
-                  screen: const MallScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Cosmic AI Guru',
-                  subtitle: '24/7 Instant Vedic AI companion',
-                  icon: Icons.auto_awesome,
-                  badge: 'FREE AI',
-                  gradient: const [Color(0xFF8B5CF6), Color(0xFF4C1D95)],
-                  screen: const CosmicAiScreen(),
-                ),
-                _FeatureItem(
-                  title: 'Vedic Blogs',
-                  subtitle: 'Planetary transits & wisdom',
-                  icon: Icons.menu_book_rounded,
-                  gradient: const [Color(0xFF059669), Color(0xFF065F46)],
-                  screen: const BlogScreen(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-          ],
+              // 5. Section: Cosmic Mall & Wisdom
+              const SectionHeader(
+                title: 'AstroMall & Cosmic AI',
+                subtitle: 'Energized remedies, certified gems & AI chats',
+                icon: Icons.storefront_rounded,
+              ),
+              const SizedBox(height: 8),
+              _featuresGrid(
+                context,
+                [
+                  _FeatureItem(
+                    title: 'AstroMall',
+                    subtitle: 'Gemstones & spiritual items',
+                    icon: Icons.storefront_rounded,
+                    badge: 'CERTIFIED',
+                    gradient: const [Color(0xFFF97316), Color(0xFFC2410C)],
+                    screen: const MallScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Cosmic AI Guru',
+                    subtitle: '24/7 Instant Vedic AI companion',
+                    icon: Icons.auto_awesome,
+                    badge: 'FREE AI',
+                    gradient: const [Color(0xFF8B5CF6), Color(0xFF4C1D95)],
+                    screen: const CosmicAiScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Vedic Blogs',
+                    subtitle: 'Planetary transits & wisdom',
+                    icon: Icons.menu_book_rounded,
+                    gradient: const [Color(0xFF059669), Color(0xFF065F46)],
+                    screen: const BlogScreen(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
@@ -293,8 +319,8 @@ class ExploreScreen extends StatelessWidget {
               children: [
                 Text(
                   isAuspicious
-                      ? 'Abhijit Muhurat Active · Highly Auspicious'
-                      : 'Rahu Kaal Radar · Favorable Window Ahead',
+                      ? 'Abhijit Muhurat Active - Highly Auspicious'
+                      : 'Rahu Kaal Radar - Favorable Window Ahead',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 12.5,
@@ -307,7 +333,7 @@ class ExploreScreen extends StatelessWidget {
                 Text(
                   isAuspicious
                       ? 'Ideal time for new investments, prayers, and consultations'
-                      : 'Next auspicious window: 11:45 AM – 12:35 PM',
+                      : 'Next auspicious window: 11:45 AM - 12:35 PM',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: isDark ? Colors.white70 : const Color(0xFF4B5563),
@@ -352,25 +378,25 @@ class ExploreScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Text('🕉️', style: TextStyle(fontSize: 20)),
+            child: const Text('Om', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Daily Cosmic Vibrations ✨',
+              children: const [
+                Text(
+                  'Daily Cosmic Vibrations',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(height: 3),
-                const Text(
-                  'Mantra: ॐ नमः शिवाय · Chant 11x for inner peace',
+                SizedBox(height: 3),
+                Text(
+                  'Mantra: Om Namah Shivaya - Chant 11x for inner peace',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 11.5,
@@ -503,4 +529,3 @@ class _FeatureItem {
   final Widget screen;
   final String? badge;
 }
-

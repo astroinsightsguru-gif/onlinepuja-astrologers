@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:op_shared/op_shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/customer_theme.dart';
 import 'puja_list_screen.dart';
@@ -545,8 +543,4 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
       ),
     );
   }
-}
-
-extension on Colors {
-  static const Color emeraldGreenAccent = Color(0xFF10B981);
 }
