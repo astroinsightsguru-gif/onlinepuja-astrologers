@@ -176,6 +176,14 @@ class _AnnadaanScreenState extends State<AnnadaanScreen> {
 
       if (!mounted) return;
       final orderId = (res is Map && res['orderId'] != null) ? res['orderId'] : 'OP-SEVA';
+      final redirectUrl = (res is Map && res['redirect'] != null) ? res['redirect'].toString() : null;
+
+      if (redirectUrl != null && redirectUrl.isNotEmpty) {
+        final uri = Uri.parse(redirectUrl);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+
+      if (!mounted) return;
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(

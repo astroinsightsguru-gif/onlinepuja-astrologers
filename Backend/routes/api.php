@@ -554,3 +554,7 @@ Route::post('faq-list',[DashboardController::class, 'faqList'])->name('api.user.
 
 // OnlinePuja AI (Powered by Brain & Growth OS failover chain)
 Route::post('onlinepuja-ai/chat', [\App\Http\Controllers\API\User\OnlinePujaAiController::class, 'chat'])->name('api.onlinepuja_ai.chat');
+
+// Annadaan & Gau Seva Charity
+Route::post('annadaan/donate', [\App\Http\Controllers\API\User\AnnadaanController::class, 'donate'])->name('api.annadaan.donate');
+

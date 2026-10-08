@@ -3,6 +3,8 @@
 /// `RecommendedPujaListModel.dart` contracts.
 library;
 
+import 'dart:convert';
+
 /// Category from `/getPujaCategory`.
 class PujaCategory {
   PujaCategory({this.id, this.name, this.image, this.isActive});
@@ -123,8 +125,14 @@ class PujaPackage {
   List<String>? inclusions;
 
   factory PujaPackage.fromJson(Map<String, dynamic> json) {
-    final rawInclusions =
+    dynamic rawInclusions =
         json['description'] ?? json['pujaPackageInclusion'] ?? json['inclusions'];
+
+    if (rawInclusions is String && rawInclusions.trim().startsWith('[')) {
+      try {
+        rawInclusions = jsonDecode(rawInclusions);
+      } catch (_) {}
+    }
 
     return PujaPackage(
       id: json['id'],
@@ -134,7 +142,9 @@ class PujaPackage {
           ? List<String>.from(rawInclusions.map((x) => x is Map
               ? (x['name'] ?? x['inclusion'] ?? '').toString()
               : x.toString()))
-          : const <String>[],
+          : (rawInclusions is String && rawInclusions.trim().isNotEmpty
+              ? [rawInclusions.trim()]
+              : const <String>[]),
     );
   }
 

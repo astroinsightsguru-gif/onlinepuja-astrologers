@@ -4,6 +4,7 @@ import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state/app_session.dart';
+import '../profile/wallet_screen.dart';
 
 /// Unified checkout for AstroMall products and Puja packages
 /// (legacy `checkoutScreen.dart` + `deliveryAddressScreen.dart`).
@@ -189,7 +190,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
       if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
     } on ApiException catch (e) {
-      if (mounted) showSnack(context, e.message, error: true);
+      if (!mounted) return;
+      final msg = e.message.toLowerCase();
+      if (msg.contains('insufficient') || msg.contains('balance') || msg.contains('wallet')) {
+        final recharge = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Insufficient Wallet Balance'),
+            content: Text(
+                'Your wallet balance is insufficient for this order (₹${_price.toStringAsFixed(0)} required). Would you like to recharge your wallet now?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Recharge Wallet'),
+              ),
+            ],
+          ),
+        );
+        if (recharge == true && mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => const WalletScreen(),
+          ));
+        }
+        return;
+      }
+      showSnack(context, e.message, error: true);
     } catch (e) {
       if (mounted) showSnack(context, e.toString(), error: true);
     } finally {

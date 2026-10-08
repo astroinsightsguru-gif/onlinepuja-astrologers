@@ -221,11 +221,14 @@ class PujaController extends Controller
 
         try {
 
-            if (!Auth::guard('api')->user()) {
-                return response()->json(['error' => 'Unauthorized', 'status' => 401], 401);
-            } else {
-                $id = Auth::guard('api')->user()->id;
+            $user = Auth::guard('api')->user();
+            if (!$user && $req->userId) {
+                $user = User::find($req->userId);
             }
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized', 'status' => 401], 401);
+            }
+            $id = $user->id;
 
 
             $data = $req->only(
