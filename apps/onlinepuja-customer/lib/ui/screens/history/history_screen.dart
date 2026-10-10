@@ -7,6 +7,8 @@ import '../../../app.dart';
 /// - Puja Bookings & Doorstep Prasadam Tracker
 /// - AstroMall Product Orders
 class HistoryScreen extends StatefulWidget {
+  static const route = '/history';
+
   const HistoryScreen({super.key});
 
   @override

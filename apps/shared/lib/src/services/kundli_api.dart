@@ -179,14 +179,29 @@ class KundliApi {
 
   static Map<String, dynamic> _astroBody(DateTime date, String time,
       double lat, double lng, double tz) {
+    int hour = 0;
+    int min = 0;
+    try {
+      final isPm = time.toLowerCase().contains('pm');
+      final isAm = time.toLowerCase().contains('am');
+      final clean = time.replaceAll(RegExp(r'[^\d:]'), '');
+      final parts = clean.split(':');
+      if (parts.isNotEmpty) {
+        hour = int.tryParse(parts[0]) ?? 0;
+        if (isPm && hour < 12) hour += 12;
+        if (isAm && hour == 12) hour = 0;
+      }
+      if (parts.length > 1) {
+        min = int.tryParse(parts[1]) ?? 0;
+      }
+    } catch (_) {}
+
     return {
       'day': date.day,
       'month': date.month,
       'year': date.year,
-      'hour': int.tryParse(time.split(':').first) ?? 0,
-      'min': int.tryParse(
-              time.split(':').length > 1 ? time.split(':')[1] : '0') ??
-          0,
+      'hour': hour,
+      'min': min,
       'lat': lat,
       'lon': lng,
       'tzone': tz,

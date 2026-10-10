@@ -82,24 +82,32 @@ class User {
   }
 
   User.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        name = json['name'] ?? 'User',
-        contactNo = json['contactNo'] ?? '',
-        email = json['email'] ?? '',
+      : id = json['id'] == null
+            ? null
+            : (json['id'] is num
+                ? (json['id'] as num).toInt()
+                : int.tryParse(json['id'].toString())),
+        name = json['name']?.toString() ?? 'User',
+        contactNo = json['contactNo']?.toString() ?? '',
+        email = json['email']?.toString() ?? '',
         birthDate = json['birthDate'] == null
             ? null
             : DateTime.tryParse(json['birthDate'].toString()),
-        birthTime = json['birthTime'] ?? '',
-        profile = json['profile'] ?? json['profileImage'] ?? '',
-        birthPlace = json['birthPlace'] ?? '',
-        gender = json['gender'] ?? 'Male',
-        walletAmount = double.tryParse(
-                json['totalWalletAmount']?.toString() ?? '0') ??
+        birthTime = json['birthTime']?.toString() ?? '',
+        profile = (json['profile'] ?? json['profileImage'])?.toString() ?? '',
+        birthPlace = json['birthPlace']?.toString() ?? '',
+        gender = json['gender']?.toString() ?? 'Male',
+        walletAmount = double.tryParse((json['totalWalletAmount'] ??
+                    json['walletAmount'] ??
+                    json['wallet_amount'] ??
+                    json['wallet'])
+                ?.toString() ??
+            '0') ??
             0,
-        countryCode = json['countryCode'] ?? '+91',
+        countryCode = json['countryCode']?.toString() ?? '+91',
         isFreeChat = _b(json['is_freechat']),
-        chatStatus = json['chatStatus'] ?? 'Online',
-        callStatus = json['callStatus'] ?? 'Online',
+        chatStatus = json['chatStatus']?.toString() ?? 'Online',
+        callStatus = json['callStatus']?.toString() ?? 'Online',
         charge = _d(json['charge'], 25.0),
         videoCallRate = _d(json['videoCallRate'], 50.0),
         reportRate = _d(json['reportRate'], 199.0),

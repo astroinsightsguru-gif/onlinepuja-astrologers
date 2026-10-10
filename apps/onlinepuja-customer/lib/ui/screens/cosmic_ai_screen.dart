@@ -57,18 +57,13 @@ class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
   @override
   void initState() {
     super.initState();
-    // Add warm welcome from Master Vedic AI Acharya Vashistha
+    final aiCfg = GrowthAiOsService.instance.aiConfig;
+    // Add warm welcome from Master Vedic AI dynamically configured via Growth & AI OS
     _turns.add(_AiTurn(
-      '🕉️ **हरि ॐ! सादर प्रणाम।**\n\n'
-      'I am **Acharya Vashistha**, your AI Vedic Guide & Astrological Companion powered by the **OnlinePuja.live Vedic AI Engine**.\n\n'
-      'Ask me anything about your **Kundli, Planetary Dashas, Career, Relationships, Gemstones, or Sacred Puja Remedies**. How may I guide you on your spiritual path today?',
+      aiCfg.welcomeGreeting,
       mine: false,
       timestamp: DateTime.now(),
-      suggestions: [
-        'Today\'s Graha Gochar prediction',
-        'Suggest an auspicious puja for peace',
-        'Check planetary dosha remedies',
-      ],
+      suggestions: aiCfg.starterPrompts.take(3).toList(),
     ));
   }
 
@@ -239,7 +234,7 @@ class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          'OnlinePuja AI',
+                          GrowthAiOsService.instance.brandConfig.brandName + ' AI',
                           style: TextStyle(
                             fontSize: 15.5,
                             fontWeight: FontWeight.w800,
@@ -274,7 +269,7 @@ class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Acharya Vashistha • 24/7 Vedic Intelligence',
+                        '${GrowthAiOsService.instance.aiConfig.botName} • ${GrowthAiOsService.instance.aiConfig.botTagline}',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -639,7 +634,7 @@ class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();
-                        MainShellScope.of(context)?.selectTab(2); // Astrologers tab
+                        MainShellScope.of(context)?.selectTab(3); // Astrologers tab
                       },
                       icon: const Icon(Icons.phone_in_talk_rounded, size: 15, color: Color(0xFFD97706)),
                       label: const Text('Live Astrologer', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
@@ -655,7 +650,7 @@ class _OnlinePujaAiScreenState extends State<OnlinePujaAiScreen> {
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();
-                        MainShellScope.of(context)?.selectTab(1); // Puja tab
+                        MainShellScope.of(context)?.selectTab(2); // Puja tab
                       },
                       icon: const Icon(Icons.local_fire_department_rounded, size: 15, color: Colors.white),
                       label: const Text('Book Puja Upay', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.white)),

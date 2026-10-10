@@ -1052,11 +1052,19 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.explore_rounded),
+              title: const Text('Explore Sanctum'),
+              onTap: () {
+                Navigator.pop(context);
+                _goToTab(1);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.local_fire_department_rounded),
               title: const Text('Book a Puja'),
               onTap: () {
                 Navigator.pop(context);
-                _goToTab(1);
+                _goToTab(2);
               },
             ),
             ListTile(
@@ -1064,7 +1072,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
               title: const Text('Consult Astrologers'),
               onTap: () {
                 Navigator.pop(context);
-                _goToTab(2);
+                _goToTab(3);
               },
             ),
             ListTile(
@@ -1072,7 +1080,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
               title: const Text('Live Temple Darshan'),
               onTap: () {
                 Navigator.pop(context);
-                _goToTab(3);
+                _goToTab(4);
               },
             ),
             ListTile(
@@ -1080,7 +1088,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
               title: const Text('AstroMall'),
               onTap: () {
                 Navigator.pop(context);
-                _goToTab(4);
+                _goToTab(5);
               },
             ),
             ListTile(

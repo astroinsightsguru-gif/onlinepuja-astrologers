@@ -5,6 +5,8 @@ import 'package:op_shared/op_shared.dart';
 import '../../theme/customer_theme.dart';
 
 class KpCalendarScreen extends StatefulWidget {
+  static const route = '/kp-calendar';
+
   const KpCalendarScreen({super.key});
 
   @override

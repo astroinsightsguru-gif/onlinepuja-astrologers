@@ -135,6 +135,72 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
+            // Viral Social Referral Card
+            SacredCard(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.volunteer_activism_rounded, color: Colors.white, size: 26),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Invite Devotees & Earn ₹51',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Share blessings with family. They get ₹1 consultation, you receive ₹51 Puja Cash!',
+                          style: TextStyle(fontSize: 11.5, color: isDark ? Colors.white60 : Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: CustomerTheme.brandGold,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                    onPressed: () {
+                      final devoteeName = u?.name ?? 'A Devotee';
+                      final refCode = u != null ? 'PUJA${u.id}' : 'PUJA2026';
+                      SacredShareSheet.show(
+                        context,
+                        title: 'Invite Friends & Family',
+                        subtitle: 'Earn ₹51 Puja Wallet Cash per Referral',
+                        shareText: SocialContentGenerator.formatReferralInvite(
+                          devoteeName: devoteeName,
+                          referralCode: refCode,
+                          bonusAmount: GrowthAiOsService.instance.socialConfig.referralBonusAmount,
+                        ),
+                        shareUrl: 'https://onlinepuja.live/invite/$refCode',
+                        category: 'Referral',
+                        referralCode: refCode,
+                      );
+                    },
+                    child: const Text('Invite', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+
+
             // 4. Section: Preferences & Appearance
             const SectionHeader(
               title: 'Preferences & Sanctum Settings',
@@ -170,8 +236,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // 5. Auth Action: Logout / Login
-            if (u != null)
+            // 5. Auth Action: Logout / Login / Delete Account
+            if (u != null) ...[
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: CustomerTheme.brandCrimson,
@@ -189,8 +255,26 @@ class ProfileScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 onPressed: () => _logout(context, session),
-              )
-            else
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red.shade400,
+                  ),
+                  icon: const Icon(Icons.delete_forever_rounded, size: 18),
+                  label: const Text(
+                    'Delete Devotee Account & Sanctum Data',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  onPressed: () => _deleteAccount(context, session),
+                ),
+              ),
+            ] else
               SacredButton(
                 text: 'Sign In to Online Puja',
                 icon: Icons.login_rounded,
@@ -561,6 +645,56 @@ class ProfileScreen extends StatelessWidget {
     if (ok == true) {
       await session.logout();
       if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          PhoneLoginScreen.route,
+          (r) => false,
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteAccount(BuildContext context, AppSession session) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Delete Account?'),
+          ],
+        ),
+        content: const Text(
+          'This action is irreversible. All your stored Gotra vaults, '
+          'Sankalp history, Kundli charts, and wallet balance will be '
+          'permanently erased in accordance with data privacy regulations.\n\n'
+          'Are you sure you wish to proceed?',
+          style: TextStyle(fontSize: 14, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Account'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Permanently Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await session.deleteAccount();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account and sanctum data successfully erased.'),
+            backgroundColor: Colors.red,
+          ),
+        );
         Navigator.of(context).pushNamedAndRemoveUntil(
           PhoneLoginScreen.route,
           (r) => false,

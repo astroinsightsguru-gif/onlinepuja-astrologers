@@ -1,12 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:op_shared/op_shared.dart';
-import 'package:onlinepuja_customer/state/app_session.dart';
-import 'package:onlinepuja_customer/ui/screens/home/consult_home_screen.dart';
-import 'package:onlinepuja_customer/ui/screens/main_shell.dart';
-import 'package:provider/provider.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

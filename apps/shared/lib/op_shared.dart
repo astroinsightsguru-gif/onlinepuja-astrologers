@@ -25,6 +25,7 @@ export 'src/services/mall_api.dart';
 export 'src/services/puja_api.dart';
 export 'src/services/misc_api.dart';
 export 'src/services/kp_service.dart';
+export 'src/services/growth_ai_os_service.dart';
 export 'src/l10n/app_strings.dart';
 export 'src/rtc/live_kit_call.dart';
 export 'src/theme/app_theme.dart';
@@ -35,4 +36,5 @@ export 'src/widgets/incoming_call_dialog.dart';
 export 'src/widgets/consultation_feedback_dialog.dart';
 export 'src/widgets/ai_copilot_card.dart';
 export 'src/widgets/language_picker_sheet.dart';
+export 'src/widgets/sacred_share_sheet.dart';
 

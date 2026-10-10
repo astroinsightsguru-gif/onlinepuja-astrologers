@@ -1,30 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
 
 import 'state/app_session.dart';
 import 'ui/screens/astrologer/astrologer_detail_screen.dart';
 import 'ui/screens/auth/otp_screen.dart';
 import 'ui/screens/auth/phone_login_screen.dart';
+import 'ui/screens/blog/blog_detail_screen.dart';
+import 'ui/screens/blog/blog_screen.dart';
 import 'ui/screens/call/audio_call_screen.dart';
-import 'ui/screens/chat/chat_session_screen.dart';
 import 'ui/screens/charity/annadaan_screen.dart';
+import 'ui/screens/chat/chat_session_screen.dart';
+import 'ui/screens/cosmic_ai_screen.dart';
 import 'ui/screens/darshan/live_darshan_screen.dart';
 import 'ui/screens/explore/prashna_oracle_screen.dart';
 import 'ui/screens/explore/swapna_shastra_screen.dart';
-import 'ui/screens/japa/japa_mala_screen.dart';
-import 'ui/screens/main_shell.dart';
-import 'ui/screens/orders/prasadam_tracker_screen.dart';
-import 'ui/screens/profile/wallet_screen.dart';
-import 'ui/screens/splash_screen.dart';
-import 'ui/screens/notifications_screen.dart';
+import 'ui/screens/history/history_screen.dart';
 import 'ui/screens/horoscope/daily_horoscope_screen.dart';
-import 'ui/screens/panchang/panchang_screen.dart';
+import 'ui/screens/japa/japa_mala_screen.dart';
+import 'ui/screens/kp/kp_calendar_screen.dart';
+import 'ui/screens/kundli/kundli_detail_screen.dart';
 import 'ui/screens/kundli/kundli_list_screen.dart';
 import 'ui/screens/kundli/kundli_matching_screen.dart';
-import 'ui/screens/puja/puja_list_screen.dart';
+import 'ui/screens/main_shell.dart';
 import 'ui/screens/mall/mall_screen.dart';
-import 'ui/screens/cosmic_ai_screen.dart';
-import 'ui/screens/blog/blog_screen.dart';
+import 'ui/screens/mall/product_detail_screen.dart';
+import 'ui/screens/notifications_screen.dart';
+import 'ui/screens/orders/prasadam_tracker_screen.dart';
+import 'ui/screens/panchang/choghadiya_radar_screen.dart';
+import 'ui/screens/panchang/panchang_screen.dart';
+import 'ui/screens/profile/family_gotra_vault_screen.dart';
+import 'ui/screens/profile/wallet_screen.dart';
+import 'ui/screens/puja/puja_detail_screen.dart';
+import 'ui/screens/puja/puja_list_screen.dart';
+import 'ui/screens/puja/sankalp_vault_screen.dart';
+import 'ui/screens/splash_screen.dart';
 
 import 'ui/theme/customer_theme.dart';
 
@@ -35,7 +45,7 @@ class OnlinePujaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = context.watch<AppSession>();
     return MaterialApp(
-      title: 'Online Puja',
+      title: 'OnlinePuja.live',
       debugShowCheckedModeBanner: false,
       theme: CustomerTheme.light(),
       darkTheme: CustomerTheme.dark(),
@@ -48,20 +58,25 @@ class OnlinePujaApp extends StatelessWidget {
         MainShell.route: (_) => const MainShell(),
         WalletScreen.route: (_) => const WalletScreen(),
         PrashnaOracleScreen.route: (_) => const PrashnaOracleScreen(),
-                LiveDarshanScreen.route: (_) => const LiveDarshanScreen(),
+        LiveDarshanScreen.route: (_) => const LiveDarshanScreen(),
         JapaMalaScreen.route: (_) => const JapaMalaScreen(),
         SwapnaShastraScreen.route: (_) => const SwapnaShastraScreen(),
         AnnadaanScreen.route: (_) => const AnnadaanScreen(),
         NotificationsScreen.route: (_) => const NotificationsScreen(),
         DailyHoroscopeScreen.route: (_) => const DailyHoroscopeScreen(),
         PanchangScreen.route: (_) => const PanchangScreen(),
+        ChoghadiyaRadarScreen.route: (_) => const ChoghadiyaRadarScreen(),
         KundliListScreen.route: (_) => const KundliListScreen(),
         KundliMatchingScreen.route: (_) => const KundliMatchingScreen(),
         PujaListScreen.route: (_) => const PujaListScreen(),
+        SankalpVaultScreen.route: (_) => const SankalpVaultScreen(),
+        FamilyGotraVaultScreen.route: (_) => const FamilyGotraVaultScreen(),
         MallScreen.route: (_) => const MallScreen(),
         OnlinePujaAiScreen.route: (_) => const OnlinePujaAiScreen(),
         CosmicAiScreen.route: (_) => const OnlinePujaAiScreen(),
         BlogScreen.route: (_) => const BlogScreen(),
+        HistoryScreen.route: (_) => const HistoryScreen(),
+        KpCalendarScreen.route: (_) => const KpCalendarScreen(),
       },
       onGenerateRoute: (settings) {
         final args = settings.arguments;
@@ -103,6 +118,34 @@ class OnlinePujaApp extends StatelessWidget {
                 isVideo: map()['isVideo'] as bool? ?? false,
               ),
             );
+          case KundliDetailScreen.route:
+            if (args is Kundli) {
+              return MaterialPageRoute(
+                builder: (_) => KundliDetailScreen(kundli: args),
+              );
+            }
+            break;
+          case PujaDetailScreen.route:
+            if (args is Puja) {
+              return MaterialPageRoute(
+                builder: (_) => PujaDetailScreen(puja: args),
+              );
+            }
+            break;
+          case ProductDetailScreen.route:
+            if (args is Product) {
+              return MaterialPageRoute(
+                builder: (_) => ProductDetailScreen(product: args),
+              );
+            }
+            break;
+          case BlogDetailScreen.route:
+            if (args is Blog) {
+              return MaterialPageRoute(
+                builder: (_) => BlogDetailScreen(blog: args),
+              );
+            }
+            break;
         }
         return null;
       },
@@ -169,6 +212,16 @@ extension OpNav on BuildContext {
   Future<void> openSwapnaShastra() => pushNamed(SwapnaShastraScreen.route);
 
   Future<void> openAnnadaan() => pushNamed(AnnadaanScreen.route);
+
+  Future<void> openChoghadiyaRadar() => pushNamed(ChoghadiyaRadarScreen.route);
+
+  Future<void> openFamilyGotraVault() => pushNamed(FamilyGotraVaultScreen.route);
+
+  Future<void> openSankalpVault() => pushNamed(SankalpVaultScreen.route);
+
+  Future<void> openHistory() => pushNamed(HistoryScreen.route);
+
+  Future<void> openKpCalendar() => pushNamed(KpCalendarScreen.route);
 
   Future<void> pushNamed(String route, [Map<String, dynamic>? args]) =>
       Navigator.of(this).pushNamed(route, arguments: args);

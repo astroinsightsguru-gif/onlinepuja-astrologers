@@ -91,6 +91,18 @@ class AppSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteAccount() async {
+    final uid = user?.id;
+    if (uid != null && uid > 0) {
+      try {
+        await ApiClient.instance.post('/user/delete', body: {'id': uid, 'userId': uid});
+      } catch (e) {
+        debugPrint('deleteAccount api best-effort: $e');
+      }
+    }
+    await logout();
+  }
+
   Future<void> logout() async {
     await AuthApi.instance.logout();
     user = null;

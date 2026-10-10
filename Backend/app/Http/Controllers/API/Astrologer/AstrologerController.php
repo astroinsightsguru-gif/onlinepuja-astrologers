@@ -1557,8 +1557,8 @@ class AstrologerController extends Controller
                 //     'updated_at' => Carbon::now(),
                 // );
 
-                if (astrologer->userId > 0) {
-                    DB::table('users')->where('id', astrologer->userId)->delete();
+                if ($astrologer->userId > 0) {
+                    DB::table('users')->where('id', $astrologer->userId)->delete();
                 }
 
                 $astrologer->delete();

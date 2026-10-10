@@ -3,33 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../theme/customer_theme.dart';
 
-/// Represents a sacred temple live darshan feed.
-class TempleFeed {
-  final String id;
-  final String name;
-  final String deity;
-  final String location;
-  final String timing;
-  final String thumbnailUrl;
-  final String streamUrl;
-  final String description;
-
-  const TempleFeed({
-    required this.id,
-    required this.name,
-    required this.deity,
-    required this.location,
-    required this.timing,
-    required this.thumbnailUrl,
-    required this.streamUrl,
-    required this.description,
-  });
-}
-
-/// Live Temple Darshan & Virtual Aarti Hub.
-/// Allows devotees to watch live feeds of Kashi Vishwanath, Ganga Aarti, Mahakal,
-/// and offer virtual Flowers, Diya, and Bell chimes with real-time animations.
+/// Live Mandir Darshan & Virtual Sanctum Hub.
+/// Allows devotees worldwide to witness 24/7 official sanctum feeds of sacred Jyotirlingas & Dhams,
+/// perform virtual Aarti rituals (Diya, Temple Bell, Pushpanjali), and offer sacred Chadhava.
 class LiveDarshanScreen extends StatefulWidget {
   const LiveDarshanScreen({super.key});
 
@@ -39,94 +17,78 @@ class LiveDarshanScreen extends StatefulWidget {
   State<LiveDarshanScreen> createState() => _LiveDarshanScreenState();
 }
 
-class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTickerProviderStateMixin {
+class _LiveDarshanScreenState extends State<LiveDarshanScreen>
+    with SingleTickerProviderStateMixin {
   late TempleFeed _selectedFeed;
   int _flowerCount = 0;
   bool _diyaLit = false;
   int _bellChimes = 0;
   final List<Offset> _floatingFlowers = [];
   Timer? _flowerCleanup;
+  String _selectedCategory = 'All';
 
-  static const List<TempleFeed> _templeFeeds = [
-    TempleFeed(
-      id: 'kashi',
-      name: 'Shri Kashi Vishwanath Jyotirlinga',
-      deity: 'Lord Shiva',
-      location: 'Varanasi, Uttar Pradesh',
-      timing: 'Mangala Aarti 3:00 AM - Sandhya 7:00 PM',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
-      streamUrl: 'https://www.youtube.com/@ShriKashiVishwanathTempleTrust/live',
-      description: 'Official Live Sanctum Darshan of the first Jyotirlinga on the holy banks of river Ganga.',
-    ),
-    TempleFeed(
-      id: 'ganga_aarti',
-      name: 'Dashashwamedh Ghat Maha Ganga Aarti',
-      deity: 'Maa Ganga',
-      location: 'Dashashwamedh Ghat, Varanasi',
-      timing: 'Daily Sunset 6:30 PM - 7:30 PM',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80',
-      streamUrl: 'https://www.youtube.com/@GangaAartiVaranasiOfficial/live',
-      description: 'The world-renowned Grand Sunset Aarti with sacred brass deepams, shankha naad, and vedic chants.',
-    ),
-    TempleFeed(
-      id: 'mahakal',
-      name: 'Mahakaleshwar Jyotirlinga',
-      deity: 'Lord Mahakal',
-      location: 'Ujjain, Madhya Pradesh',
-      timing: 'Bhasma Aarti 4:00 AM - Shringar 7:30 PM',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80',
-      streamUrl: 'https://www.youtube.com/@shreemahakaleshwarmandiruj790/live',
-      description: 'Official Live holy Darshan & Bhasma Aarti of the South-facing Dakshinmukhi Swayambhu Jyotirlinga.',
-    ),
-    TempleFeed(
-      id: 'somnath',
-      name: 'Somnath Mahadev Jyotirlinga',
-      deity: 'Lord Shiva',
-      location: 'Prabhas Patan, Gujarat',
-      timing: 'Daily 6:00 AM - 9:30 PM',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1621847468516-1ed5d0df56fe?auto=format&fit=crop&w=800&q=80',
-      streamUrl: 'https://www.youtube.com/@SomnathTempleOfficial/live',
-      description: 'First of the twelve sacred Aadi Jyotirlingas situated on the coast of the Arabian Sea.',
-    ),
-    TempleFeed(
-      id: 'shirdi',
-      name: 'Shirdi Sai Baba Samadhi Mandir',
-      deity: 'Shirdi Sai Baba',
-      location: 'Shirdi, Maharashtra',
-      timing: 'Kakad Aarti 4:30 AM - Dhoop 6:00 PM - Shej 10:00 PM',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-      streamUrl: 'https://www.youtube.com/@SaiBabaSansthanTrustShirdi/live',
-      description: '24/7 Live Darshan & Aarti from the sacred Samadhi Mandir of Sai Baba.',
-    ),
-  ];
+  late AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    final feeds = GrowthAiOsService.instance.activeTempleFeeds;
+    _selectedFeed = feeds.isNotEmpty
+        ? feeds.first
+        : GrowthAiOsService.defaultTempleFeeds.first;
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _flowerCleanup?.cancel();
+    super.dispose();
+  }
+
+  List<TempleFeed> get _filteredFeeds {
+    final feeds = GrowthAiOsService.instance.activeTempleFeeds;
+    if (_selectedCategory == 'All') return feeds;
+    if (_selectedCategory == 'Jyotirlinga') {
+      return feeds
+          .where((f) =>
+              f.name.toLowerCase().contains('jyotirlinga') ||
+              f.description.toLowerCase().contains('jyotirlinga'))
+          .toList();
+    }
+    if (_selectedCategory == 'Ganga') {
+      return feeds
+          .where((f) =>
+              f.name.toLowerCase().contains('ganga') ||
+              f.location.toLowerCase().contains('varanasi'))
+          .toList();
+    }
+    return feeds;
+  }
 
   Future<void> _openLiveStream() async {
     HapticFeedback.mediumImpact();
     final uri = Uri.parse(_selectedFeed.streamUrl);
     try {
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!launched && mounted) {
         await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Opening ${_selectedFeed.name} live stream')),
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text('Opening ${_selectedFeed.name} live sanctum stream…'),
+          ),
         );
       }
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedFeed = _templeFeeds.first;
-  }
-
-  @override
-  void dispose() {
-    _flowerCleanup?.cancel();
-    super.dispose();
   }
 
   void _offerFlowers() {
@@ -134,7 +96,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     setState(() {
       _flowerCount++;
       _floatingFlowers.add(Offset(
-        (0.2 + (0.6 * (DateTime.now().millisecond / 1000))),
+        0.2 + (0.6 * (DateTime.now().millisecond / 1000)),
         0.8,
       ));
     });
@@ -143,15 +105,47 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     _flowerCleanup = Timer(const Duration(seconds: 4), () {
       if (mounted) setState(() => _floatingFlowers.clear());
     });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(milliseconds: 1400),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFFD97706),
+        content: Row(
+          children: [
+            const Icon(Icons.local_florist_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              'Offered Pushpa to ${_selectedFeed.deity} (Count: $_flowerCount)',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _ringBell() {
-    HapticFeedback.mediumImpact();
+    HapticFeedback.heavyImpact();
     setState(() => _bellChimes++);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        duration: Duration(milliseconds: 1500),
-        content: Text('?? Temple bell chimed. Divine vibrations awakened!'),
+      SnackBar(
+        duration: const Duration(milliseconds: 1400),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFFB45309),
+        content: Row(
+          children: [
+            const Icon(Icons.notifications_active_rounded, color: Colors.amberAccent, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              'Sacred Ghanta Naad awakened at ${_selectedFeed.name}!',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -159,192 +153,457 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
   void _toggleDiya() {
     HapticFeedback.heavyImpact();
     setState(() => _diyaLit = !_diyaLit);
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     if (_diyaLit) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text('?? Sacred Akhand Diya lit in your name at the sanctum!'),
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF92400E),
+          content: const Row(
+            children: [
+              Icon(Icons.whatshot_rounded, color: Colors.amberAccent, size: 20),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Akhand Deepam ignited in your name at the sanctum!',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+  void _showChadhavaSheet() {
+    final tiers = GrowthAiOsService.instance.growthConfig.chadhavaTiers;
+    int selectedAmount = _selectedFeed.chadhavaMinPrice;
+    final nameCtrl = TextEditingController();
+    final gotraCtrl = TextEditingController();
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Row(children: [RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' - Live Darshan', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.white70))])),
-            SizedBox(width: 8),
-            Icon(Icons.fiber_manual_record, color: Colors.redAccent, size: 14),
-            SizedBox(width: 4),
-            Text('LIVE', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
-          ],
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Container(
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0F172A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: CustomerTheme.brandGold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.volunteer_activism_rounded,
+                        color: CustomerTheme.brandGold, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Offer Sacred Chadhava',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          _selectedFeed.name,
+                          style: const TextStyle(
+                              color: Colors.white60, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Select Seva Dakshina Tier:',
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: tiers.map((amt) {
+                  final isSel = selectedAmount == amt;
+                  return ChoiceChip(
+                    label: Text('₹$amt',
+                        style: TextStyle(
+                            color: isSel ? Colors.black : Colors.white,
+                            fontWeight: FontWeight.bold)),
+                    selected: isSel,
+                    selectedColor: CustomerTheme.brandGold,
+                    backgroundColor: const Color(0xFF1E293B),
+                    onSelected: (val) {
+                      if (val) setSheetState(() => selectedAmount = amt);
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Devotee / Yajman Name',
+                  labelStyle: const TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: const Color(0xFF1E293B),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: gotraCtrl,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Gotra (Optional)',
+                  labelStyle: const TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: const Color(0xFF1E293B),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: CustomerTheme.brandGold,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: const Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle_rounded,
+                                color: Colors.white),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Sacred Chadhava of ₹$selectedAmount recorded! Sankalp will be chanted at ${_selectedFeed.name}.',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Confirm & Offer ₹$selectedAmount',
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      body: Column(
-        children: [
-          // 1. Live Video Stream Container with Interactive Overlays
-          Expanded(
-            flex: 5,
-            child: Stack(
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final allFeeds = _filteredFeeds;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.temple_hindu_rounded,
+                  color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Video Screen / Sanctum View
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: const Color(0xFF0F172A),
-                  child: Stack(
-                    fit: StackFit.expand,
+                RichText(
+                  text: TextSpan(
                     children: [
-                      Image.network(
-                        _selectedFeed.thumbnailUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: AppTheme.brandDeep,
-                          child: const Center(
-                            child: Icon(Icons.temple_hindu_rounded, size: 64, color: Colors.white54),
-                          ),
+                      TextSpan(
+                        text: GrowthAiOsService.instance.brandConfig.brandName,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
-                      // Dark gradient overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.3),
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.8),
-                            ],
-                          ),
+                      const TextSpan(
+                        text: ' • Live Mandir',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFD97706),
                         ),
                       ),
-                      // Live broadcast badge & timing
-                      Positioned(
-                        top: 14,
-                        left: 14,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.sensors, color: Colors.white, size: 14),
-                              SizedBox(width: 5),
-                              Text('LIVE SANCTUM FEED', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Lit Diya Overlay if active
-                      if (_diyaLit)
-                        Positioned(
-                          bottom: 24,
-                          left: 20,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.65),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.amberAccent),
-                            ),
-                            child: const Row(
-                              children: [
-                                Text('??', style: TextStyle(fontSize: 18)),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Your Diya is Glowing at the Sanctum',
-                                  style: TextStyle(color: Colors.amberAccent, fontSize: 12, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      // Central Watch Live CTA
-                      Center(
-                        child: GestureDetector(
-                          onTap: _openLiveStream,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.75),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.redAccent.withValues(alpha: 0.9), width: 1.5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.redAccent.withValues(alpha: 0.4),
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: Colors.redAccent,
-                                  child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'WATCH LIVE SANCTUM FEED',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Animated floating flowers
-                      ..._floatingFlowers.map((pos) => Positioned(
-                            bottom: 60,
-                            left: MediaQuery.of(context).size.width * pos.dx,
-                            child: const Text('??', style: TextStyle(fontSize: 28)),
-                          )),
                     ],
                   ),
                 ),
+                Text(
+                  '24/7 Sanctum Feeds & Sacred Aarti',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'Share Live Darshan',
+            icon: const Icon(Icons.share_outlined, size: 20),
+            onPressed: () {
+              SacredShareSheet.show(
+                context,
+                title: 'Share Sacred Darshan',
+                subtitle: _selectedFeed.name,
+                shareText: SocialContentGenerator.formatDarshanShare(
+                  templeName: _selectedFeed.name,
+                  deity: _selectedFeed.deity,
+                  timing: _selectedFeed.timing,
+                  streamUrl: _selectedFeed.streamUrl,
+                ),
+                shareUrl: _selectedFeed.streamUrl,
+                category: 'LiveDarshan',
+              );
+            },
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          // 1. Hero Live Broadcast Video Screen
+          _buildLiveBroadcastHero(context, isDark),
 
-                // Live Aarti Offering Controls Overlay Bar
-                Positioned(
-                  bottom: 12,
-                  right: 14,
+          // 2. Sanctum Information & Chadhava CTA
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: _buildSanctumDetailsCard(isDark),
+          ),
+
+          // 3. Category Filter Tabs
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _buildCategoryFilters(isDark),
+          ),
+
+          const SizedBox(height: 12),
+
+          // 4. Sacred Shrines Carousel / Grid
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Sacred Shrines & Jyotirlingas',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${allFeeds.length} Shrines Live',
+                  style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFD97706)),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Horizontal Temple Carousel
+          SizedBox(
+            height: 180,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: allFeeds.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, i) {
+                final feed = allFeeds[i];
+                final isSelected = feed.id == _selectedFeed.id;
+                return _buildTempleThumbnailCard(feed, isSelected, isDark);
+              },
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // 5. Daily Aarti Schedule Guide
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _buildAartiScheduleCard(isDark),
+          ),
+
+          const SizedBox(height: 30),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // HERO LIVE BROADCAST
+  // =========================================================================
+  Widget _buildLiveBroadcastHero(BuildContext context, bool isDark) {
+    return Container(
+      width: double.infinity,
+      height: 250,
+      color: Colors.black,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Sanctum Thumbnail
+          Image.network(
+            _selectedFeed.thumbnailUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: const Color(0xFF1E293B),
+              child: const Center(
+                child: Icon(Icons.temple_hindu_rounded,
+                    size: 64, color: Colors.white38),
+              ),
+            ),
+          ),
+
+          // Gradient Vignette Overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.4),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.85),
+                ],
+              ),
+            ),
+          ),
+
+          // Top Left: Live Status Badge
+          Positioned(
+            top: 14,
+            left: 14,
+            child: Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FadeTransition(
+                        opacity: _pulseController,
+                        child: Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      const Text(
+                        'LIVE SANCTUM',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Row(
                     children: [
-                      _actionButton(
-                        icon: '??',
-                        label: 'Ring Bell',
-                        count: _bellChimes > 0 ? '$_bellChimes' : null,
-                        onTap: _ringBell,
-                      ),
-                      const SizedBox(width: 8),
-                      _actionButton(
-                        icon: '??',
-                        label: 'Offer Pushpa',
-                        count: _flowerCount > 0 ? '$_flowerCount' : null,
-                        onTap: _offerFlowers,
-                      ),
-                      const SizedBox(width: 8),
-                      _actionButton(
-                        icon: '??',
-                        label: _diyaLit ? 'Diya Lit' : 'Light Diya',
-                        highlight: _diyaLit,
-                        onTap: _toggleDiya,
+                      const Icon(Icons.visibility_rounded,
+                          color: Colors.white70, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${_selectedFeed.viewerCount} Devotees',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -353,153 +612,120 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
             ),
           ),
 
-          // 2. Temple Information & Selector
-          Expanded(
-            flex: 5,
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          // Lit Diya Indicator Badge
+          if (_diyaLit)
+            Positioned(
+              top: 14,
+              right: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.75),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.amberAccent),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.whatshot_rounded,
+                        color: Colors.amberAccent, size: 14),
+                    SizedBox(width: 4),
+                    Text(
+                      'Akhand Diya Lit',
+                      style: TextStyle(
+                          color: Colors.amberAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _selectedFeed.name,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _selectedFeed.location,
-                              style: TextStyle(color: scheme.outline, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.brandSaffron,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Sankalp & Chadhava recorded! Pandit ji will perform your prayer.')),
-                          );
-                        },
-                        icon: const Icon(Icons.volunteer_activism_rounded, size: 16),
-                        label: const Text('Offer Chadhava ?51'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _selectedFeed.description,
-                    style: const TextStyle(fontSize: 12.5, height: 1.4),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandSaffron.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.brandSaffron.withValues(alpha: 0.25)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.access_time_filled_rounded, size: 16, color: AppTheme.brandDeep),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Auspicious Aarti Timings: ${_selectedFeed.timing}',
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppTheme.brandDeep),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 6),
-                  const Text('Select Holy Destination:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  const SizedBox(height: 10),
+            ),
 
-                  // Horizontal Temple Selector
-                  Expanded(
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _templeFeeds.length,
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
-                      itemBuilder: (context, i) {
-                        final feed = _templeFeeds[i];
-                        final isCurrent = feed.id == _selectedFeed.id;
-
-                        return InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            setState(() {
-                              _selectedFeed = feed;
-                              _flowerCount = 0;
-                              _diyaLit = false;
-                              _bellChimes = 0;
-                            });
-                          },
-                          child: Container(
-                            width: 140,
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isCurrent
-                                  ? AppTheme.brandSaffron.withValues(alpha: 0.15)
-                                  : scheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isCurrent ? AppTheme.brandSaffron : scheme.outline.withValues(alpha: 0.2),
-                                width: isCurrent ? 2 : 1,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    feed.thumbnailUrl,
-                                    height: 64,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => Container(
-                                      height: 64,
-                                      color: AppTheme.brandDeep,
-                                      child: const Center(child: Icon(Icons.temple_hindu, color: Colors.white54)),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  feed.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
-                                    fontSize: 11.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+          // Center CTA: Watch Live Stream
+          Center(
+            child: GestureDetector(
+              onTap: _openLiveStream,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFDC2626), Color(0xFF991B1B)],
                   ),
-                ],
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.redAccent.withValues(alpha: 0.5),
+                      blurRadius: 18,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.play_arrow_rounded,
+                          color: Colors.red, size: 20),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'WATCH LIVE BROADCAST',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
+          ),
+
+          // Floating Flowers Animation
+          ..._floatingFlowers.map((pos) => Positioned(
+                bottom: 70,
+                left: MediaQuery.of(context).size.width * pos.dx,
+                child: const Icon(
+                  Icons.local_florist_rounded,
+                  color: Colors.orangeAccent,
+                  size: 26,
+                ),
+              )),
+
+          // Bottom Bar: Virtual Aarti & Offering Controls
+          Positioned(
+            bottom: 12,
+            left: 14,
+            right: 14,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _buildRitualPill(
+                  icon: Icons.notifications_active_rounded,
+                  label: 'Ring Bell',
+                  count: _bellChimes > 0 ? '$_bellChimes' : null,
+                  onTap: _ringBell,
+                ),
+                const SizedBox(width: 8),
+                _buildRitualPill(
+                  icon: Icons.local_florist_rounded,
+                  label: 'Offer Pushpa',
+                  count: _flowerCount > 0 ? '$_flowerCount' : null,
+                  onTap: _offerFlowers,
+                ),
+                const SizedBox(width: 8),
+                _buildRitualPill(
+                  icon: Icons.whatshot_rounded,
+                  label: _diyaLit ? 'Diya Lit' : 'Light Diya',
+                  highlight: _diyaLit,
+                  onTap: _toggleDiya,
+                ),
+              ],
             ),
           ),
         ],
@@ -507,8 +733,8 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
     );
   }
 
-  Widget _actionButton({
-    required String icon,
+  Widget _buildRitualPill({
+    required IconData icon,
     required String label,
     String? count,
     bool highlight = false,
@@ -519,14 +745,22 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: highlight ? Colors.amberAccent : Colors.black.withValues(alpha: 0.65),
+          color: highlight
+              ? Colors.amberAccent
+              : Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: highlight ? Colors.amber : Colors.white30),
+          border: Border.all(
+            color: highlight ? Colors.amber : Colors.white24,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 14)),
+            Icon(
+              icon,
+              size: 14,
+              color: highlight ? Colors.black : Colors.white,
+            ),
             const SizedBox(width: 4),
             Text(
               count != null ? '$label ($count)' : label,
@@ -541,5 +775,363 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen> with SingleTicker
       ),
     );
   }
-}
 
+  // =========================================================================
+  // SANCTUM DETAILS CARD
+  // =========================================================================
+  Widget _buildSanctumDetailsCard(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedFeed.name,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded,
+                            size: 13, color: CustomerTheme.brandGold),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            _selectedFeed.location,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: CustomerTheme.brandGold,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                onPressed: _showChadhavaSheet,
+                icon: const Icon(Icons.volunteer_activism_rounded, size: 15),
+                label: Text(
+                  'Offer Chadhava ₹${_selectedFeed.chadhavaMinPrice}',
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _selectedFeed.description,
+            style: TextStyle(
+              fontSize: 12.5,
+              height: 1.45,
+              color: isDark ? Colors.white70 : const Color(0xFF334155),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: CustomerTheme.brandGold.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                  color: CustomerTheme.brandGold.withValues(alpha: 0.25)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.schedule_rounded,
+                    size: 15, color: CustomerTheme.brandGold),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Sacred Aarti Timings: ${_selectedFeed.timing}',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFD97706),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // CATEGORY FILTERS
+  // =========================================================================
+  Widget _buildCategoryFilters(bool isDark) {
+    const cats = ['All', 'Jyotirlinga', 'Ganga'];
+    return Row(
+      children: cats.map((cat) {
+        final isSel = _selectedCategory == cat;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChoiceChip(
+            label: Text(cat,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+                    color: isSel
+                        ? Colors.white
+                        : (isDark ? Colors.white70 : Colors.black87))),
+            selected: isSel,
+            selectedColor: CustomerTheme.brandGold,
+            backgroundColor:
+                isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+            onSelected: (val) {
+              if (val) setState(() => _selectedCategory = cat);
+            },
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // =========================================================================
+  // TEMPLE THUMBNAIL CARD
+  // =========================================================================
+  Widget _buildTempleThumbnailCard(
+      TempleFeed feed, bool isSelected, bool isDark) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        setState(() {
+          _selectedFeed = feed;
+          _flowerCount = 0;
+          _diyaLit = false;
+          _bellChimes = 0;
+        });
+      },
+      child: Container(
+        width: 140,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? CustomerTheme.brandGold
+                : (isDark ? Colors.white12 : Colors.black12),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: CustomerTheme.brandGold.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(14)),
+                  child: Image.network(
+                    feed.thumbnailUrl,
+                    height: 84,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 84,
+                      color: Colors.amber.shade900,
+                      child: const Center(
+                          child: Icon(Icons.temple_hindu_rounded,
+                              color: Colors.white)),
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: CustomerTheme.brandGold,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text('WATCHING',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    feed.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 11.5,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    feed.deity,
+                    style: const TextStyle(
+                        fontSize: 10,
+                        color: CustomerTheme.brandGold,
+                        fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // AARTI SCHEDULE CARD
+  // =========================================================================
+  Widget _buildAartiScheduleCard(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_stories_rounded,
+                  color: CustomerTheme.brandGold, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Sacred Darshan & Ritual Guidelines',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildRitualStep(
+              number: '1',
+              title: 'Shauch & Sanctity',
+              desc:
+                  'Perform physical cleansing or wash hands before attending virtual sanctum Aarti.',
+              isDark: isDark),
+          _buildRitualStep(
+              number: '2',
+              title: 'Dhyaan & Shankha Naad',
+              desc:
+                  'Keep audio turned on during Ganga Aarti or Jyotirlinga Bhasma Aarti to receive Vedic vibrational benefits.',
+              isDark: isDark),
+          _buildRitualStep(
+              number: '3',
+              title: 'Akhand Diya & Sankalp',
+              desc:
+                  'Ignite a virtual Akhand Diya or record your family Gotra for monthly Brahmin prayers.',
+              isDark: isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRitualStep({
+    required String number,
+    required String title,
+    required String desc,
+    required bool isDark,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 10,
+            backgroundColor: CustomerTheme.brandGold.withValues(alpha: 0.2),
+            child: Text(
+              number,
+              style: const TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                  color: CustomerTheme.brandGold),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(
+                  desc,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

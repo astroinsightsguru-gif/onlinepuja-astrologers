@@ -103,14 +103,16 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   Future<void> _fetch({bool forceScroll = false}) async {
     if (_sessionId == null) return;
-    final fresh = await AstrologerApi.instance
-        .chatHistory(sessionId: _sessionId!, myId: _myId);
-    if (!mounted) return;
-    final hasNewMessages = fresh.length > _messages.length;
-    setState(() => _messages = fresh);
-    if (forceScroll || hasNewMessages) {
-      _jumpToBottom();
-    }
+    try {
+      final fresh = await AstrologerApi.instance
+          .chatHistory(sessionId: _sessionId!, myId: _myId);
+      if (!mounted) return;
+      final hasNewMessages = fresh.length > _messages.length;
+      setState(() => _messages = fresh);
+      if (forceScroll || hasNewMessages) {
+        _jumpToBottom();
+      }
+    } catch (_) {}
   }
 
   void _jumpToBottom() {
@@ -973,7 +975,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
 
                 return ListView.separated(
                   itemCount: filtered.length,
-                  separatorBuilder: (_, ___) => const SizedBox(height: 10),
+                  separatorBuilder: (_, index) => const SizedBox(height: 10),
                   itemBuilder: (context, i) {
                     final item = filtered[i];
                     final title = item['puja_title']?.toString() ?? 'Puja';

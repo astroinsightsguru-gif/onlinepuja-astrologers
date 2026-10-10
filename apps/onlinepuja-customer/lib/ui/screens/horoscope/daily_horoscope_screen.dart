@@ -108,13 +108,26 @@ class _DailyHoroscopeScreenState extends State<DailyHoroscopeScreen>
         title: const Text('Daily Horoscope'),
         actions: [
           IconButton(
-            tooltip: 'Share',
+            tooltip: 'Share Horoscope',
             icon: const Icon(Icons.share_outlined),
             onPressed: () {
               final sign = _activeSign?.name ?? 'Horoscope';
-              Clipboard.setData(ClipboardData(
-                  text: 'Check $sign daily Vedic horoscope on Online Puja: https://onlinepuja.live/horoscope'));
-              showSnack(context, '$sign horoscope link copied to clipboard!');
+              final pred = (_horoscope?.predictions ?? '').isNotEmpty
+                  ? _horoscope!.predictions!
+                  : 'Check your daily Vedic astrological forecast on OnlinePuja.';
+              SacredShareSheet.show(
+                context,
+                title: 'Share Daily Rashifal',
+                subtitle: '$sign Horoscope',
+                shareText: SocialContentGenerator.formatHoroscopeShare(
+                  signName: sign,
+                  prediction: pred,
+                  luckyNumber: _horoscope?.luckyNumber,
+                  luckyColor: _horoscope?.luckyColor,
+                ),
+                shareUrl: 'https://onlinepuja.live/horoscope',
+                category: 'Horoscope',
+              );
             },
           ),
         ],

@@ -185,6 +185,18 @@ class PartnerSession extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteAccount() async {
+    final uid = user?.id;
+    if (uid != null && uid > 0) {
+      try {
+        await ApiClient.instance.post('/astrologer/delete', body: {'id': uid, 'astrologerId': uid});
+      } catch (e) {
+        debugPrint('deleteAstrologer api best-effort: $e');
+      }
+    }
+    await logout();
+  }
+
   Future<void> logout() async {
     await AuthApi.instance.logout();
     user = null;

@@ -9,6 +9,7 @@ import '../checkout/checkout_screen.dart';
 /// Checkout goes through the unified [CheckoutScreen.product] flow:
 /// delivery address → `userOrder/add` (wallet-funded server-side).
 class ProductDetailScreen extends StatefulWidget {
+  static const route = '/product-detail';
   const ProductDetailScreen({super.key, required this.product});
 
   final Product product;

@@ -20,13 +20,16 @@ class OnlinePujaPartnerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<PartnerSession>();
-    return MaterialApp(
-      title: 'Online Puja Astrologer',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: session.themeMode,
-      initialRoute: SplashScreen.route,
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: LocaleManager.instance.currentLanguage,
+      builder: (context, currentLanguage, _) {
+        return MaterialApp(
+          title: 'OnlinePuja.astro',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: session.themeMode,
+          initialRoute: SplashScreen.route,
       routes: {
         SplashScreen.route: (_) => const SplashScreen(),
         LoginScreen.route: (_) => const LoginScreen(),
@@ -63,6 +66,8 @@ class OnlinePujaPartnerApp extends StatelessWidget {
             );
         }
         return null;
+      },
+    );
       },
     );
   }

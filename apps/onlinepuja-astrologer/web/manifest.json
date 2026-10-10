@@ -1,11 +1,11 @@
 {
-    "name": "onlinepuja_astrologer",
-    "short_name": "onlinepuja_astrologer",
+    "name": "OnlinePuja.astro",
+    "short_name": "OnlinePuja.astro",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FF9933",
+    "theme_color": "#FF9933",
+    "description": "OnlinePuja.astro - Dedicated Astrologer & Pandit Portal for Live Consultations, Pujas & Chat.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

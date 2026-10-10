@@ -1,11 +1,11 @@
 {
-    "name": "onlinepuja_customer",
-    "short_name": "onlinepuja_customer",
+    "name": "OnlinePuja.live",
+    "short_name": "OnlinePuja.live",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FF9933",
+    "theme_color": "#FF9933",
+    "description": "OnlinePuja.live - Consult verified astrologers, free kundli, pujas & more.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -105,16 +105,18 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   Future<void> _fetch() async {
     if (_sessionId == null) return;
-    final fresh = await AstrologerApi.instance
-        .chatHistory(sessionId: _sessionId!, myId: _myId);
-    if (!mounted) return;
-    setState(() {
-      _messages = fresh;
-      if (_sessionStart != null) {
-        _elapsed = DateTime.now().difference(_sessionStart!);
-      }
-    });
-    _jumpToBottom();
+    try {
+      final fresh = await AstrologerApi.instance
+          .chatHistory(sessionId: _sessionId!, myId: _myId);
+      if (!mounted) return;
+      setState(() {
+        _messages = fresh;
+        if (_sessionStart != null) {
+          _elapsed = DateTime.now().difference(_sessionStart!);
+        }
+      });
+      _jumpToBottom();
+    } catch (_) {}
   }
 
   void _jumpToBottom() {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_strings.dart';
-import '../theme/app_theme.dart';
 
 /// Modal bottom sheet to switch between 15 supported Indian languages
 class LanguagePickerSheet extends StatefulWidget {

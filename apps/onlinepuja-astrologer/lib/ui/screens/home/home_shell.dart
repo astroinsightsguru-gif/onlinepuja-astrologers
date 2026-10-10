@@ -314,8 +314,8 @@ class _HomeShellState extends State<HomeShell> {
                           ),
                         ),
                         icon: const Icon(Icons.call_end_rounded, size: 20),
-                        label: const Text('Decline',
-                            style: TextStyle(fontWeight: FontWeight.w800)),
+                        label: Text(AppStrings.reject,
+                            style: const TextStyle(fontWeight: FontWeight.w800)),
                         onPressed: () async {
                           ringTimer?.cancel();
                           vibrationTimer?.cancel();
@@ -386,16 +386,16 @@ class _HomeShellState extends State<HomeShell> {
                                 }
                               }
                             },
-                            child: const Center(
+                            child: Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.check_circle_rounded,
+                                  const Icon(Icons.check_circle_rounded,
                                       color: Colors.white, size: 22),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    'ACCEPT & START',
-                                    style: TextStyle(
+                                    AppStrings.acceptAndStart,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w800,
                                       fontSize: 14,
@@ -453,9 +453,9 @@ class _HomeShellState extends State<HomeShell> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Text(
-                    'Verified Astrologer',
-                    style: TextStyle(
+                  Text(
+                    AppStrings.verifiedAstrologer,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: PartnerTheme.gold,
@@ -531,31 +531,31 @@ class _HomeShellState extends State<HomeShell> {
         child: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded),
-              label: 'Overview',
+              icon: const Icon(Icons.dashboard_outlined),
+              selectedIcon: const Icon(Icons.dashboard_rounded),
+              label: AppStrings.overview,
             ),
             NavigationDestination(
-              icon: Icon(Icons.call_outlined),
-              selectedIcon: Icon(Icons.call_rounded),
-              label: 'Requests',
+              icon: const Icon(Icons.call_outlined),
+              selectedIcon: const Icon(Icons.call_rounded),
+              label: AppStrings.requests,
             ),
             NavigationDestination(
-              icon: Icon(Icons.temple_hindu_outlined),
-              selectedIcon: Icon(Icons.temple_hindu_rounded),
-              label: 'Fulfillment',
+              icon: const Icon(Icons.temple_hindu_outlined),
+              selectedIcon: const Icon(Icons.temple_hindu_rounded),
+              label: AppStrings.fulfillment,
             ),
             NavigationDestination(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: Icon(Icons.account_balance_wallet_rounded),
-              label: 'Earnings',
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              selectedIcon: const Icon(Icons.account_balance_wallet_rounded),
+              label: AppStrings.earnings,
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
+              icon: const Icon(Icons.person_outline_rounded),
+              selectedIcon: const Icon(Icons.person_rounded),
+              label: AppStrings.profile,
             ),
           ],
         ),
@@ -592,7 +592,7 @@ class _HomeShellState extends State<HomeShell> {
                   children: [
                     Expanded(
                       child: Text(
-                        'AVAILABLE BALANCE',
+                        AppStrings.availableBalance,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -611,15 +611,15 @@ class _HomeShellState extends State<HomeShell> {
                         color: PartnerTheme.emerald.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.trending_up_rounded,
+                          const Icon(Icons.trending_up_rounded,
                               size: 14, color: PartnerTheme.emerald),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            'Active Account',
-                            style: TextStyle(
+                            AppStrings.activeAccount,
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: PartnerTheme.emerald,
@@ -644,7 +644,7 @@ class _HomeShellState extends State<HomeShell> {
                   children: [
                     Expanded(
                       child: Container(
-                        height: 42,
+                        height: 44,
                         decoration: BoxDecoration(
                           gradient: PartnerTheme.saffronGradient,
                           borderRadius: BorderRadius.circular(12),
@@ -656,53 +656,67 @@ class _HomeShellState extends State<HomeShell> {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
                             onTap: () => setState(() => _tab = 3),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Center(
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.currency_rupee_rounded,
-                                          size: 16, color: Colors.white),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Withdraw Funds',
-                                        style: TextStyle(
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.account_balance_wallet_rounded,
+                                      size: 17, color: Colors.white),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      AppStrings.withdrawFunds,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
                                       ),
-                                    ],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(42),
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        height: 44,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            side: BorderSide(
+                              color: dark
+                                  ? PartnerTheme.darkBorder
+                                  : const Color(0xFFDDD3C4),
+                              width: 1.2,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        onPressed: () => setState(() => _tab = 3),
-                        child: const FittedBox(
-                          fit: BoxFit.scaleDown,
+                          onPressed: () => setState(() => _tab = 3),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.history_rounded, size: 16),
-                              SizedBox(width: 4),
-                              Text('Statements', style: TextStyle(fontSize: 12)),
+                              const Icon(Icons.receipt_long_rounded, size: 17),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  AppStrings.statements,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -747,8 +761,8 @@ class _HomeShellState extends State<HomeShell> {
                     children: [
                       Text(
                         isOnline
-                            ? 'Ready for Consultations'
-                            : 'Currently Offline',
+                            ? AppStrings.readyForConsultations
+                            : AppStrings.currentlyOffline,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -758,8 +772,8 @@ class _HomeShellState extends State<HomeShell> {
                       const SizedBox(height: 2),
                       Text(
                         isOnline
-                            ? 'Ringing listener active for live calls & chats'
-                            : 'Toggle online to start receiving devotee requests',
+                            ? AppStrings.ringingListenerActive
+                            : AppStrings.toggleOnlinePrompt,
                         style: TextStyle(
                           fontSize: 11.5,
                           color: dark ? Colors.white60 : Colors.black54,
@@ -782,23 +796,23 @@ class _HomeShellState extends State<HomeShell> {
           const SizedBox(height: 16),
 
           // Astrologer Performance Grid
-          const Text(
-            'Today\'s Practice Summary',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          Text(
+            AppStrings.practiceSummary,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.45,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 1.55,
             children: [
               StatTile(
                 icon: Icons.phone_in_talk_rounded,
                 iconColor: PartnerTheme.emerald,
-                label: 'Consultation Calls',
+                label: AppStrings.consultationCalls,
                 value: '4 Completed',
                 subtext: '98% Response',
                 onTap: () => setState(() => _tab = 1),
@@ -806,7 +820,7 @@ class _HomeShellState extends State<HomeShell> {
               StatTile(
                 icon: Icons.chat_bubble_rounded,
                 iconColor: PartnerTheme.saffron,
-                label: 'Chat Sessions',
+                label: AppStrings.chatSessions,
                 value: '7 Completed',
                 subtext: 'Avg 12m',
                 onTap: () => setState(() => _tab = 1),
@@ -814,7 +828,7 @@ class _HomeShellState extends State<HomeShell> {
               StatTile(
                 icon: Icons.temple_hindu_rounded,
                 iconColor: PartnerTheme.amber,
-                label: 'Puja Fulfillment',
+                label: AppStrings.pujaFulfillment,
                 value: '2 Scheduled',
                 subtext: 'Pending',
                 onTap: () => setState(() => _tab = 2),
@@ -822,7 +836,7 @@ class _HomeShellState extends State<HomeShell> {
               StatTile(
                 icon: Icons.star_rounded,
                 iconColor: PartnerTheme.gold,
-                label: 'Devotee Rating',
+                label: AppStrings.devoteeRating,
                 value: '4.9 ★',
                 subtext: '1,420+ Rev',
                 onTap: () => setState(() => _tab = 4),
@@ -832,9 +846,9 @@ class _HomeShellState extends State<HomeShell> {
           const SizedBox(height: 20),
 
           // Quick Navigation Hub
-          const Text(
-            'Management Shortcuts',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          Text(
+            AppStrings.managementShortcuts,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
           PartnerCard(
@@ -991,6 +1005,19 @@ class _HomeShellState extends State<HomeShell> {
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 4);
+              },
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.translate_rounded, color: PartnerTheme.saffron),
+              title: const Text('Language / भाषा'),
+              subtitle: Text(
+                '${LocaleManager.instance.currentLanguage.value.label} (${LocaleManager.instance.currentLanguage.value.englishName})',
+                style: const TextStyle(fontSize: 12),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                LanguagePickerSheet.show(context);
               },
             ),
             const Divider(),

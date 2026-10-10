@@ -84,29 +84,29 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Glowing Crest Container
+                    // Glowing Crest Container with Official Astrologer Logo
                     Container(
-                      width: 110,
-                      height: 110,
-                      padding: const EdgeInsets.all(18),
+                      width: 120,
+                      height: 120,
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: PartnerTheme.luxuryGold,
+                        color: dark ? PartnerTheme.darkBg : Colors.white,
                         boxShadow: PartnerTheme.glow(
                           PartnerTheme.saffron,
                           blur: 28,
                           spread: 4,
                         ),
                       ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: dark ? PartnerTheme.darkBg : Colors.white,
-                        ),
-                        child: const Icon(
-                          Icons.auto_awesome,
-                          size: 46,
-                          color: PartnerTheme.saffron,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/app_logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.auto_awesome,
+                            size: 46,
+                            color: PartnerTheme.saffron,
+                          ),
                         ),
                       ),
                     ),
@@ -117,11 +117,11 @@ class _SplashScreenState extends State<SplashScreen>
                       shaderCallback: (bounds) =>
                           PartnerTheme.luxuryGold.createShader(bounds),
                       child: const Text(
-                        'ONLINE PUJA',
+                        'OnlinePuja.astro',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: 3,
+                          letterSpacing: 1.5,
                           color: Colors.white,
                         ),
                       ),

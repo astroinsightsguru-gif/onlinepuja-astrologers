@@ -584,6 +584,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 14),
+
+          // Compliance & Safety Options (Google Play Mandatory)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton.icon(
+                onPressed: () => _showPrivacyPolicy(context),
+                icon: const Icon(Icons.privacy_tip_outlined, size: 16, color: Colors.grey),
+                label: const Text(
+                  'Privacy Policy',
+                  style: TextStyle(fontSize: 12, color: Colors.grey, decoration: TextDecoration.underline),
+                ),
+              ),
+              const Text(' • ', style: TextStyle(color: Colors.grey)),
+              TextButton.icon(
+                onPressed: () => _confirmDeleteAccount(context),
+                icon: const Icon(Icons.delete_forever_rounded, size: 16, color: Colors.redAccent),
+                label: const Text(
+                  'Delete Account',
+                  style: TextStyle(fontSize: 12, color: Colors.redAccent, decoration: TextDecoration.underline),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -1020,6 +1045,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (context.mounted) {
       Navigator.of(context)
           .pushNamedAndRemoveUntil(LoginScreen.route, (r) => false);
+    }
+  }
+
+  void _showPrivacyPolicy(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.shield_rounded, color: PartnerTheme.gold),
+            SizedBox(width: 8),
+            Text('Privacy Policy', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Text(
+            'OnlinePuja respects and protects astrologer and devotee privacy. '
+            'Audio/video consultation streams are encrypted and ephemeral via WebRTC and are never recorded without consent. '
+            'Payout and personal details are encrypted and securely processed.\n\n'
+            'Full policy is available at:\nhttps://onlinepuja.live/privacy-policy',
+            style: TextStyle(fontSize: 13, height: 1.4),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteAccount(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Delete Account?', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to request permanent account and data deletion?\n\n'
+          'In accordance with data protection policies, all your personal profile details, consultation records, and bank payout credentials will be permanently erased. This action cannot be undone.',
+          style: TextStyle(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Confirm & Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final messenger = ScaffoldMessenger.of(context);
+      final navigator = Navigator.of(context);
+      try {
+        await context.read<PartnerSession>().deleteAccount();
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Account deletion requested. Your profile data has been scheduled for removal.'),
+            backgroundColor: Colors.black87,
+          ),
+        );
+        navigator.pushNamedAndRemoveUntil(LoginScreen.route, (r) => false);
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 }

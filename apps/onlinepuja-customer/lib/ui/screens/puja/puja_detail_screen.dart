@@ -5,6 +5,7 @@ import '../checkout/checkout_screen.dart';
 
 /// Sri Mandir-Grade High-Conversion Puja & Chadhava Detail Experience
 class PujaDetailScreen extends StatefulWidget {
+  static const route = '/puja-detail';
   const PujaDetailScreen({super.key, required this.puja});
 
   final Puja puja;

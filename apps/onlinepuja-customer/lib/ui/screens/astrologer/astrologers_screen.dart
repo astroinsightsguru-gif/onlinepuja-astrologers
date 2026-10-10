@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
 
-import '../../theme/customer_theme.dart';
 import '../../../app.dart';
 import '../../../state/app_session.dart';
+import '../../theme/customer_theme.dart';
 import '../notifications_screen.dart';
 import '../profile/wallet_screen.dart';
 
-/// High-Quality, High-Conversion Astrologer Landing & Consultation Hub
-/// Clutter-free design focused exclusively on discovering and consulting verified Vedic astrologers.
+/// Clean, Luxury & High-Conversion Astrologer Discovery & Consultation Directory.
 class AstrologersScreen extends StatefulWidget {
   const AstrologersScreen({super.key});
 
@@ -21,17 +20,16 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
   late Future<List<Astrologer>> _future;
   Map<String, dynamic>? _firstConsultOffer;
   String _query = '';
-  String _selectedSkill = 'All';
-  String _availabilityFilter = 'all'; // all, online, chat, call, offer
-  String _sortBy = 'rating_desc'; // rating_desc, exp_desc, price_asc, price_desc
+  String _selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
 
-  static const List<String> _skillFilters = [
+  static const List<String> _filters = [
     'All',
+    'Online Now',
     'Vedic',
     'Tarot',
     'Kundli',
-    'Love & Relationship',
+    'Love & Relations',
     'Career & Wealth',
     'Marriage',
     'Vastu',
@@ -76,28 +74,71 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<AppSession>();
-    final scheme = Theme.of(context).colorScheme;
     final currency = session.flags.currency.isNotEmpty ? session.flags.currency : '₹';
     final wallet = session.user?.walletAmount ?? 0.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0C1B) : const Color(0xFFF9F7F2),
+      backgroundColor: isDark ? const Color(0xFF0F0C1B) : const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF161224) : Colors.white,
         elevation: 0.5,
+        titleSpacing: 16,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [RichText(text: TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: isDark ? Colors.white : const Color(0xFF1E293B), letterSpacing: -0.2)), const TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2))])), const SizedBox(width: 5), const Text('?', style: TextStyle(fontSize: 13))]), const SizedBox(height: 1),
-            const Text(
-              'Verified Vedic Acharyas & Tarot Readers',
-              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+            Row(
+              children: [
+                Text(
+                  'OnlinePuja',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ),
+                ),
+                const Text(
+                  '.live',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                    color: Color(0xFFD97706),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'VERIFIED',
+                    style: TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF10B981),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 1),
+            Text(
+              'Certified Vedic Acharyas & Astrologers',
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
         actions: [
-          // Wallet pill with quick recharge action
+          // Wallet Balance Chip
           GestureDetector(
             onTap: () => Navigator.of(context)
                 .pushNamed(WalletScreen.route)
@@ -110,7 +151,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF047857).withOpacity(0.25),
+                    color: const Color(0xFF047857).withValues(alpha: 0.25),
                     blurRadius: 4,
                   ),
                 ],
@@ -136,11 +177,12 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
           ),
           IconButton(
             tooltip: 'Notifications',
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const NotificationsScreen()),
             ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: RefreshIndicator(
@@ -148,388 +190,244 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // 1. First Consultation Promotional Banner
+            // 1. Promotional ₹1 Banner (Clean Ribbon)
             if (_firstConsultOffer?['eligible'] == true)
               SliverToBoxAdapter(
-                child: _firstConsultBanner(context),
+                child: _firstConsultRibbon(context),
               ),
 
-            // 2. Live Online Stories Carousel
+            // 2. Search Field
             SliverToBoxAdapter(
-              child: _liveStoriesStrip(context, scheme),
+              child: _searchBar(isDark),
             ),
 
-            // 3. Search and Filter Hub
+            // 3. Filter Category Pills
             SliverToBoxAdapter(
-              child: _searchAndFilterHub(context, scheme),
+              child: _filterPills(isDark),
             ),
 
-            // 4. Astrologer Cards List
+            // 4. Astrologer Directory List
             FutureBuilder<List<Astrologer>>(
               future: _future,
-              builder: (context, snap) => _buildAstrologerList(context, snap, session, currency),
+              builder: (context, snap) => _buildAstrologerList(context, snap, session, currency, isDark),
             ),
 
-            // 5. Minimalist Sanctum Trust Strip
-            SliverToBoxAdapter(
-              child: _trustGuaranteeStrip(context),
-            ),
+            // Bottom Spacing
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
           ],
         ),
       ),
     );
   }
 
-  /// Promotional banner for ₹1 introductory offer
-  Widget _firstConsultBanner(BuildContext context) {
+  /// Compact Promotional Ribbon
+  Widget _firstConsultRibbon(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF78350F), Color(0xFF92400E), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          colors: [Color(0xFF78350F), Color(0xFFB45309)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF78350F).withOpacity(0.2),
+            color: const Color(0xFF78350F).withValues(alpha: 0.25),
             blurRadius: 8,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: const Text('🎉', style: TextStyle(fontSize: 20)),
-          ),
-          const SizedBox(width: 12),
+          Icon(Icons.stars_rounded, color: Color(0xFFFDE68A), size: 20),
+          SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'FIRST CONSULTATION AT ₹1 ONLY',
-                  style: TextStyle(
-                    color: Color(0xFFFDE68A),
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  '5 minutes introductory consultation with any verified Astrologer',
-                  style: TextStyle(color: Colors.white70, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFBBF24),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Text(
-              '₹1 / min',
+            child: Text(
+              'First consultation at ₹1 only • 5 mins free guidance',
               style: TextStyle(
-                color: Color(0xFF78350F),
-                fontWeight: FontWeight.w900,
+                color: Color(0xFFFEF3C7),
                 fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.1,
               ),
             ),
           ),
+          Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFDE68A), size: 12),
         ],
       ),
     );
   }
 
-  /// Live Online Astrologers Quick Connect Stories Bar
-  Widget _liveStoriesStrip(BuildContext context, ColorScheme scheme) {
-    return FutureBuilder<List<Astrologer>>(
-      future: _future,
-      builder: (context, snap) {
-        final all = snap.data ?? [];
-        if (all.isEmpty) return const SizedBox.shrink();
+  /// Clean Search Field
+  Widget _searchBar(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1830) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: _searchController,
+          onChanged: (v) => setState(() => _query = v),
+          style: TextStyle(
+            fontSize: 13.5,
+            color: isDark ? Colors.white : const Color(0xFF1E293B),
+          ),
+          decoration: InputDecoration(
+            hintText: 'Search astrologers by name, Vedic skill or language…',
+            hintStyle: TextStyle(
+              fontSize: 12.5,
+              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+            ),
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              size: 20,
+              color: isDark ? Colors.white54 : const Color(0xFF64748B),
+            ),
+            suffixIcon: _query.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => _query = '');
+                    },
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+      ),
+    );
+  }
 
-        final online = all.where((a) => a.isChatOnline || a.isCallOnline).toList();
-        final display = (online.isNotEmpty ? online : all).take(12).toList();
+  /// Clean Horizontal Filter Pills
+  Widget _filterPills(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SizedBox(
+        height: 38,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: _filters.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, i) {
+            final f = _filters[i];
+            final isSelected = _selectedFilter == f;
+            final isOnlinePill = f == 'Online Now';
 
-        return Container(
-          height: 106,
-          margin: const EdgeInsets.only(top: 8, bottom: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            return GestureDetector(
+              onTap: () => setState(() => _selectedFilter = f),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? CustomerTheme.brandSaffron
+                      : (isDark ? const Color(0xFF1E1830) : Colors.white),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? CustomerTheme.brandSaffron
+                        : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                    width: 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: CustomerTheme.brandSaffron.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF10B981),
-                        shape: BoxShape.circle,
+                    if (isOnlinePill) ...[
+                      Container(
+                        width: 7,
+                        height: 7,
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'ONLINE FOR CONSULTATION',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: Color(0xFF047857),
-                      ),
-                    ),
-                    const Spacer(),
+                    ],
                     Text(
-                      '${online.length} Active Now',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                      f,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 6),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: display.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (context, i) {
-                    final a = display[i];
-                    final isOnline = a.isChatOnline || a.isCallOnline;
-
-                    return GestureDetector(
-                      onTap: () => context.openAstrologer(a.id ?? 0).then((_) => _reload()),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: 52,
-                                height: 52,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: isOnline
-                                      ? const LinearGradient(
-                                          colors: [Color(0xFF10B981), Color(0xFF059669)],
-                                        )
-                                      : const LinearGradient(
-                                          colors: [Color(0xFFD97706), Color(0xFFB45309)],
-                                        ),
-                                ),
-                                padding: const EdgeInsets.all(2),
-                                child: ClipOval(
-                                  child: a.imageUrl.isNotEmpty
-                                      ? Image.network(
-                                          a.imageUrl,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, _, _) => _avatarFallback(a.name),
-                                        )
-                                      : _avatarFallback(a.name),
-                                ),
-                              ),
-                              if (isOnline)
-                                Positioned(
-                                  bottom: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF10B981),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(color: Colors.white, width: 1),
-                                    ),
-                                    child: const Text(
-                                      'LIVE',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 7.5,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            width: 60,
-                            child: Text(
-                              a.name.split(' ').first,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Search bar + Availability filter pills + Vedic skill chips
-  Widget _searchAndFilterHub(BuildContext context, ColorScheme scheme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 4, 14, 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Search Bar with Clear Icon
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: 'Search by Astrologer name, Vedic, Tarot, Love…',
-                hintStyle: const TextStyle(fontSize: 12.5, color: Color(0xFF94A3B8)),
-                prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Color(0xFF64748B)),
-                suffixIcon: _query.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // 2. Consultation Mode Filter Chips (All, Online, Chat, Call, Offer)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _filterChip('all', '🌟 All Astrologers'),
-                const SizedBox(width: 6),
-                _filterChip('online', '🟢 Online Now'),
-                const SizedBox(width: 6),
-                _filterChip('chat', '💬 Chat Ready'),
-                const SizedBox(width: 6),
-                _filterChip('call', '📞 Call Ready'),
-                const SizedBox(width: 6),
-                _filterChip('offer', '🎁 ₹1 Promo'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // 3. Vedic Specialization Skill Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _skillFilters.map((s) {
-                final isSelected = _selectedSkill == s;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: FilterChip(
-                    label: Text(s, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500)),
-                    selected: isSelected,
-                    selectedColor: const Color(0xFFFEF3C7),
-                    checkmarkColor: const Color(0xFFD97706),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(
-                      color: isSelected ? const Color(0xFFD97706) : const Color(0xFFE2E8F0),
-                    ),
-                    onSelected: (_) => setState(() => _selectedSkill = s),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 6),
-        ],
-      ),
-    );
-  }
-
-  Widget _filterChip(String key, String label) {
-    final isSelected = _availabilityFilter == key;
-    return ChoiceChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11.5,
-          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-          color: isSelected ? Colors.white : const Color(0xFF334155),
+            );
+          },
         ),
       ),
-      selected: isSelected,
-      selectedColor: const Color(0xFFD97706),
-      backgroundColor: Colors.white,
-      side: BorderSide(color: isSelected ? const Color(0xFFD97706) : const Color(0xFFE2E8F0)),
-      onSelected: (_) => setState(() => _availabilityFilter = key),
     );
   }
 
-  /// High-Quality Astrologer Cards List
+  /// Astrologer Directory Cards List
   Widget _buildAstrologerList(
     BuildContext context,
     AsyncSnapshot<List<Astrologer>> snap,
     AppSession session,
     String currency,
+    bool isDark,
   ) {
     if (snap.connectionState == ConnectionState.waiting) {
-      return SliverToBoxAdapter(
+      return const SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: StatusViews.skeletonList(context, items: 4),
+          padding: EdgeInsets.symmetric(vertical: 60),
+          child: Center(
+            child: CircularProgressIndicator(color: CustomerTheme.brandSaffron),
+          ),
         ),
       );
     }
+
     if (snap.hasError) {
       return SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
           child: StatusViews.error(context, snap.error!, onRetry: _reload),
         ),
       );
     }
 
     final all = snap.data ?? const <Astrologer>[];
-    var filtered = all;
+    var list = all;
 
     // Search query filter
     final q = _query.trim().toLowerCase();
     if (q.isNotEmpty) {
-      filtered = filtered.where((a) {
+      list = list.where((a) {
         return a.name.toLowerCase().contains(q) ||
             a.primarySkill.toLowerCase().contains(q) ||
             a.allSkill.toLowerCase().contains(q) ||
@@ -537,50 +435,52 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
       }).toList();
     }
 
-    // Skill filter
-    if (_selectedSkill != 'All') {
-      final s = _selectedSkill.toLowerCase();
-      filtered = filtered.where((a) {
+    // Category / availability filter
+    if (_selectedFilter == 'Online Now') {
+      list = list.where((a) => a.isChatOnline || a.isCallOnline).toList();
+    } else if (_selectedFilter != 'All') {
+      final s = _selectedFilter.toLowerCase();
+      list = list.where((a) {
         return a.primarySkill.toLowerCase().contains(s) || a.allSkill.toLowerCase().contains(s);
       }).toList();
     }
 
-    // Availability filter
-    if (_availabilityFilter == 'online') {
-      filtered = filtered.where((a) => a.isChatOnline || a.isCallOnline).toList();
-    } else if (_availabilityFilter == 'chat') {
-      filtered = filtered.where((a) => a.isChatOnline).toList();
-    } else if (_availabilityFilter == 'call') {
-      filtered = filtered.where((a) => a.isCallOnline).toList();
-    } else if (_availabilityFilter == 'offer') {
-      filtered = filtered.where((a) => a.isFreeAvailable || a.charge > 0).toList();
-    }
-
-    if (filtered.isEmpty) {
+    if (list.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
           child: Center(
             child: Column(
               children: [
-                const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
-                const SizedBox(height: 12),
-                const Text(
-                  'No Astrologers Match Your Filter',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 48,
+                  color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                const SizedBox(height: 14),
+                Text(
+                  'No Astrologers Found',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
                   'Try resetting filters or searching for another Vedic skill.',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    fontSize: 12.5,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: () {
                     setState(() {
                       _query = '';
-                      _selectedSkill = 'All';
-                      _availabilityFilter = 'all';
+                      _selectedFilter = 'All';
                       _searchController.clear();
                     });
                   },
@@ -593,79 +493,85 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
       );
     }
 
-    final isEligibleForOffer = _firstConsultOffer?['eligible'] == true;
+    final isEligible = _firstConsultOffer?['eligible'] == true;
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(14, 4, 14, 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList.separated(
-        itemCount: filtered.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, i) {
-          final a = filtered[i];
-          return _astrologerLandingCard(context, a, session, currency, isEligibleForOffer);
+          final a = list[i];
+          return _cleanAstrologerCard(context, a, session, currency, isEligible, isDark);
         },
       ),
     );
   }
 
-  /// State-of-the-Art Astrologer Landing Card
-  Widget _astrologerLandingCard(
+  /// Clean, Modern Astrologer Card
+  Widget _cleanAstrologerCard(
     BuildContext context,
     Astrologer a,
     AppSession session,
     String currency,
-    bool isEligibleForOffer,
+    bool isEligible,
+    bool isDark,
   ) {
     final isOnline = a.isChatOnline || a.isCallOnline;
     final rate = a.charge > 0 ? '$currency${a.charge.toInt()}/min' : 'FREE';
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: isDark ? const Color(0xFF1A1429) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
             blurRadius: 10,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           onTap: () => context.openAstrologer(a.id ?? 0).then((_) => _reload()),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Row: Avatar + Details + Price
+                // Top Row: Avatar + Details + Rate
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar with Status Badge
+                    // Avatar with Status Ring
                     Stack(
                       children: [
                         Container(
-                          width: 68,
-                          height: 68,
+                          width: 66,
+                          height: 66,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: isOnline ? const Color(0xFF10B981) : const Color(0xFFE2E8F0),
+                              color: isOnline
+                                  ? const Color(0xFF10B981)
+                                  : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                               width: 2,
                             ),
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             child: a.imageUrl.isNotEmpty
                                 ? Image.network(
                                     a.imageUrl,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => _avatarFallback(a.name),
+                                    errorBuilder: (_, __, ___) => _avatarFallback(a.name),
                                   )
                                 : _avatarFallback(a.name),
                           ),
@@ -675,12 +581,15 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                             bottom: 2,
                             right: 2,
                             child: Container(
-                              width: 14,
-                              height: 14,
+                              width: 13,
+                              height: 13,
                               decoration: BoxDecoration(
                                 color: const Color(0xFF10B981),
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: isDark ? const Color(0xFF1A1429) : Colors.white,
+                                  width: 2,
+                                ),
                               ),
                             ),
                           ),
@@ -700,45 +609,48 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                                   a.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 15,
-                                    color: Color(0xFF0F172A),
+                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Icon(Icons.verified_rounded, size: 16, color: Color(0xFFD97706)),
+                              const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF0284C7)),
                             ],
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             a.primarySkill.isNotEmpty ? a.primarySkill : 'Vedic Astrologer',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF475569),
+                              color: isDark ? Colors.white70 : const Color(0xFF475569),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             a.languageKnown.isNotEmpty ? a.languageKnown : 'Hindi, English',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
+                            ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 6),
 
-                          // Rating and Experience badges
+                          // Rating and Experience Strip
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFEF3C7),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(5),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -746,7 +658,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                                     const Icon(Icons.star_rounded, size: 13, color: Color(0xFFD97706)),
                                     const SizedBox(width: 2),
                                     Text(
-                                      a.rating.toStringAsFixed(1),
+                                      a.rating > 0 ? a.rating.toStringAsFixed(1) : '4.8',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w800,
@@ -758,8 +670,12 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '${a.experienceInYears}+ yrs exp',
-                                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                                '${a.experienceInYears > 0 ? a.experienceInYears : 5}+ yrs exp',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -767,23 +683,23 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                       ),
                     ),
 
-                    // Price Block
+                    // Price Tag
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        if (isEligibleForOffer && a.charge > 0) ...[
+                        if (isEligible && a.charge > 0) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFEE2E2),
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(5),
                             ),
                             child: const Text(
                               '₹1 OFFER',
                               style: TextStyle(
                                 color: Color(0xFFB91C1C),
                                 fontWeight: FontWeight.w900,
-                                fontSize: 9.5,
+                                fontSize: 9,
                               ),
                             ),
                           ),
@@ -791,26 +707,26 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                           const Text(
                             '₹1/min',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14.5,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFFDC2626),
                             ),
                           ),
                           Text(
                             rate,
-                            style: const TextStyle(
-                              fontSize: 11,
+                            style: TextStyle(
+                              fontSize: 10.5,
                               decoration: TextDecoration.lineThrough,
-                              color: Color(0xFF94A3B8),
+                              color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                             ),
                           ),
                         ] else ...[
                           Text(
                             rate,
-                            style: const TextStyle(
-                              fontSize: 14.5,
+                            style: TextStyle(
+                              fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF047857),
+                              color: a.charge > 0 ? const Color(0xFF047857) : const Color(0xFF10B981),
                             ),
                           ),
                         ],
@@ -820,28 +736,35 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Divider line
-                const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                // Subtle Divider
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
+                ),
                 const SizedBox(height: 10),
 
-                // Action Buttons Row: Chat, Call, Waitlist
+                // Clean Action Buttons: Chat & Call
                 Row(
                   children: [
                     // Chat Action Button
                     Expanded(
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: a.isChatOnline ? const Color(0xFF047857) : const Color(0xFF94A3B8),
+                          foregroundColor: a.isChatOnline
+                              ? const Color(0xFF047857)
+                              : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
                           side: BorderSide(
-                            color: a.isChatOnline ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
+                            color: a.isChatOnline
+                                ? const Color(0xFF10B981)
+                                : (isDark ? Colors.white12 : const Color(0xFFCBD5E1)),
                             width: 1.2,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 9),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         icon: Icon(
                           Icons.chat_bubble_outline_rounded,
-                          size: 16,
+                          size: 15,
                           color: a.isChatOnline ? const Color(0xFF047857) : const Color(0xFF94A3B8),
                         ),
                         label: Text(
@@ -849,7 +772,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: a.isChatOnline ? const Color(0xFF047857) : const Color(0xFF94A3B8),
+                            color: a.isChatOnline
+                                ? const Color(0xFF047857)
+                                : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
                           ),
                         ),
                         onPressed: a.isChatOnline
@@ -861,20 +786,25 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                             : () => _joinWaitlist(context, a, session),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
 
                     // Call Action Button
                     Expanded(
                       child: FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: a.isCallOnline ? const Color(0xFFD97706) : const Color(0xFFE2E8F0),
-                          foregroundColor: a.isCallOnline ? Colors.white : const Color(0xFF64748B),
-                          padding: const EdgeInsets.symmetric(vertical: 9),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: a.isCallOnline
+                              ? const Color(0xFFD97706)
+                              : (isDark ? const Color(0xFF261E38) : const Color(0xFFF1F5F9)),
+                          foregroundColor: a.isCallOnline
+                              ? Colors.white
+                              : (isDark ? Colors.white38 : const Color(0xFF64748B)),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          elevation: a.isCallOnline ? 1 : 0,
                         ),
                         icon: Icon(
                           Icons.phone_rounded,
-                          size: 16,
+                          size: 15,
                           color: a.isCallOnline ? Colors.white : const Color(0xFF94A3B8),
                         ),
                         label: Text(
@@ -882,7 +812,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: a.isCallOnline ? Colors.white : const Color(0xFF64748B),
+                            color: a.isCallOnline
+                                ? Colors.white
+                                : (isDark ? Colors.white38 : const Color(0xFF64748B)),
                           ),
                         ),
                         onPressed: a.isCallOnline
@@ -900,27 +832,6 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  /// Minimalist Trust Strip
-  Widget _trustGuaranteeStrip(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: const [
-          _TrustItem(icon: Icons.lock_outline, label: '100% Confidential'),
-          _TrustItem(icon: Icons.verified_user_outlined, label: 'Certified Astrologers'),
-          _TrustItem(icon: Icons.bolt_rounded, label: 'Instant Connect'),
-        ],
       ),
     );
   }
@@ -945,109 +856,83 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: a.imageUrl.isNotEmpty ? NetworkImage(a.imageUrl) : null,
-                    radius: 22,
-                    child: a.imageUrl.isEmpty ? _avatarFallback(a.name) : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(a.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('${a.primarySkill} · Currently in Consultation', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                      ],
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: a.imageUrl.isNotEmpty ? NetworkImage(a.imageUrl) : null,
+                      radius: 22,
+                      child: a.imageUrl.isEmpty ? _avatarFallback(a.name) : null,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Join the Priority Queue to receive an instant push notification the moment this astrologer finishes their session.',
-                style: TextStyle(fontSize: 13, height: 1.4),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: const Text('Cancel'),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(a.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(
+                            '${a.primarySkill.isNotEmpty ? a.primarySkill : "Vedic Acharya"} · Offline',
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
-                      onPressed: () async {
-                        Navigator.of(ctx).pop();
-                        final ok = await AstrologerApi.instance.addToWaitList(
-                          astrologerId: a.id ?? 0,
-                          requestType: 'Chat',
-                          userName: session.user?.name ?? 'Devotee',
-                          userId: session.user?.id,
-                        );
-                        if (context.mounted) {
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'This Astrologer is currently offline or in an ongoing consultation. Would you like to receive an instant push notification when they become available?',
+                  style: TextStyle(fontSize: 13, height: 1.4),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: CustomerTheme.brandSaffron),
+                        onPressed: () {
+                          Navigator.pop(ctx);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(ok
-                                  ? '🙏 Added to ${a.name} priority queue! You will be alerted.'
-                                  : 'Could not join waitlist. Please try again.'),
+                              content: Text('You will be notified when ${a.name} comes online.'),
+                              backgroundColor: CustomerTheme.brandSaffron,
                             ),
                           );
-                        }
-                      },
-                      child: const Text('Join Waitlist', style: TextStyle(fontWeight: FontWeight.bold)),
+                        },
+                        child: const Text('Notify Me'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 }
-
-class _TrustItem extends StatelessWidget {
-  const _TrustItem({required this.icon, required this.label});
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 15, color: const Color(0xFFD97706)),
-        const SizedBox(width: 5),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
-        ),
-      ],
-    );
-  }
-}
-

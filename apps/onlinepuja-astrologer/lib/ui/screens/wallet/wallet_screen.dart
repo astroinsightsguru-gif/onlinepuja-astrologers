@@ -941,8 +941,10 @@ class _WalletScreenState extends State<WalletScreen> {
                         : () async {
                             final acct = acctCtrl.text.trim();
                             final ifsc = ifscCtrl.text.trim();
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
                             if (acct.isEmpty && upiCtrl.text.trim().isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 const SnackBar(content: Text('Please enter an Account Number or UPI ID')),
                               );
                               return;
@@ -960,8 +962,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                 pancardNo: panCtrl.text.trim().toUpperCase(),
                               );
                               if (mounted) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                navigator.pop();
+                                messenger.showSnackBar(
                                   const SnackBar(
                                     content: Text('Payout account details saved successfully!'),
                                     backgroundColor: PartnerTheme.emerald,
@@ -972,7 +974,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             } catch (e) {
                               if (mounted) {
                                 setModalState(() => saving = false);
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(content: Text('Save failed: $e'), backgroundColor: Colors.red),
                                 );
                               }

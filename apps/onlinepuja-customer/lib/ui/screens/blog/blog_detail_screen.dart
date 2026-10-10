@@ -4,6 +4,7 @@ import 'package:op_shared/op_shared.dart';
 
 /// Detailed reader view for astrology articles.
 class BlogDetailScreen extends StatelessWidget {
+  static const route = '/blog-detail';
   const BlogDetailScreen({super.key, required this.blog});
 
   final Blog blog;

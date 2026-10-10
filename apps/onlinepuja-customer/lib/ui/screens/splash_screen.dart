@@ -109,12 +109,14 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Sacred Sun/Mandala Emblem
+                      // Sacred Official Emblem / Logo
                       Container(
-                        padding: const EdgeInsets.all(22),
+                        width: 120,
+                        height: 120,
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: CustomerTheme.goldGradient,
+                          color: isDark ? const Color(0xFF1E1428) : Colors.white,
                           boxShadow: [
                             BoxShadow(
                               color: CustomerTheme.brandSaffron
@@ -124,10 +126,16 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.wb_sunny_rounded,
-                          size: 54,
-                          color: Colors.white,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/app_logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.wb_sunny_rounded,
+                              size: 54,
+                              color: CustomerTheme.brandSaffron,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -137,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Online',
+                            'OnlinePuja',
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
@@ -158,9 +166,9 @@ class _SplashScreenState extends State<SplashScreen>
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Text(
-                              'Puja',
+                              '.live',
                               style: TextStyle(
-                                fontSize: 26,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: 0.5,

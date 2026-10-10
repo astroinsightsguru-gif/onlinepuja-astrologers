@@ -6,6 +6,7 @@ import 'package:op_shared/op_shared.dart';
 /// Kundli details: Basic / Planets / Dasha / Dosha tabs
 /// (legacy `kundliDetailsScreen.dart` + `basicdetailwidget.dart`).
 class KundliDetailScreen extends StatefulWidget {
+  static const route = '/kundli-detail';
   const KundliDetailScreen({super.key, required this.kundli});
 
   final Kundli kundli;
