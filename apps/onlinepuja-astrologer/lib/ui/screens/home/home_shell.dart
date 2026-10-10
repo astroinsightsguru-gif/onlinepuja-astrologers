@@ -807,30 +807,30 @@ class _HomeShellState extends State<HomeShell> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: 1.55,
+            childAspectRatio: 1.25,
             children: [
               StatTile(
                 icon: Icons.phone_in_talk_rounded,
                 iconColor: PartnerTheme.emerald,
                 label: AppStrings.consultationCalls,
-                value: '4 Completed',
-                subtext: '98% Response',
+                value: '4 ${AppStrings.completed}',
+                subtext: '98% ${AppStrings.responseRate}',
                 onTap: () => setState(() => _tab = 1),
               ),
               StatTile(
                 icon: Icons.chat_bubble_rounded,
                 iconColor: PartnerTheme.saffron,
                 label: AppStrings.chatSessions,
-                value: '7 Completed',
-                subtext: 'Avg 12m',
+                value: '7 ${AppStrings.completed}',
+                subtext: '${AppStrings.avgDuration} 12m',
                 onTap: () => setState(() => _tab = 1),
               ),
               StatTile(
                 icon: Icons.temple_hindu_rounded,
                 iconColor: PartnerTheme.amber,
                 label: AppStrings.pujaFulfillment,
-                value: '2 Scheduled',
-                subtext: 'Pending',
+                value: '2 ${AppStrings.scheduled}',
+                subtext: AppStrings.pending,
                 onTap: () => setState(() => _tab = 2),
               ),
               StatTile(
@@ -838,7 +838,7 @@ class _HomeShellState extends State<HomeShell> {
                 iconColor: PartnerTheme.gold,
                 label: AppStrings.devoteeRating,
                 value: '4.9 ★',
-                subtext: '1,420+ Rev',
+                subtext: '1,420+ ${AppStrings.reviewsShort}',
                 onTap: () => setState(() => _tab = 4),
               ),
             ],
@@ -865,9 +865,9 @@ class _HomeShellState extends State<HomeShell> {
                     child: const Icon(Icons.toggle_on_outlined,
                         color: PartnerTheme.saffron, size: 20),
                   ),
-                  title: const Text('Availability & Working Hours',
-                      style: TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: const Text('Set call, chat & break schedules'),
+                  title: Text(AppStrings.availabilityHours,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(AppStrings.consultationStatus),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () =>
                       Navigator.pushNamed(context, AvailabilityScreen.route),
@@ -883,10 +883,9 @@ class _HomeShellState extends State<HomeShell> {
                     child: const Icon(Icons.assignment_outlined,
                         color: PartnerTheme.amber, size: 20),
                   ),
-                  title: const Text('Order Fulfillment Center',
-                      style: TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle:
-                      const Text('Manage puja rituals & horoscope reports'),
+                  title: Text(AppStrings.orderFulfillmentTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(AppStrings.pujaFulfillment),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => setState(() => _tab = 2),
                 ),
@@ -901,9 +900,9 @@ class _HomeShellState extends State<HomeShell> {
                     child: const Icon(Icons.auto_awesome,
                         color: PartnerTheme.purple, size: 20),
                   ),
-                  title: const Text('Devotee Kundli Reading Tool',
-                      style: TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: const Text('Preview planetary coordinates & doshas'),
+                  title: Text(AppStrings.devoteeKundli,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(AppStrings.viewKundli),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => DevoteeKundliSheet.show(
                     context,
@@ -949,7 +948,7 @@ class _HomeShellState extends State<HomeShell> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${session.chatStatus} Chat · ${session.callStatus} Calls',
+                    '${session.chatStatus} · ${session.callStatus}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.85),
@@ -960,7 +959,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.dashboard_outlined),
-              title: const Text('Overview Dashboard'),
+              title: Text(AppStrings.overview),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 0);
@@ -968,7 +967,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.call_outlined),
-              title: const Text('Consultation Requests'),
+              title: Text(AppStrings.consultationRequests),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 1);
@@ -976,8 +975,8 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.temple_hindu_outlined),
-              title: const Text('Order Fulfillment'),
-              subtitle: const Text('Puja bookings & reports'),
+              title: Text(AppStrings.orderFulfillmentTitle),
+              subtitle: Text(AppStrings.pujaFulfillment),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 2);
@@ -985,7 +984,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.account_balance_wallet_outlined),
-              title: const Text('Wallet & Payouts'),
+              title: Text(AppStrings.earningsWallet),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 3);
@@ -993,7 +992,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.toggle_on_outlined),
-              title: const Text('Availability Settings'),
+              title: Text(AppStrings.availabilityHours),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, AvailabilityScreen.route);
@@ -1001,7 +1000,7 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ListTile(
               leading: const Icon(Icons.person_outline_rounded),
-              title: const Text('My Profile & Credentials'),
+              title: Text(AppStrings.myProfile),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _tab = 4);
@@ -1010,7 +1009,7 @@ class _HomeShellState extends State<HomeShell> {
             ListTile(
               leading:
                   const Icon(Icons.translate_rounded, color: PartnerTheme.saffron),
-              title: const Text('Language / भाषा'),
+              title: Text(AppStrings.appLanguage),
               subtitle: Text(
                 '${LocaleManager.instance.currentLanguage.value.label} (${LocaleManager.instance.currentLanguage.value.englishName})',
                 style: const TextStyle(fontSize: 12),
@@ -1024,8 +1023,8 @@ class _HomeShellState extends State<HomeShell> {
             ListTile(
               leading:
                   const Icon(Icons.logout_rounded, color: PartnerTheme.crimson),
-              title: const Text('Log out',
-                  style: TextStyle(color: PartnerTheme.crimson)),
+              title: Text(AppStrings.logout,
+                  style: const TextStyle(color: PartnerTheme.crimson)),
               onTap: () => _logout(context, session),
             ),
           ],
@@ -1038,19 +1037,18 @@ class _HomeShellState extends State<HomeShell> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Log out of Partner Portal?'),
-        content:
-            const Text('You can sign back in anytime with your mobile number.'),
+        title: Text(AppStrings.logoutPrompt),
+        content: Text(AppStrings.logoutSubtitle),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppStrings.cancel),
           ),
           FilledButton(
             style:
                 FilledButton.styleFrom(backgroundColor: PartnerTheme.crimson),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Log out'),
+            child: Text(AppStrings.logout),
           ),
         ],
       ),

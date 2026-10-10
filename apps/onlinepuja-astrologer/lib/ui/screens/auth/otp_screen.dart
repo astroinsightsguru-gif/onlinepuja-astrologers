@@ -108,8 +108,8 @@ class _OtpScreenState extends State<OtpScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OTP Verification',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+        title: Text(AppStrings.otpTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
       ),
       body: SafeArea(
         child: Center(
@@ -140,7 +140,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 const SizedBox(height: 20),
 
                 Text(
-                  'Enter 6-Digit Code',
+                  AppStrings.enterOtpCode,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 22,
@@ -149,7 +149,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'We sent a verification code to',
+                  AppStrings.sentCodeTo,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -172,7 +172,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Text(
-                        'Change',
+                        AppStrings.change,
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w700,
@@ -270,9 +270,9 @@ class _OtpScreenState extends State<OtpScreen> {
                                       Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'VERIFY & SIGN IN',
-                                style: TextStyle(
+                            : Text(
+                                AppStrings.verifyAndLogin,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.8,
@@ -289,7 +289,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 Center(
                   child: _secondsLeft > 0
                       ? Text(
-                          'Resend OTP in ${_secondsLeft}s',
+                          '${AppStrings.resendOtpIn} ${_secondsLeft}s',
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
@@ -299,9 +299,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       : TextButton.icon(
                           onPressed: _verifying ? null : _resend,
                           icon: const Icon(Icons.refresh_rounded, size: 18),
-                          label: const Text(
-                            'Resend OTP Code',
-                            style: TextStyle(
+                          label: Text(
+                            AppStrings.resendOtp,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                             ),
@@ -319,7 +319,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         color: dark ? Colors.white38 : Colors.black38),
                     const SizedBox(width: 5),
                     Text(
-                      '256-bit Encrypted Partner Authentication',
+                      AppStrings.encryptedAuth,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,

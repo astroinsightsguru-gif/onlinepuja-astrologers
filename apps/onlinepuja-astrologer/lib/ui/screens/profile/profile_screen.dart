@@ -72,8 +72,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Astrologer Profile',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text(AppStrings.myProfile,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 32),
@@ -137,17 +137,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _credItem('4.9 ★', '1,420+ Reviews'),
+                      _credItem('4.9 ★', '1,420+ ${AppStrings.reviews}'),
                       Container(
                           width: 1,
                           height: 24,
                           color: Colors.grey.withValues(alpha: 0.3)),
-                      _credItem('12+ Yrs', 'Experience'),
+                      _credItem('12+ Yrs', AppStrings.experience),
                       Container(
                           width: 1,
                           height: 24,
                           color: Colors.grey.withValues(alpha: 0.3)),
-                      _credItem('8,500+', 'Devotees Served'),
+                      _credItem('8,500+', AppStrings.devoteesServed),
                     ],
                   ),
                 ),
@@ -160,9 +160,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Consultation Tariff Rates',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              Text(
+                AppStrings.consultationTariffRates,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
               ),
               InkWell(
                 borderRadius: BorderRadius.circular(10),
@@ -176,14 +176,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: PartnerTheme.saffron.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.tune_rounded, size: 14, color: PartnerTheme.saffron),
-                      SizedBox(width: 4),
+                      const Icon(Icons.tune_rounded, size: 14, color: PartnerTheme.saffron),
+                      const SizedBox(width: 4),
                       Text(
-                        'Set Rates',
-                        style: TextStyle(
+                        AppStrings.setRates,
+                        style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w800,
                           color: PartnerTheme.saffron,
@@ -282,9 +282,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  'Spoken Languages',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                Text(
+                  AppStrings.spokenLanguages,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -325,16 +325,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Profile Details & Bio',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                  Text(
+                    AppStrings.profileDetailsBio,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _name,
-                    decoration: const InputDecoration(
-                      labelText: 'Full Display Name',
-                      prefixIcon: Icon(Icons.person_outline_rounded),
+                    decoration: InputDecoration(
+                      labelText: AppStrings.fullName,
+                      prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'Enter your name'
@@ -344,9 +344,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   TextFormField(
                     controller: _email,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Registered Email',
-                      prefixIcon: Icon(Icons.email_outlined),
+                    decoration: InputDecoration(
+                      labelText: AppStrings.emailAddress,
+                      prefixIcon: const Icon(Icons.email_outlined),
                     ),
                     validator: (v) =>
                         (v != null && v.isNotEmpty && !v.contains('@'))
@@ -357,9 +357,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   TextFormField(
                     controller: _bio,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'About Acharya / Bio',
-                      prefixIcon: Icon(Icons.edit_note_rounded),
+                    decoration: InputDecoration(
+                      labelText: AppStrings.aboutAcharyaBio,
+                      prefixIcon: const Icon(Icons.edit_note_rounded),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -387,9 +387,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         Colors.white),
                                   ),
                                 )
-                              : const Text(
-                                  'Save Profile Updates',
-                                  style: TextStyle(
+                              : Text(
+                                  AppStrings.saveChanges,
+                                  style: const TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -425,9 +425,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'App Language / भाषा',
-                            style: TextStyle(
+                          Text(
+                            AppStrings.appLanguage,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
                             ),
@@ -454,9 +454,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Change',
-                        style: TextStyle(
+                      child: Text(
+                        AppStrings.change,
+                        style: const TextStyle(
                           color: PartnerTheme.saffron,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
@@ -481,30 +481,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Icon(Icons.palette_outlined,
                         size: 20, color: PartnerTheme.saffron),
                     const SizedBox(width: 8),
-                    const Text(
-                      'App Theme Mode',
+                    Text(
+                      AppStrings.appThemeMode,
                       style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                          const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 SegmentedButton<ThemeMode>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: ThemeMode.light,
-                      icon: Icon(Icons.light_mode_rounded),
-                      label: Text('Light'),
+                      icon: const Icon(Icons.light_mode_rounded),
+                      label: Text(AppStrings.lightTheme),
                     ),
                     ButtonSegment(
                       value: ThemeMode.dark,
-                      icon: Icon(Icons.dark_mode_rounded),
-                      label: Text('Dark'),
+                      icon: const Icon(Icons.dark_mode_rounded),
+                      label: Text(AppStrings.darkTheme),
                     ),
                     ButtonSegment(
                       value: ThemeMode.system,
-                      icon: Icon(Icons.brightness_auto_rounded),
-                      label: Text('System'),
+                      icon: const Icon(Icons.brightness_auto_rounded),
+                      label: Text(AppStrings.systemTheme),
                     ),
                   ],
                   selected: {session.themeMode},
@@ -537,14 +537,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Acharya Support Desk',
-                        style: TextStyle(
+                      Text(
+                        AppStrings.supportDesk,
+                        style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Dedicated 24x7 helpline for consultation queries',
+                        AppStrings.supportDeskSubtitle,
                         style: TextStyle(
                           fontSize: 11.5,
                           color: dark ? Colors.white60 : Colors.black54,
@@ -556,7 +556,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextButton(
                   onPressed: () => showSnack(
                       context, 'Astrologer Support helpline: +91 99990 00000'),
-                  child: const Text('Contact'),
+                  child: Text(AppStrings.contactSupport),
                 ),
               ],
             ),
@@ -568,9 +568,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () => _logout(context),
             icon:
                 const Icon(Icons.logout_rounded, color: PartnerTheme.crimson),
-            label: const Text(
-              'Log Out of Portal',
-              style: TextStyle(
+            label: Text(
+              AppStrings.logout,
+              style: const TextStyle(
                 color: PartnerTheme.crimson,
                 fontWeight: FontWeight.w800,
               ),
@@ -593,18 +593,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton.icon(
                 onPressed: () => _showPrivacyPolicy(context),
                 icon: const Icon(Icons.privacy_tip_outlined, size: 16, color: Colors.grey),
-                label: const Text(
-                  'Privacy Policy',
-                  style: TextStyle(fontSize: 12, color: Colors.grey, decoration: TextDecoration.underline),
+                label: Text(
+                  AppStrings.privacyPolicy,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey, decoration: TextDecoration.underline),
                 ),
               ),
               const Text(' • ', style: TextStyle(color: Colors.grey)),
               TextButton.icon(
                 onPressed: () => _confirmDeleteAccount(context),
                 icon: const Icon(Icons.delete_forever_rounded, size: 16, color: Colors.redAccent),
-                label: const Text(
-                  'Delete Account',
-                  style: TextStyle(fontSize: 12, color: Colors.redAccent, decoration: TextDecoration.underline),
+                label: Text(
+                  AppStrings.deleteAccount,
+                  style: const TextStyle(fontSize: 12, color: Colors.redAccent, decoration: TextDecoration.underline),
                 ),
               ),
             ],
@@ -1052,11 +1052,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.shield_rounded, color: PartnerTheme.gold),
-            SizedBox(width: 8),
-            Text('Privacy Policy', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            const Icon(Icons.shield_rounded, color: PartnerTheme.gold),
+            const SizedBox(width: 8),
+            Text(AppStrings.privacyPolicy, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
           ],
         ),
         content: const SingleChildScrollView(
@@ -1071,7 +1071,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
+            child: Text(AppStrings.confirm),
           ),
         ],
       ),
@@ -1082,11 +1082,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete Account?', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            const Icon(Icons.warning_amber_rounded, color: Colors.red),
+            const SizedBox(width: 8),
+            Text('${AppStrings.deleteAccount}?', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
           ],
         ),
         content: const Text(
@@ -1097,12 +1097,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(AppStrings.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Confirm & Delete'),
+            child: Text(AppStrings.confirm),
           ),
         ],
       ),

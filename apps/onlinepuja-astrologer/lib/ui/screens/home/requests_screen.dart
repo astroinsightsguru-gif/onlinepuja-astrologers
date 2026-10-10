@@ -130,7 +130,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
         }
       }
       if (mounted) {
-        showSnack(context, accept ? 'Consultation Accepted' : 'Consultation Declined');
+        showSnack(context, accept ? AppStrings.consultationAccepted : AppStrings.consultationDeclined);
         _reload();
         if (accept) {
           _openSession(row, forceCall: isCallRow);
@@ -175,8 +175,8 @@ class _RequestsScreenState extends State<RequestsScreen> {
       appBar: AppBar(
         title: Text(
           widget.kind == 'all'
-              ? 'Consultation Requests'
-              : (_isCall ? 'Incoming Calls' : 'Incoming Chats'),
+              ? AppStrings.consultationRequests
+              : (_isCall ? AppStrings.incomingCalls : AppStrings.incomingChats),
           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
@@ -186,7 +186,12 @@ class _RequestsScreenState extends State<RequestsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: SegmentedPills(
-              items: const ['All', 'Audio Call', 'Video Call', 'Chat'],
+              items: [
+                AppStrings.filterAll,
+                AppStrings.filterAudio,
+                AppStrings.filterVideo,
+                AppStrings.filterChat,
+              ],
               selectedIndex: _filterIndex,
               onChanged: (i) => setState(() => _filterIndex = i),
             ),
@@ -252,16 +257,16 @@ class _RequestsScreenState extends State<RequestsScreen> {
                                 ),
                               ),
                               const SizedBox(height: 18),
-                              const Text(
-                                'No Pending Requests',
-                                style: TextStyle(
+                              Text(
+                                AppStrings.noPendingRequests,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Keep your status set to ONLINE. You will automatically receive a full-screen ringing chime when a devotee calls.',
+                                AppStrings.onlineWaitingHint,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 13,
@@ -356,8 +361,8 @@ class _RequestsScreenState extends State<RequestsScreen> {
                           ),
                           child: Text(
                             isCallRow
-                                ? (isVideo ? 'VIDEO CALL' : 'AUDIO CALL')
-                                : 'CHAT SESSION',
+                                ? (isVideo ? AppStrings.videoCall : AppStrings.audioCall)
+                                : AppStrings.chatSession,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -383,7 +388,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
               ),
               // View Horoscope / Kundli Button
               IconButton(
-                tooltip: 'Devotee Kundli',
+                tooltip: AppStrings.devoteeKundli,
                 icon: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
@@ -411,7 +416,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _respond(row, accept: false),
                   icon: const Icon(Icons.close_rounded, size: 18),
-                  label: const Text('Decline'),
+                  label: Text(AppStrings.decline),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: PartnerTheme.crimson,
                     side: BorderSide(
@@ -438,16 +443,16 @@ class _RequestsScreenState extends State<RequestsScreen> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () => _respond(row, accept: true),
-                      child: const Center(
+                      child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle_rounded,
+                            const Icon(Icons.check_circle_rounded,
                                 size: 18, color: Colors.white),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
-                              'ACCEPT & START',
-                              style: TextStyle(
+                              AppStrings.acceptAndStart,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,

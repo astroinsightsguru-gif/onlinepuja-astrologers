@@ -29,8 +29,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Availability & Hours',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text(AppStrings.availabilityHours,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
@@ -65,7 +65,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isOnline ? 'PORTAL IS LIVE' : 'CURRENTLY OFFLINE',
+                        isOnline ? AppStrings.portalIsLive : AppStrings.currentlyOfflineUpper,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -108,9 +108,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
           const SizedBox(height: 20),
 
           // Granular Consultation Switches
-          const Text(
-            'Consultation Modes',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          Text(
+            AppStrings.consultationModes,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
           PartnerCard(
@@ -155,9 +155,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
           const SizedBox(height: 20),
 
           // Quick Break Presets (DND)
-          const Text(
-            'Take a Quick Break',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+          Text(
+            AppStrings.takeQuickBreak,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 6),
           Text(
@@ -170,11 +170,11 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              _breakChip(15, '15 Min Break', Icons.coffee_rounded, session),
+              _breakChip(15, AppStrings.break15Min, Icons.coffee_rounded, session),
               const SizedBox(width: 8),
-              _breakChip(30, '30 Min Break', Icons.self_improvement_rounded, session),
+              _breakChip(30, AppStrings.break30Min, Icons.self_improvement_rounded, session),
               const SizedBox(width: 8),
-              _breakChip(60, '1 Hr Break', Icons.bedtime_outlined, session),
+              _breakChip(60, AppStrings.break60Min, Icons.bedtime_outlined, session),
             ],
           ),
           const SizedBox(height: 22),

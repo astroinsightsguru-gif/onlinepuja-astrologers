@@ -42,8 +42,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Earnings & Wallet',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text(AppStrings.earningsWallet,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
@@ -92,9 +92,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                'AVAILABLE FOR WITHDRAWAL',
-                                style: TextStyle(
+                              Text(
+                                AppStrings.availableWithdrawal,
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.8,
@@ -109,9 +109,9 @@ class _WalletScreenState extends State<WalletScreen> {
                               color: PartnerTheme.emerald.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Text(
-                              'Instant Payout',
-                              style: TextStyle(
+                            child: Text(
+                              AppStrings.instantPayout,
+                              style: const TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w700,
                                 color: PartnerTheme.emerald,
@@ -152,16 +152,16 @@ class _WalletScreenState extends State<WalletScreen> {
                             borderRadius: BorderRadius.circular(14),
                             onTap: () => _openWithdrawSheet(
                                 context, options, balance, session),
-                            child: const Center(
+                            child: Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.currency_rupee_rounded,
+                                  const Icon(Icons.currency_rupee_rounded,
                                       size: 18, color: Colors.white),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    'SUBMIT PAYOUT REQUEST',
-                                    style: TextStyle(
+                                    AppStrings.requestWithdrawal,
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: 0.5,
@@ -191,9 +191,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       child: StatTile(
                         icon: Icons.phone_in_talk_rounded,
                         iconColor: PartnerTheme.emerald,
-                        label: 'Calls & Video',
+                        label: AppStrings.callsAndVideo,
                         value: '₹ ${(balance * 0.55).toStringAsFixed(0)}',
-                        subtext: '55% share',
+                        subtext: '55% ${AppStrings.shareRatio}',
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -201,9 +201,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       child: StatTile(
                         icon: Icons.chat_bubble_rounded,
                         iconColor: PartnerTheme.saffron,
-                        label: 'Chat Consultations',
+                        label: AppStrings.chatSessions,
                         value: '₹ ${(balance * 0.30).toStringAsFixed(0)}',
-                        subtext: '30% share',
+                        subtext: '30% ${AppStrings.shareRatio}',
                       ),
                     ),
                   ],
@@ -215,9 +215,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       child: StatTile(
                         icon: Icons.temple_hindu_rounded,
                         iconColor: PartnerTheme.amber,
-                        label: 'Puja Rituals',
+                        label: AppStrings.pujaRitualsTab,
                         value: '₹ ${(balance * 0.15).toStringAsFixed(0)}',
-                        subtext: '15% share',
+                        subtext: '15% ${AppStrings.shareRatio}',
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -225,9 +225,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       child: StatTile(
                         icon: Icons.description_rounded,
                         iconColor: PartnerTheme.purple,
-                        label: 'Astrology Reports',
+                        label: AppStrings.reportsTab,
                         value: '₹ 1,200',
-                        subtext: '2 Delivered',
+                        subtext: '2 ${AppStrings.delivered}',
                       ),
                     ),
                   ],
@@ -238,9 +238,9 @@ class _WalletScreenState extends State<WalletScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Linked Bank & UPI Account',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                    Text(
+                      AppStrings.payoutOptions,
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                     ),
                     TextButton.icon(
                       style: TextButton.styleFrom(
@@ -248,8 +248,8 @@ class _WalletScreenState extends State<WalletScreen> {
                         foregroundColor: PartnerTheme.saffron,
                       ),
                       icon: const Icon(Icons.edit_rounded, size: 14),
-                      label: const Text('Edit / Update',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      label: Text(AppStrings.change,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                       onPressed: () => _openBankDetailsEditorSheet(context, session),
                     ),
                   ],
@@ -278,7 +278,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 Text(
                                   session.user?.bankName?.isNotEmpty == true
                                       ? session.user!.bankName!
-                                      : 'Bank Account Not Linked',
+                                      : AppStrings.addBankAccount,
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,

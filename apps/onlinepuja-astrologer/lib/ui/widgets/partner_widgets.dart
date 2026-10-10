@@ -239,9 +239,10 @@ class StatTile extends StatelessWidget {
 
     return PartnerCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -277,7 +278,7 @@ class StatTile extends StatelessWidget {
                 ),
             ],
           ),
-          const Spacer(),
+          const SizedBox(height: 10),
           Text(
             value,
             style: const TextStyle(

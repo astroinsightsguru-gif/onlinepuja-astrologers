@@ -79,8 +79,8 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Fulfillment',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text(AppStrings.orderFulfillmentTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
         bottom: TabBar(
           controller: _tab,
           indicatorColor: PartnerTheme.saffron,
@@ -91,11 +91,11 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
           tabs: [
             Tab(
               icon: const Icon(Icons.temple_hindu_rounded, size: 20),
-              text: 'Puja Rituals (${_pujas.length})',
+              text: '${AppStrings.pujaRitualsTab} (${_pujas.length})',
             ),
             Tab(
               icon: const Icon(Icons.description_rounded, size: 20),
-              text: 'Horoscope Reports (${_reports.length})',
+              text: '${AppStrings.reportsTab} (${_reports.length})',
             ),
           ],
         ),
@@ -137,9 +137,9 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                     size: 46, color: PartnerTheme.saffron),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'No Assigned Puja Bookings',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                AppStrings.noPujasScheduled,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
@@ -204,7 +204,7 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Devotee: $customerName',
+                            '${AppStrings.devotee}: $customerName',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -266,8 +266,8 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('View Sankalp',
-                          style: TextStyle(
+                      child: Text(AppStrings.viewSankalp,
+                          style: const TextStyle(
                               fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                   ],
@@ -298,9 +298,9 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                     size: 46, color: PartnerTheme.purple),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'No Report Requests',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                AppStrings.noReportsPending,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
@@ -418,17 +418,17 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () => _fulfillReport(item, dark),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 14),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             child: Center(
                               child: Row(
                                 children: [
-                                  Icon(Icons.edit_note_rounded,
+                                  const Icon(Icons.edit_note_rounded,
                                       size: 16, color: Colors.white),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    'Draft & Submit Report',
-                                    style: TextStyle(
+                                    AppStrings.draftSubmitReport,
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,

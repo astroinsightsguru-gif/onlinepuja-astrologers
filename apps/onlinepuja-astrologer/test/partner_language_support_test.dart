@@ -36,6 +36,21 @@ void main() {
     expect(AppStrings.acceptAndStart, 'स्वीकार करें एवं प्रारंभ करें');
     expect(AppStrings.reject, 'अस्वीकार करें');
     expect(AppStrings.verifiedAstrologer, 'प्रमाणित ज्योतिषी');
+    expect(AppStrings.partnerPortalTitle, 'ज्योतिषी भागीदार पोर्टल');
+    expect(AppStrings.registeredMobile, 'पंजीकृत मोबाइल नंबर');
+    expect(AppStrings.sendOtp, 'सत्यापन कोड (OTP) भेजें');
+    expect(AppStrings.consultationRequests, 'परामर्श अनुरोध');
+    expect(AppStrings.orderFulfillmentTitle, 'संकल्प सिद्धि केंद्र');
+    expect(AppStrings.earningsWallet, 'दक्षिणा एवं बटुआ');
+    expect(AppStrings.availableWithdrawal, 'आहरण हेतु उपलब्ध राशि');
+    expect(AppStrings.myProfile, 'मेरी प्रोफाइल एवं प्रमाण-पत्र');
+    expect(AppStrings.fullName, 'पूरा नाम');
+    expect(AppStrings.saveChanges, 'परिवर्तन सुरक्षित करें');
+    expect(AppStrings.logout, 'लॉग आउट');
+    expect(AppStrings.portalIsLive, 'पोर्टल लाइव है');
+    expect(AppStrings.verified100, '100% सत्यापित');
+    expect(AppStrings.dailyPayouts, 'दैनिक भुगतान');
+    expect(AppStrings.support24x7, '24x7 सहायता');
 
     // Sanskrit verification
     LocaleManager.instance.setLanguage(AppLanguage.sa);

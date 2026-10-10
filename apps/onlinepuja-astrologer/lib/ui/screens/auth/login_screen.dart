@@ -72,7 +72,37 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 12),
+                  // Language Switcher Top Right Action Chip
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ValueListenableBuilder<AppLanguage>(
+                      valueListenable: LocaleManager.instance.currentLanguage,
+                      builder: (context, lang, _) {
+                        return ActionChip(
+                          avatar: const Icon(Icons.translate_rounded,
+                              size: 16, color: PartnerTheme.saffron),
+                          label: Text(
+                            lang.label,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                          ),
+                          backgroundColor: dark
+                              ? PartnerTheme.darkSurface
+                              : const Color(0xFFFBF8F2),
+                          side: BorderSide(
+                            color: PartnerTheme.saffron.withValues(alpha: 0.4),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          onPressed: () => LanguagePickerSheet.show(context),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
 
                   // Spiritual Crest Icon
                   Center(
@@ -106,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Portal Title
                   Text(
-                    'Astrologer Partner Portal',
+                    AppStrings.partnerPortalTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 22,
@@ -117,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Sign in with your verified mobile number to accept devotee consultations.',
+                    AppStrings.partnerPortalSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -135,8 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'REGISTERED MOBILE NUMBER',
-                          style: TextStyle(
+                          AppStrings.registeredMobile,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.8,
@@ -194,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   letterSpacing: 0.5,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: 'Enter 10-digit number',
+                                  hintText: AppStrings.enterMobileHint,
                                   counterText: '',
                                   prefixIcon: const Icon(Icons.phone_iphone_rounded),
                                   filled: true,
@@ -229,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 validator: (v) =>
                                     (v == null || v.trim().length < 7)
-                                        ? 'Enter a valid mobile number'
+                                        ? AppStrings.enterValidPhone
                                         : null,
                               ),
                             ),
@@ -264,15 +294,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Colors.white),
                                   ),
                                 )
-                              : const Row(
+                              : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.send_rounded,
+                                    const Icon(Icons.send_rounded,
                                         size: 18, color: Colors.white),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Text(
-                                      'GET OTP VERIFICATION',
-                                      style: TextStyle(
+                                      AppStrings.sendOtp,
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: 0.8,
@@ -305,9 +335,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _featurePill(Icons.shield_outlined, '100% Verified'),
-                        _featurePill(Icons.currency_rupee_rounded, 'Daily Payouts'),
-                        _featurePill(Icons.headset_mic_outlined, '24x7 Support'),
+                        _featurePill(Icons.shield_outlined, AppStrings.verified100),
+                        _featurePill(Icons.currency_rupee_rounded, AppStrings.dailyPayouts),
+                        _featurePill(Icons.headset_mic_outlined, AppStrings.support24x7),
                       ],
                     ),
                   ),
@@ -321,9 +351,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (_) => const PartnerRegisterScreen()),
                       ),
                       icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-                      label: const Text(
-                        'New Astrologer? Register Here',
-                        style: TextStyle(
+                      label: Text(
+                        AppStrings.newAstrologerJoin,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 13.5,
                         ),
