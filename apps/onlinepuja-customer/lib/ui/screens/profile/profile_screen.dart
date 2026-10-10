@@ -594,25 +594,33 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             ListTile(
+              leading: const Icon(Icons.phone_in_talk_rounded, color: Colors.blue),
+              title: const Text('Helpline Call'),
+              subtitle: const Text('+91 70071 58014 • 24x7 Support'),
+              onTap: () {
+                Navigator.pop(ctx);
+                launchUrl(Uri.parse('tel:+917007158014'));
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.chat_rounded, color: Colors.green),
               title: const Text('WhatsApp Support'),
-              subtitle: Text('${context.read<AppSession>().flags.supportPhone} Â- Instant reply'),
+              subtitle: const Text('+91 70071 58014 • Instant reply'),
               onTap: () {
-                final wa = context.read<AppSession>().flags.supportWhatsapp;
                 Navigator.pop(ctx);
                 launchUrl(
-                  Uri.parse('https://wa.me/$wa'),
+                  Uri.parse('https://wa.me/917007158014'),
                   mode: LaunchMode.externalApplication,
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.email_outlined, color: Colors.orange),
-              title: const Text('Email Support'),
-              subtitle: const Text('support@onlinepuja.live'),
+              title: const Text('Customer Email Support'),
+              subtitle: const Text('care@onlinepuja.live'),
               onTap: () {
                 Navigator.pop(ctx);
-                launchUrl(Uri.parse('mailto:support@onlinepuja.live'));
+                launchUrl(Uri.parse('mailto:care@onlinepuja.live'));
               },
             ),
           ],

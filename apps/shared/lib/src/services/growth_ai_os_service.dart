@@ -164,8 +164,8 @@ class BrandProfileConfig {
   const BrandProfileConfig({
     this.brandName = 'OnlinePuja.live',
     this.brandTagline = 'Sacred Temple Darshan & Verified Vedic Astrologers',
-    this.supportPhone = '+91 99999 99999',
-    this.supportEmail = 'support@onlinepuja.live',
+    this.supportPhone = '+91 70071 58014',
+    this.supportEmail = 'care@onlinepuja.live',
     this.websiteUrl = 'https://onlinepuja.live',
     this.appHubUrl = 'https://onlinepuja.live/apps',
     this.primaryColorHex = '#D97706',
@@ -185,8 +185,8 @@ class BrandProfileConfig {
         brandName: json['brandName'] as String? ?? 'OnlinePuja.live',
         brandTagline: json['brandTagline'] as String? ??
             'Sacred Temple Darshan & Verified Vedic Astrologers',
-        supportPhone: json['supportPhone'] as String? ?? '+91 99999 99999',
-        supportEmail: json['supportEmail'] as String? ?? 'support@onlinepuja.live',
+        supportPhone: json['supportPhone'] as String? ?? '+91 70071 58014',
+        supportEmail: json['supportEmail'] as String? ?? 'care@onlinepuja.live',
         websiteUrl: json['websiteUrl'] as String? ?? 'https://onlinepuja.live',
         appHubUrl: json['appHubUrl'] as String? ?? 'https://onlinepuja.live/apps',
         primaryColorHex: json['primaryColorHex'] as String? ?? '#D97706',

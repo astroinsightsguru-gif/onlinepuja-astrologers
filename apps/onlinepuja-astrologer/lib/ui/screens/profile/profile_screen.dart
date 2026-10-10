@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
 import '../../theme/partner_theme.dart';
@@ -554,8 +555,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => showSnack(
-                      context, 'Astrologer Support helpline: +91 99990 00000'),
+                  onPressed: () => _showSupport(context),
                   child: Text(AppStrings.contactSupport),
                 ),
               ],
@@ -1046,6 +1046,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Navigator.of(context)
           .pushNamedAndRemoveUntil(LoginScreen.route, (r) => false);
     }
+  }
+
+  void _showSupport(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppStrings.supportDesk,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              AppStrings.supportDeskSubtitle,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+            const SizedBox(height: 18),
+            ListTile(
+              leading: const Icon(Icons.phone_in_talk_rounded, color: Colors.blue),
+              title: const Text('Helpline Call'),
+              subtitle: const Text('+91 70071 58014 • 24x7 Partner Support'),
+              onTap: () {
+                Navigator.pop(ctx);
+                launchUrl(Uri.parse('tel:+917007158014'));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.chat_rounded, color: Colors.green),
+              title: const Text('WhatsApp Support'),
+              subtitle: const Text('+91 70071 58014 • Instant Astrologer Help'),
+              onTap: () {
+                Navigator.pop(ctx);
+                launchUrl(
+                  Uri.parse('https://wa.me/917007158014'),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.email_outlined, color: Colors.orange),
+              title: const Text('Astrologer Support Email'),
+              subtitle: const Text('astro@onlinepuja.live'),
+              onTap: () {
+                Navigator.pop(ctx);
+                launchUrl(Uri.parse('mailto:astro@onlinepuja.live'));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showPrivacyPolicy(BuildContext context) {
