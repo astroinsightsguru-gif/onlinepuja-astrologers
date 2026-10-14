@@ -154,7 +154,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: relation,
+                      initialValue: relation,
                       decoration: const InputDecoration(labelText: 'Relationship'),
                       items: const [
                         DropdownMenuItem(value: 'Spouse', child: Text('Spouse')),
@@ -168,7 +168,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: rashi,
+                      initialValue: rashi,
                       decoration: const InputDecoration(labelText: 'Janma Rashi'),
                       items: const [
                         DropdownMenuItem(value: 'Mesh (Aries)', child: Text('Mesh (Aries)')),
@@ -300,7 +300,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: CustomerTheme.brandGold.withOpacity(0.4)),
+        border: Border.all(color: CustomerTheme.brandGold.withValues(alpha: 0.4)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +326,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -371,7 +371,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withOpacity(0.08)),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -379,7 +379,7 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: CustomerTheme.brandSaffron.withOpacity(0.12),
+                backgroundColor: CustomerTheme.brandSaffron.withValues(alpha: 0.12),
                 child: Text(
                   m['name']?.isNotEmpty == true ? m['name']![0] : 'ॐ',
                   style: const TextStyle(color: CustomerTheme.brandSaffron, fontWeight: FontWeight.bold),

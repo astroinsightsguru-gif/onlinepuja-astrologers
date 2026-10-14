@@ -80,10 +80,18 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
   }
 
   @override
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final k = widget.kundli;
     const tabs = ['Basic', 'Planets', 'Dasha', 'Dosha', 'Remedies (उपाय)'];
+    final subColor = Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.75) ??
+        scheme.onSurfaceVariant;
     return Scaffold(
       appBar: AppBar(
         title: Text(k.name),
@@ -106,11 +114,16 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.outline),
+                  ?.copyWith(color: subColor),
             ),
           ),
           TabBar(
             controller: _tabs,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            labelColor: AppTheme.brandSaffron,
+            unselectedLabelColor: subColor,
+            indicatorColor: AppTheme.brandSaffron,
             tabs: [for (final t in tabs) Tab(text: t)],
           ),
           Expanded(
@@ -118,26 +131,20 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
                 ? StatusViews.error(context, _error!, onRetry: _load)
                 : _basic == null
                     ? StatusViews.loading(context)
-                    : _body(context),
+                    : TabBarView(
+                        controller: _tabs,
+                        children: [
+                          _basicTab(),
+                          _planetsTab(),
+                          _dashaTab(),
+                          _doshaTab(),
+                          _remediesTab(),
+                        ],
+                      ),
           ),
         ],
       ),
     );
-  }
-
-  Widget _body(BuildContext context) {
-    switch (_tabs.index) {
-      case 0:
-        return _basicTab();
-      case 1:
-        return _planetsTab();
-      case 2:
-        return _dashaTab();
-      case 3:
-        return _doshaTab();
-      default:
-        return _remediesTab();
-    }
   }
 
   Widget _infoGrid(List<(String, String?)> rows) {
@@ -304,7 +311,7 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
-                        ?.copyWith(color: scheme.outline)),
+                        ?.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ),
         ),
@@ -429,7 +436,7 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
                 const SizedBox(height: 4),
                 Text(
                   'Presiding Deity: $deity\nBlesses the devotee with health, spiritual peace, and protection against planetary malefic effects.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.outline, height: 1.3),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.3),
                 ),
               ],
             ),
@@ -463,7 +470,7 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
                 const SizedBox(height: 4),
                 Text(
                   'Recommended by Vedic scholars to pacify malefic planetary transits and enhance auspicious vibrations for career and family harmony.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.outline, height: 1.3),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, height: 1.3),
                 ),
               ],
             ),
@@ -541,6 +548,25 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Kundli summary copied to clipboard!')),
               );
+            },
+          ),
+          FilledButton.icon(
+            icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+            label: const Text('Download PDF'),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: const Color(0xFF1B8A5A),
+                  content: Text('📄 Generating 10-Page Vedic Kundli Report for ${k.name}... Download started!'),
+                ),
+              );
+              // Open web PDF renderer endpoint
+              final pdfUrl = Uri.parse('https://onlinepuja.live/api/kundali/export-pdf?kundliId=${k.id ?? 1}&name=${Uri.encodeComponent(k.name)}');
+              try {
+                await launchUrl(pdfUrl, mode: LaunchMode.externalApplication);
+              } catch (_) {}
             },
           ),
           const SizedBox(width: 8),

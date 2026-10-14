@@ -42,14 +42,93 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   String get _myId => context.read<PartnerSession>().myId;
 
-  static const _quickReplies = [
-    'Analyzing your birth chart...',
-    'May Lord Shiva bless you 🙏',
-    'Your Jupiter transit is auspicious',
-    'Chant Gayatri Mantra 108 times daily',
-    'Wear 5-Mukhi Rudraksha for peace',
-    'Mild Manglik dosha detected, remedy applies',
-  ];
+  static const Map<String, List<String>> _localizedQuickReplies = {
+    'hi': [
+      'आपकी जन्म कुंडली का विश्लेषण कर रहा हूँ...',
+      'भगवान शिव की कृपा आप पर बनी रहे 🙏',
+      'आपका गुरु गोचर शुभ फल देगा',
+      'प्रतिदिन 108 बार गायत्री मंत्र का जाप करें',
+      'मानसिक शांति के लिए 5-मुखी रुद्राक्ष धारण करें',
+      'हल्का मांगलिक दोष है, उपाय से निवारण होगा',
+    ],
+    'sa': [
+      'भवतः जन्मकुण्डल्याः विश्लेषणं कुर्वन् अस्मि...',
+      'भगवान् शिवः भवन्तं शुभाशिषा अनुगृह्णातु 🙏',
+      'गुरुगोचरः शुभफलप्रदः अस्ति',
+      'प्रतिदिनं गायत्री मन्त्रस्य १०८ वारं जपः करणीयः',
+      'शान्तये पञ्चमुखी रुद्राक्षं धारयतु',
+      'माङ्गलिकदोषस्य निवारणोपायः विद्यते',
+    ],
+    'gu': [
+      'તમારી જન્મકુંડળીનું વિશ્લેષણ કરી રહ્યો છું...',
+      'ભગવાન શિવના આશીર્વાદ તમારા પર સદા રહે 🙏',
+      'તમારું ગુરુ ગોચર અત્યંત શુભ છે',
+      'દરરોજ ૧૦૮ વાર ગાયત્રી મંત્રનો જાપ કરો',
+      'શાંતિ માટે ૫-મુખી રુદ્રાક્ષ ધારણ કરો',
+      'હળવો માંગલિક દોષ છે, ઉપાયથી નિવારણ થશે',
+    ],
+    'mr': [
+      'तुमच्या जन्मकुंडलीचे विश्लेषण करत आहे...',
+      'भगवान शंकरांचा आशीर्वाद आपल्यावर राहो 🙏',
+      'तुमचा गुरु गोचर अतिशय शुभ आहे',
+      'दररोज १०८ वेळा गायत्री मंत्राचा जप करा',
+      'शांततेसाठी ५-मुखी रुद्राक्ष परिधान करा',
+      'सौम्य मांगलिक दोष आहे, उपायाने निवारण होईल',
+    ],
+    'bn': [
+      'আপনার জন্মকুণ্ডলী বিশ্লেষণ করছি...',
+      'ভগবান শিবের আশীর্বাদ আপনার সাথে থাকুক 🙏',
+      'আপনার বৃহস্পতির গোচর শুভ ফল দেবে',
+      'প্রতিদিন ১০৮ বার গায়ত্রী মন্ত্র জপ করুন',
+      'মানসিক শান্তির জন্য ৫-মুখী রুদ্রাক্ষ ধারণ করুন',
+      'হালকা মাঙ্গলিক দোষ রয়েছে, প্রতিকার প্রযোজ্য',
+    ],
+    'ta': [
+      'உங்கள் ஜாதகத்தை பகுப்பாய்வு செய்கிறேன்...',
+      'சிவபெருமானின் அருள் உங்களுக்கு கிடைக்கட்டும் 🙏',
+      'குரு பெயர்ச்சி சுப பலன்களை தரும்',
+      'தினமும் 108 முறை காயத்ரி மந்திரம் சொல்லுங்கள்',
+      'மன அமைதிக்கு 5-முக ருத்ராட்சம் அணியுங்கள்',
+      'செவ்வாய் தோஷ பரிகாரம் செய்யலாம்',
+    ],
+    'te': [
+      'మీ జాతక చక్రాన్ని పరిశీలిస్తున్నాను...',
+      'పరమేశ్వరుని ఆశీస్సులు మీకు లభించుగాక 🙏',
+      'గురు గోచారం శుభప్రదంగా ఉంది',
+      'రోజూ 108 సార్లు గాయత్రీ మంత్రాన్ని జపించండి',
+      'ప్రశాంతత కొరకు 5-ముఖాల రుద్రాక్ష ధరించండి',
+      'స్వల్ప మాంగ్లిక్ దోష నివారణ పూజ చేయండి',
+    ],
+    'kn': [
+      'ನಿಮ್ಮ ಜನ್ಮ ಕುಂಡಲಿಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...',
+      'ಶಿವನ ಕೃಪೆ ಸದಾ ನಿಮ್ಮ ಮೇಲಿರಲಿ 🙏',
+      'ಗುರು ಗ್ರಹದ ಸಂಚಾರ ಶುಭ ಫಲ ನೀಡಲಿದೆ',
+      'ದಿನವೂ 108 ಬಾರಿ ಗಾಯತ್ರಿ ಮಂತ್ರ ಜಪಿಸಿ',
+      'ಶಾಂತಿಗಾಗಿ 5-ಮುಖಿ ರುದ್ರಾಕ್ಷಿ ಧರಿಸಿ',
+      'ಸೌಮ್ಯ ಮಾಂಗ್ಲಿಕ್ ದೋಷಕ್ಕೆ ಪರಿಹಾರವಿದೆ',
+    ],
+    'ml': [
+      'നിങ്ങളുടെ ജാതകം പരിശോധിക്കുകയാണ്...',
+      'ഭഗവാൻ ശിവൻ അനുഗ്രഹിക്കട്ടെ 🙏',
+      'വ്യാഴത്തിന്റെ മാറ്റം ശുഭകരമാണ്',
+      'ദിവസവും 108 തവണ ഗായത്രീ മന്ത്രം ജപിക്കുക',
+      'ശാന്തിക്കായി 5-മുഖി രുദ്രാക്ഷം ധരിക്കുക',
+      'ചൊവ്വാദോഷ പരിഹാരം സാധ്യമാണ്',
+    ],
+    'en': [
+      'Analyzing your birth chart...',
+      'May Lord Shiva bless you 🙏',
+      'Your Jupiter transit is auspicious',
+      'Chant Gayatri Mantra 108 times daily',
+      'Wear 5-Mukhi Rudraksha for peace',
+      'Mild Manglik dosha detected, remedy applies',
+    ],
+  };
+
+  List<String> get _quickReplies {
+    final langCode = LocaleManager.instance.currentLanguage.value.code;
+    return _localizedQuickReplies[langCode] ?? _localizedQuickReplies['en']!;
+  }
 
   @override
   void initState() {
@@ -184,8 +263,12 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final session = context.watch<PartnerSession>();
     final minutesConsulted = _sessionDuration.inMinutes;
-    final estimatedEarnings = (minutesConsulted + 1) * 25;
+    final double chatRate = (session.user?.charge != null && session.user!.charge > 0)
+        ? session.user!.charge
+        : 25.0;
+    final estimatedEarnings = ((minutesConsulted + 1) * chatRate).round();
 
     return Scaffold(
       appBar: AppBar(
@@ -754,6 +837,15 @@ class _RemedyPujaPickerSheet extends StatefulWidget {
 
 class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
   final _searchCtrl = TextEditingController();
+  final _reasonCtrl = TextEditingController(
+    text: 'Planetary Dosha Nivaran & Shubh Graha Shanti',
+  );
+  final _mantraCtrl = TextEditingController(
+    text: 'Om Tryambakam Yajamahe Sugandhim Pushtivardhanam (108x daily)',
+  );
+  final _gemstoneCtrl = TextEditingController(
+    text: '5-Mukhi Nepal Rudraksha / Yellow Sapphire (Pukhraj)',
+  );
   late Future<List<Map<String, dynamic>>> _future;
   String _query = '';
   int? _dispatchingId;
@@ -761,7 +853,17 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
   @override
   void initState() {
     super.initState();
-    _future = PartnerApi.instance.astrologerPujaList(
+    _future = _loadPujas();
+  }
+
+  Future<List<Map<String, dynamic>>> _loadPujas() async {
+    try {
+      final list = await AiTwinApi.instance.fetchAvailablePujas();
+      if (list.isNotEmpty) {
+        return list;
+      }
+    } catch (_) {}
+    return PartnerApi.instance.astrologerPujaList(
       astrologerId: widget.astrologerId,
     );
   }
@@ -769,26 +871,51 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _reasonCtrl.dispose();
+    _mantraCtrl.dispose();
+    _gemstoneCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _dispatch(Map<String, dynamic> puja) async {
     final id = puja['id'];
     if (id == null) return;
-    setState(() => _dispatchingId = id is int ? id : int.tryParse(id.toString()));
+    final parsedId = id is int ? id : int.tryParse(id.toString());
+    if (parsedId == null) return;
+    setState(() => _dispatchingId = parsedId);
+
+    final pujaTitle = puja['puja_title']?.toString() ?? 'Vedic Puja';
+    final reason = _reasonCtrl.text.trim();
+    final mantra = _mantraCtrl.text.trim();
+    final gemstone = _gemstoneCtrl.text.trim();
 
     try {
-      await PartnerApi.instance.sendPujaToUser(
+      await AiTwinApi.instance.prescribeRemedy(
         astrologerId: widget.astrologerId,
         userId: widget.customerId,
-        pujaId: _dispatchingId!,
-        sessionId: widget.sessionId,
+        pujaId: parsedId,
+        remedyTitle: '$pujaTitle • Vedic Remedy Prescription',
+        reason: reason.isNotEmpty ? reason : 'Planetary Dosha Nivaran',
+        mantra: mantra.isNotEmpty ? mantra : null,
+        gemstone: gemstone.isNotEmpty ? gemstone : null,
       );
+
+      try {
+        await PartnerApi.instance.sendPujaToUser(
+          astrologerId: widget.astrologerId,
+          userId: widget.customerId,
+          pujaId: parsedId,
+          sessionId: widget.sessionId,
+        );
+      } catch (_) {}
 
       if (mounted) {
         Navigator.pop(context);
+        final summaryTitle = mantra.isNotEmpty
+            ? '$pujaTitle | Mantra: $mantra'
+            : pujaTitle;
         widget.onDispatched(
-          puja['puja_title']?.toString() ?? 'Vedic Puja',
+          summaryTitle,
           puja['puja_price'],
         );
         ScaffoldMessenger.of(context).showSnackBar(
@@ -799,7 +926,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Prescribed "${puja['puja_title']}" to ${widget.customerName}!',
+                    'Prescribed "$pujaTitle" & Vedic Remedies to ${widget.customerName}!',
                   ),
                 ),
               ],
@@ -826,7 +953,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
 
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
       ),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: BoxDecoration(
@@ -854,7 +981,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
           // Header
           Row(
@@ -874,15 +1001,15 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Prescribe Puja & Remedies',
+                      'AI Puja & Remedy Prescription',
                       style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                          TextStyle(fontSize: 16.5, fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Recommend sacred Vedic remedies to ${widget.customerName}',
+                      'Send 1-click bookable Sankalp card to ${widget.customerName}',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11.5,
                         color: dark ? Colors.white60 : Colors.black54,
                       ),
                     ),
@@ -895,7 +1022,62 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
+
+          // Custom Mantra & Gemstone Inputs
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: dark ? PartnerTheme.darkCard : const Color(0xFFFFFBEB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: PartnerTheme.saffron.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _reasonCtrl,
+                  style: const TextStyle(fontSize: 12),
+                  decoration: const InputDecoration(
+                    labelText: 'Dosha / Astrological Reason',
+                    isDense: true,
+                    prefixIcon: Icon(Icons.auto_awesome, size: 16, color: PartnerTheme.saffron),
+                    border: InputBorder.none,
+                  ),
+                ),
+                const Divider(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _mantraCtrl,
+                        style: const TextStyle(fontSize: 11.5),
+                        decoration: const InputDecoration(
+                          labelText: 'Vedic Mantra Japa',
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _gemstoneCtrl,
+                        style: const TextStyle(fontSize: 11.5),
+                        decoration: const InputDecoration(
+                          labelText: 'Rudraksha / Gemstone',
+                          isDense: true,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
 
           // Search Filter Field
           Container(
@@ -921,7 +1103,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
                     decoration: const InputDecoration(
                       hintText: 'Search Maha Mrityunjaya, Navgrah, etc...',
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
                 ),
@@ -936,7 +1118,7 @@ class _RemedyPujaPickerSheetState extends State<_RemedyPujaPickerSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
           // Pujas List
           Expanded(

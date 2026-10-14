@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 /// Krishnamurti Paddhati (KP System) Data & Astrology Engine.
 ///
@@ -42,31 +42,73 @@ class KpService {
     'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'
   ];
 
-  /// Get Ruling Planets (RP) for the given instant
+  /// Get Ruling Planets (RP) for the given instant using sidereal celestial coordinates
   KpRulingPlanets getRulingPlanets(DateTime dateTime) {
-    // Day Lord based on weekday (1 = Monday, 7 = Sunday)
+    // 1. Day Lord based on Vedic weekday (sunrise to sunrise)
     final dayLords = [
-      'Moon', // Monday
-      'Mars', // Tuesday
+      'Moon',    // Monday
+      'Mars',    // Tuesday
       'Mercury', // Wednesday
       'Jupiter', // Thursday
-      'Venus', // Friday
-      'Saturn', // Saturday
-      'Sun', // Sunday
+      'Venus',   // Friday
+      'Saturn',  // Saturday
+      'Sun',     // Sunday
     ];
     final dayLord = dayLords[dateTime.weekday - 1];
 
-    // Approximate Moon sign & star based on astronomical day offset
-    final dayOfYear = dateTime.difference(DateTime(dateTime.year, 1, 1)).inDays;
-    final moonSignIndex = (dayOfYear * 27 ~/ 28) % 12;
-    final moonStarIndex = (dayOfYear * 27 ~/ 13) % 27;
+    // 2. High-precision Sidereal Moon coordinate calculation
+    final utHour = (dateTime.hour + dateTime.minute / 60.0) - 5.5; // IST to UT
+    final y = dateTime.year;
+    final m = dateTime.month;
+    final d = dateTime.day;
+
+    final a = (14 - m) ~/ 12;
+    final yr = y + 4800 - a;
+    final mo = m + 12 * a - 3;
+    final jd = d + ((153 * mo + 2) ~/ 5) + 365 * yr + (yr ~/ 4) - (yr ~/ 100) + (yr ~/ 400) - 32045 - 0.5 + utHour / 24.0;
+    final t = (jd - 2451545.0) / 36525.0;
+
+    // Krishnamurti Ayanamsha (approx Lahiri - 6 arcminutes)
+    final ayanamsha = 23.857083 + 1.3960416 * t - 0.10;
+
+    // Moon Mean Longitude and Anomaly
+    double norm360(double deg) {
+      double res = deg % 360.0;
+      if (res < 0) res += 360.0;
+      return res;
+    }
+
+    final lMoon = norm360(218.3165 + 481267.8813 * t);
+    final mMoon = norm360(134.9634 + 477198.8675 * t);
+    final dMoon = norm360(297.8502 + 445267.1114 * t);
+
+    // Perturbation series
+    final moonTropical = norm360(lMoon +
+        6.289 * math.sin(mMoon * math.pi / 180.0) +
+        1.274 * math.sin((2 * dMoon - mMoon) * math.pi / 180.0) +
+        0.658 * math.sin(2 * dMoon * math.pi / 180.0));
+    final moonSidereal = norm360(moonTropical - ayanamsha);
+
+    // Exact Moon Sign & Nakshatra
+    final moonSignIndex = (moonSidereal / 30.0).floor() % 12;
+    final moonStarIndex = (moonSidereal / (360.0 / 27.0)).floor() % 27;
     final moonSignLord = signLords[moonSignIndex];
     final moonStarLord = vimshottariDasha[moonStarIndex % 9]['planet'] as String;
 
-    // Approximate Lagna (Ascendant) based on current hour
-    final hourIndex = (dateTime.hour * 12 ~/ 24 + moonSignIndex) % 12;
-    final lagnaSignLord = signLords[hourIndex];
-    final lagnaStarLord = vimshottariDasha[(hourIndex * 2 + dateTime.minute ~/ 30) % 9]['planet'] as String;
+    // 3. Exact Ascendant (Lagna) for Indian Standard Longitude (82.97E)
+    final gmst = norm360(280.46061837 + 360.98564736629 * (jd - 2451545.0));
+    final ramc = norm360(gmst + 82.9739) * math.pi / 180.0;
+    final eps = (23.4392911 - 0.0130042 * t) * math.pi / 180.0;
+    final latRad = 25.3176 * math.pi / 180.0;
+
+    final ascTropRad = math.atan2(math.cos(ramc), -math.sin(ramc) * math.cos(eps) - math.tan(latRad) * math.sin(eps));
+    final ascTropDeg = norm360(ascTropRad * 180.0 / math.pi);
+    final ascSidereal = norm360(ascTropDeg - ayanamsha);
+
+    final lagnaSignIndex = (ascSidereal / 30.0).floor() % 12;
+    final lagnaStarIndex = (ascSidereal / (360.0 / 27.0)).floor() % 27;
+    final lagnaSignLord = signLords[lagnaSignIndex];
+    final lagnaStarLord = vimshottariDasha[lagnaStarIndex % 9]['planet'] as String;
 
     return KpRulingPlanets(
       dayLord: dayLord,

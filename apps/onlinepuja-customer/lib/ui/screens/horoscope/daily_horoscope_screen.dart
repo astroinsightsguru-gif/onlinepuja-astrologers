@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
 
 /// Full Daily Horoscope experience matching Vedic legacy specs:

@@ -62,8 +62,8 @@ class _HomeShellState extends State<HomeShell> {
         final calls = await PartnerApi.instance
             .callRequests(astrologerId: session.astrologerId);
         for (final c in calls) {
-          final id = (c['id'] ?? c['callId'] ?? c['_id'])?.toString() ?? '';
-          final status = (c['status'] ?? '').toString().toLowerCase();
+          final id = (c['callId'] ?? c['id'] ?? c['_id'])?.toString() ?? '';
+          final status = (c['callStatus'] ?? c['status'] ?? '').toString().toLowerCase();
           if (id.isNotEmpty &&
               !_handledRequests.contains('call_$id') &&
               (status.isEmpty || status == 'pending' || status == 'waiting')) {
@@ -79,8 +79,8 @@ class _HomeShellState extends State<HomeShell> {
         final chats = await PartnerApi.instance
             .chatRequests(astrologerId: session.astrologerId);
         for (final ch in chats) {
-          final id = (ch['id'] ?? ch['chatId'] ?? ch['_id'])?.toString() ?? '';
-          final status = (ch['status'] ?? '').toString().toLowerCase();
+          final id = (ch['chatId'] ?? ch['id'] ?? ch['_id'])?.toString() ?? '';
+          final status = (ch['chatStatus'] ?? ch['status'] ?? '').toString().toLowerCase();
           if (id.isNotEmpty &&
               !_handledRequests.contains('chat_$id') &&
               (status.isEmpty || status == 'pending' || status == 'waiting')) {
@@ -102,22 +102,31 @@ class _HomeShellState extends State<HomeShell> {
 
     HapticFeedback.heavyImpact();
 
-    final name = (req['userName'] ??
+    final rawName = (req['userName'] ??
             req['customerName'] ??
             req['name'] ??
-            'Devotee')
-        .toString();
+            '')
+        .toString()
+        .trim();
+    final contactNo = (req['contactNo'] ?? req['mobile'] ?? req['phone'])
+        ?.toString()
+        .trim();
+    final name = rawName.isNotEmpty
+        ? rawName
+        : (contactNo != null && contactNo.isNotEmpty
+            ? 'भक्त ($contactNo)'
+            : 'देवभक्त');
     final callType = (req['call_type'] ?? req['callType'] ?? '').toString();
     final isVideo =
         isCall && (callType == '11' || callType.toLowerCase().contains('video'));
     final id = int.tryParse(
-            (req['id'] ?? req[isCall ? 'callId' : 'chatId'] ?? req['_id'])
+            (req[isCall ? 'callId' : 'chatId'] ?? req['id'] ?? req['_id'])
                 ?.toString() ??
                 '') ??
         0;
-    final customerId = int.tryParse(req['userId']?.toString() ?? '') ?? 0;
+    final customerId = int.tryParse(req['userId']?.toString() ?? req['id']?.toString() ?? '') ?? 0;
     final sessionId =
-        (req['id'] ?? req[isCall ? 'callId' : 'chatId'] ?? req['_id'])
+        (req[isCall ? 'callId' : 'chatId'] ?? req['id'] ?? req['_id'])
             ?.toString();
 
     int remainingSeconds = 45;
@@ -267,7 +276,8 @@ class _HomeShellState extends State<HomeShell> {
 
                 // Quick Horoscope details peek button
                 GestureDetector(
-                  onTap: () => DevoteeKundliSheet.show(ctx, devoteeName: name),
+                  onTap: () => DevoteeKundliSheet.show(ctx,
+                      devoteeName: name, userId: customerId),
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -314,8 +324,12 @@ class _HomeShellState extends State<HomeShell> {
                           ),
                         ),
                         icon: const Icon(Icons.call_end_rounded, size: 20),
-                        label: Text(AppStrings.reject,
-                            style: const TextStyle(fontWeight: FontWeight.w800)),
+                        label: Text(
+                          AppStrings.reject,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
                         onPressed: () async {
                           ringTimer?.cancel();
                           vibrationTimer?.cancel();
@@ -496,6 +510,14 @@ class _HomeShellState extends State<HomeShell> {
             onPressed: () => Navigator.of(context)
                 .pushNamed(WalletScreen.route)
                 .then((_) => session.refreshUser()),
+          ),
+          const SizedBox(width: 4),
+
+          // Language Switcher Action (Hindi / English / 15 Indian Languages)
+          IconButton(
+            tooltip: 'Language / भाषा',
+            icon: const Icon(Icons.translate_rounded),
+            onPressed: () => LanguagePickerSheet.show(context),
           ),
           const SizedBox(width: 4),
         ],

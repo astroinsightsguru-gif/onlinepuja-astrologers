@@ -9,13 +9,15 @@ class ProductCategory {
   dynamic id, name, image;
   dynamic isActive;
 
-  factory ProductCategory.fromJson(Map<String, dynamic> json) =>
-      ProductCategory(
-        id: json['id'],
-        name: json['name'],
-        image: json['image'],
-        isActive: json['isActive'],
-      );
+  factory ProductCategory.fromJson(Map<String, dynamic> json) {
+    final rawImg = json['categoryImage'] ?? json['image'] ?? json['category_image'];
+    return ProductCategory(
+      id: json['id'],
+      name: json['name'],
+      image: rawImg,
+      isActive: json['isActive'],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -46,24 +48,31 @@ class Product {
   dynamic price, discountPrice, stock, isActive;
   dynamic createdAt;
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-        id: json['id'],
-        categoryId: json['categoryId'] ?? json['category_id'],
-        name: json['name'] ?? json['productName'],
-        slug: json['slug'],
-        description: json['description'] ?? json['longDescription'],
-        images: json['images'] is List
-            ? List<String>.from(
-                json['images'].map((x) => x.toString()))
-            : json['image'] == null
-                ? <String>[]
-                : <String>[json['image'].toString()],
-        price: json['price'],
-        discountPrice: json['discountPrice'] ?? json['discount_price'],
-        stock: json['stock'],
-        isActive: json['isActive'],
-        createdAt: json['created_at'] ?? json['createdAt'],
-      );
+  factory Product.fromJson(Map<String, dynamic> json) {
+    List<String> parsedImages = [];
+    if (json['images'] is List) {
+      parsedImages = List<String>.from(json['images'].map((x) => x.toString()));
+    } else {
+      final single = json['productImage'] ?? json['image'] ?? json['product_image'];
+      if (single != null && single.toString().isNotEmpty) {
+        parsedImages = [single.toString()];
+      }
+    }
+
+    return Product(
+      id: json['id'],
+      categoryId: json['categoryId'] ?? json['category_id'] ?? json['productCategoryId'],
+      name: json['name'] ?? json['productName'],
+      slug: json['slug'],
+      description: json['description'] ?? json['longDescription'],
+      images: parsedImages,
+      price: json['price'],
+      discountPrice: json['discountPrice'] ?? json['discount_price'],
+      stock: json['stock'],
+      isActive: json['isActive'],
+      createdAt: json['created_at'] ?? json['createdAt'],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

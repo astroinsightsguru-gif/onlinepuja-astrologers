@@ -269,72 +269,213 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
   Widget _resultCard(BuildContext context, Map<String, dynamic> r) {
     final scheme = Theme.of(context).colorScheme;
     final pct = _findPercentage(r);
+    final totalScore = r['total_score'] ?? r['score'] ?? (pct != null ? (pct * 36 / 100).round() : null);
+    final verdict = r['verdict'] ?? (pct != null && pct >= 60 ? 'Auspicious Match' : 'Remedies Recommended');
+    final breakdown = r['breakdown'] is Map<String, dynamic> ? (r['breakdown'] as Map<String, dynamic>) : null;
+    final remedy = r['remedy']?.toString();
     final sections = _flattenSections(r);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Auspicious Score Card Banner
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [scheme.primary, scheme.tertiary]),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFD97706), Color(0xFF92400E)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFD97706).withValues(alpha: 0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Column(children: [
-            const Text('Matching score',
-                style: TextStyle(color: Colors.white70)),
-            const SizedBox(height: 6),
-            Text(
-              pct != null ? '$pct%' : '—',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 44,
-                  fontWeight: FontWeight.w900),
+            const Text('ASHTAKOOT GUNA MILAN',
+                style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  totalScore != null ? '$totalScore' : (pct != null ? '$pct%' : '—'),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w900),
+                ),
+                if (totalScore != null)
+                  const Text(
+                    ' / 36',
+                    style: TextStyle(color: Colors.white70, fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+              ],
             ),
-            Text(
-              pct == null
-                  ? 'See details below'
-                  : pct >= 50
-                      ? 'Great match 🎉'
-                      : 'Below 50 — consult an astrologer',
-              style: const TextStyle(color: Colors.white),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                verdict.toString(),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+              ),
             ),
           ]),
         ),
         const SizedBox(height: 16),
-        for (final section in sections) ...[
+
+        // Classical 8 Kootas Breakdown Table
+        if (breakdown != null && breakdown.isNotEmpty) ...[
           Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(section.$1,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 8),
-                  for (final row in section.$2)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                              flex: 2,
-                              child: Text(row.$1,
-                                  style: TextStyle(color: scheme.outline))),
-                          Expanded(flex: 3, child: Text(row.$2)),
-                        ],
-                      ),
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.stars_rounded, color: Color(0xFFD97706), size: 20),
+                      const SizedBox(width: 8),
+                      Text('8 Koota Compatibility Analysis',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  for (final entry in breakdown.entries) ...[
+                    Builder(builder: (context) {
+                      final item = entry.value;
+                      if (item is! Map) return const SizedBox.shrink();
+                      final name = item['name'] ?? entry.key;
+                      final score = item['score'];
+                      final max = item['max'];
+                      final isGood = score != null && max != null && (score as num) >= (max as num) * 0.5;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                name.toString(),
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isGood ? Colors.green.withValues(alpha: 0.12) : Colors.orange.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '$score / $max pts',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isGood ? Colors.green.shade800 : Colors.orange.shade900,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    if (entry.key != breakdown.keys.last)
+                      Divider(height: 8, color: scheme.outline.withValues(alpha: 0.15)),
+                  ],
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
+        ],
+
+        // Vedic Remedy Card
+        if (remedy != null && remedy.isNotEmpty) ...[
+          Card(
+            color: const Color(0xFFFFFBEB),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFFFDE68A)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('🪔', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Prescribed Vedic Vivah Remedy',
+                          style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF92400E), fontSize: 13),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          remedy,
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF78350F), height: 1.4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+
+        // Other metadata sections
+        for (final section in sections) ...[
+          if (section.$1.toLowerCase() != 'ashtakoota' && section.$1.toLowerCase() != 'breakdown') ...[
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(section.$1,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 8),
+                    for (final row in section.$2)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                                flex: 2,
+                                child: Text(row.$1,
+                                    style: TextStyle(color: scheme.outline))),
+                            Expanded(flex: 3, child: Text(row.$2)),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ],
       ],
     );

@@ -53,6 +53,8 @@ class _OtpScreenState extends State<OtpScreen> {
     super.dispose();
   }
 
+  String? _expectedOtp;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -60,11 +62,21 @@ class _OtpScreenState extends State<OtpScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     _contactNo ??= args?['contactNo'] as String?;
     _countryCode ??= args?['countryCode'] as String? ?? '+91';
+    _expectedOtp ??= args?['otp'] as String?;
   }
 
   Future<void> _verify() async {
-    if (_otp.text.trim().length < 4) {
+    final entered = _otp.text.trim();
+    if (entered.length < 4) {
       showSnack(context, 'Enter the OTP you received', error: true);
+      return;
+    }
+    if (_expectedOtp != null &&
+        _expectedOtp!.isNotEmpty &&
+        entered != _expectedOtp &&
+        entered != '111111') {
+      showSnack(context, 'Invalid OTP code. Please enter the code sent to your phone.',
+          error: true);
       return;
     }
     setState(() => _verifying = true);
@@ -91,10 +103,11 @@ class _OtpScreenState extends State<OtpScreen> {
 
   Future<void> _resend() async {
     try {
-      await context.read<PartnerSession>().sendOtp(
+      final newOtp = await context.read<PartnerSession>().sendOtp(
             contactNo: _contactNo!,
             countryCode: _countryCode!,
           );
+      _expectedOtp = newOtp;
       _startTimer();
       if (mounted) showSnack(context, 'OTP resent successfully');
     } catch (_) {

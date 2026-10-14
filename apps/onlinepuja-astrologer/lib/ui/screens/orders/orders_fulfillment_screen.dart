@@ -568,14 +568,25 @@ class _OrdersFulfillmentScreenState extends State<OrdersFulfillmentScreen>
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(14),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Puja marked as verified & scheduled in your ritual calendar!'),
-                      ),
-                    );
+                    final astroId = context.read<PartnerSession>().astrologerId;
+                    final pujaId = int.tryParse(item['id']?.toString() ?? '') ?? 0;
+                    if (pujaId > 0 && astroId > 0) {
+                      await PartnerApi.instance.confirmPujaBooking(
+                        astrologerId: astroId,
+                        pujaId: pujaId,
+                        orderId: item['orderId']?.toString(),
+                      );
+                    }
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Puja marked as verified & scheduled in your ritual calendar!'),
+                        ),
+                      );
+                    }
                   },
                   child: const Center(
                     child: Text(

@@ -28,7 +28,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _load() async {
-    final userId = context.read<AppSession>().user?.id ?? 0;
+    final session = context.read<AppSession>();
+    final userId = session.user?.id ?? 0;
+    if (!session.isAuthenticated || userId <= 0) {
+      if (mounted) setState(() => _items = const []);
+      return;
+    }
     try {
       final items = await MiscApi.instance.notifications(userId: userId);
       if (mounted) setState(() => _items = items);

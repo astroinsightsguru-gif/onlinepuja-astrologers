@@ -114,6 +114,8 @@ class AstrologerApi {
       'isFreeSession': isFree,
     });
     if (decoded is Map<String, dynamic>) {
+      if (decoded['chatId'] != null) return decoded['chatId'].toString();
+      if (decoded['id'] != null) return decoded['id'].toString();
       final rl = decoded['recordList'];
       if (rl is Map<String, dynamic>) {
         return (rl['chatId'] ?? rl['id'] ?? rl['_id'])?.toString();
@@ -180,6 +182,8 @@ class AstrologerApi {
       'isFreeSession': isFree ? 1 : 0,
     });
     if (decoded is Map<String, dynamic>) {
+      if (decoded['callId'] != null) return decoded['callId'].toString();
+      if (decoded['id'] != null) return decoded['id'].toString();
       final rl = decoded['recordList'];
       if (rl is Map<String, dynamic>) {
         return (rl['callId'] ?? rl['id'] ?? rl['_id'])?.toString();
@@ -247,6 +251,23 @@ class AstrologerApi {
   /// End a call session (stops the server-side billing timer).
   Future<void> endCall({required String callId}) async {
     await _api.post('/callRequest/end', body: {'callId': callId});
+  }
+
+  /// Fetch live status of a call request (e.g. Pending, Accepted, Rejected).
+  Future<Map<String, dynamic>?> getCallById({required String callId}) async {
+    try {
+      final decoded = await _api.post('/getCallById', body: {'callId': callId});
+      if (decoded is Map<String, dynamic>) {
+        final rl = decoded['recordList'];
+        if (rl is List && rl.isNotEmpty && rl.first is Map<String, dynamic>) {
+          return Map<String, dynamic>.from(rl.first as Map);
+        }
+        if (rl is Map<String, dynamic>) return rl;
+      }
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 
   // ---------------- Intake Form ----------------

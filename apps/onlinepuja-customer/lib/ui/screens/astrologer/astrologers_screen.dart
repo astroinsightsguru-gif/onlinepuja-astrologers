@@ -7,6 +7,7 @@ import '../../../state/app_session.dart';
 import '../../theme/customer_theme.dart';
 import '../notifications_screen.dart';
 import '../profile/wallet_screen.dart';
+import '../cosmic_ai_screen.dart';
 
 /// Clean, Luxury & High-Conversion Astrologer Discovery & Consultation Directory.
 class AstrologersScreen extends StatefulWidget {
@@ -57,19 +58,225 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
     } catch (_) {}
   }
 
+  static final List<Astrologer> _parallelAiAstrologers = [
+    Astrologer(
+      id: 41,
+      name: 'Acharya Ved Vyas (AI Rishi)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Vedic Kundli, Dasha & Gochar',
+      allSkill: 'Vedic, Kundli, Career & Wealth, Marriage',
+      languageKnown: 'Hindi, Sanskrit, English',
+      charge: 5,
+      experienceInYears: 25,
+      rating: 5.0,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 42,
+      name: 'Pt. Hasta Rekha Shastri (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Samudrika Palmistry & Mounts',
+      allSkill: 'Palmistry, Vedic, Career & Wealth, Love & Relations',
+      languageKnown: 'Hindi, English',
+      charge: 5,
+      experienceInYears: 18,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 43,
+      name: 'Tarot & Prashna Guru (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Tarot Reading & Horary Prashna',
+      allSkill: 'Tarot, Love & Relations, Career & Wealth',
+      languageKnown: 'English, Hindi',
+      charge: 5,
+      experienceInYears: 15,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 44,
+      name: 'Acharya Anka Vidya (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Vedic Numerology & Name Correction',
+      allSkill: 'Numerology, Career & Wealth',
+      languageKnown: 'Hindi, English',
+      charge: 5,
+      experienceInYears: 20,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 45,
+      name: 'Vastu Visharad Shastri (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Vastu Shastra & Sacred Directions',
+      allSkill: 'Vastu, Career & Wealth',
+      languageKnown: 'Hindi, English',
+      charge: 5,
+      experienceInYears: 22,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 46,
+      name: 'Shri Kashi Teerth Purohit (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Temple Pujas, Hawan & Dosha Nivaran',
+      allSkill: 'Vedic, Kundli, Marriage',
+      languageKnown: 'Sanskrit, Hindi, English',
+      charge: 5,
+      experienceInYears: 30,
+      rating: 5.0,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 47,
+      name: 'Daivajna Milan Acharya (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Kundli Gun Milan & Vivah Yoga',
+      allSkill: 'Marriage, Love & Relations, Kundli, Vedic',
+      languageKnown: 'Hindi, English',
+      charge: 5,
+      experienceInYears: 21,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 48,
+      name: 'Lal Kitab Guru (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Lal Kitab Remedies & Karmic Upay',
+      allSkill: 'Vedic, Kundli, Career & Wealth',
+      languageKnown: 'Hindi, Punjabi, English',
+      charge: 5,
+      experienceInYears: 19,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 49,
+      name: 'Ratna Vidya Acharya (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Gemstones & Nepal Rudraksha',
+      allSkill: 'Vedic, Kundli, Career & Wealth',
+      languageKnown: 'Hindi, English',
+      charge: 5,
+      experienceInYears: 17,
+      rating: 4.8,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+    Astrologer(
+      id: 50,
+      name: 'Ayur-Jyotish Rishi (AI)',
+      email: 'ai@onlinepuja.live',
+      primarySkill: 'Medical Astrology & Healing Mantras',
+      allSkill: 'Vedic, Kundli',
+      languageKnown: 'Sanskrit, Hindi, English',
+      charge: 5,
+      experienceInYears: 24,
+      rating: 4.9,
+      chatStatus: 'Online',
+      callStatus: 'Online',
+    ),
+  ];
+
   Future<List<Astrologer>> _load() async {
     final session = context.read<AppSession>();
-    final list = await AstrologerApi.instance.list(
-      userId: session.user?.id,
-      sortBy: 'rating',
-    );
-    return list.where((a) => !a.isBlock).toList();
+    try {
+      final list = await AstrologerApi.instance.list(
+        userId: session.user?.id,
+        sortBy: 'rating',
+      );
+      final humans = list.where((a) => !a.isBlock).toList();
+      final existingIds = humans.map((a) => a.id).toSet();
+      final aiToMerge = _parallelAiAstrologers.where((ai) => !existingIds.contains(ai.id)).toList();
+      return [...humans, ...aiToMerge];
+    } catch (_) {
+      return _parallelAiAstrologers;
+    }
   }
 
   void _reload() {
     setState(() => _future = _load());
     _loadOffer();
   }
+
+  static const Map<String, String> _filterHiLabels = {
+    'All': 'सभी',
+    'Online Now': 'अभी ऑनलाइन',
+    'Vedic': 'वैदिक',
+    'Tarot': 'टैरो',
+    'Kundli': 'कुंडली',
+    'Love & Relations': 'प्रेम व संबंध',
+    'Career & Wealth': 'करियर व धन',
+    'Marriage': 'विवाह योग',
+    'Vastu': 'वास्तु',
+    'Numerology': 'अंक ज्योतिष',
+  };
+
+  static const Map<int, Map<String, String>> _aiHindiMeta = {
+    41: {
+      'name': 'आचार्य वेद व्यास (AI ऋषि)',
+      'skill': 'वैदिक कुंडली, दशा एवं गोचर',
+      'lang': 'हिंदी, संस्कृत, अंग्रेज़ी',
+    },
+    42: {
+      'name': 'पं. हस्त रेखा शास्त्री (AI)',
+      'skill': 'सामुद्रिक हस्तरेखा एवं पर्वत विश्लेषण',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    43: {
+      'name': 'टैरो एवं प्रश्न गुरु (AI)',
+      'skill': 'टैरो कार्ड एवं प्रश्न कुंडली',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    44: {
+      'name': 'आचार्य अंक विद्या (AI)',
+      'skill': 'वैदिक अंक ज्योतिष एवं नाम सुधार',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    45: {
+      'name': 'वास्तु विशारद शास्त्री (AI)',
+      'skill': 'वास्तु शास्त्र एवं दिशा दोष निवारण',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    46: {
+      'name': 'श्री काशी तीर्थ पुरोहित (AI)',
+      'skill': 'मंदिर पूजा, हवन एवं दोष निवारण',
+      'lang': 'संस्कृत, हिंदी, अंग्रेज़ी',
+    },
+    47: {
+      'name': 'दैवज्ञ मिलन आचार्य (AI)',
+      'skill': 'कुंडली गुण मिलान एवं विवाह योग',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    48: {
+      'name': 'लाल किताब गुरु (AI)',
+      'skill': 'लाल किताब अचूक उपाय एवं कर्म सुधार',
+      'lang': 'हिंदी, पंजाबी, अंग्रेज़ी',
+    },
+    49: {
+      'name': 'रत्न विद्या आचार्य (AI)',
+      'skill': 'राशि रत्न एवं नेपाल रुद्राक्ष परामर्श',
+      'lang': 'हिंदी, अंग्रेज़ी',
+    },
+    50: {
+      'name': 'आयुर-ज्योतिष ऋषि (AI)',
+      'skill': 'स्वास्थ्य ज्योतिष एवं आरोग्य मंत्र',
+      'lang': 'संस्कृत, हिंदी, अंग्रेज़ी',
+    },
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -78,150 +285,193 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
     final wallet = session.user?.walletAmount ?? 0.0;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0C1B) : const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF161224) : Colors.white,
-        elevation: 0.5,
-        titleSpacing: 16,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: LocaleManager.instance.currentLanguage,
+      builder: (context, lang, _) {
+        final isHi = lang != AppLanguage.en;
+        return Scaffold(
+          backgroundColor: isDark ? const Color(0xFF0F0C1B) : const Color(0xFFF8FAFC),
+          appBar: AppBar(
+            backgroundColor: isDark ? const Color(0xFF161224) : Colors.white,
+            elevation: 0.5,
+            titleSpacing: 16,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'OnlinePuja',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.3,
-                    color: isDark ? Colors.white : const Color(0xFF1E293B),
-                  ),
-                ),
-                const Text(
-                  '.live',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.3,
-                    color: Color(0xFFD97706),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'VERIFIED',
-                    style: TextStyle(
-                      fontSize: 8.5,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF10B981),
-                      letterSpacing: 0.5,
+                Row(
+                  children: [
+                    Text(
+                      'OnlinePuja',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.3,
+                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                      ),
                     ),
+                    const Text(
+                      '.live',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.3,
+                        color: Color(0xFFD97706),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        isHi ? 'प्रमाणित' : 'VERIFIED',
+                        style: const TextStyle(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF10B981),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  isHi
+                      ? 'प्रमाणित वैदिक आचार्य एवं ज्योतिषी'
+                      : 'Certified Vedic Acharyas & Astrologers',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 1),
-            Text(
-              'Certified Vedic Acharyas & Astrologers',
-              style: TextStyle(
-                fontSize: 11,
-                color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          // Wallet Balance Chip
-          GestureDetector(
-            onTap: () => Navigator.of(context)
-                .pushNamed(WalletScreen.route)
-                .then((_) => session.refreshUser()),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF047857),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF047857).withValues(alpha: 0.25),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.account_balance_wallet_rounded, size: 13, color: Colors.white),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$currency${wallet.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12.5,
+            actions: [
+              // 1-Tap Hindi / English Switch
+              GestureDetector(
+                onTap: () => LocaleManager.instance.setLanguage(
+                  isHi ? AppLanguage.en : AppLanguage.hi,
+                ),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 11, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isHi
+                        ? const Color(0xFFD97706).withValues(alpha: 0.15)
+                        : (isDark ? Colors.white10 : const Color(0xFFF1F5F9)),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isHi ? const Color(0xFFD97706) : Colors.transparent,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Text('+', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
-                ],
+                  child: Text(
+                    isHi ? 'हिंदी' : 'EN',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: isHi
+                          ? const Color(0xFFD97706)
+                          : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                    ),
+                  ),
+                ),
               ),
+              // Wallet Balance Chip
+              GestureDetector(
+                onTap: () => Navigator.of(context)
+                    .pushNamed(WalletScreen.route)
+                    .then((_) => session.refreshUser()),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF047857),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF047857).withValues(alpha: 0.25),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.account_balance_wallet_rounded, size: 13, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$currency${wallet.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text('+', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: isHi ? 'सूचनाएं' : 'Notifications',
+                icon: const Icon(Icons.notifications_none_rounded),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: () async => _reload(),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // 1. Promotional ₹1 Banner (Clean Ribbon)
+                if (_firstConsultOffer?['eligible'] == true)
+                  SliverToBoxAdapter(
+                    child: _firstConsultRibbon(context, isHi),
+                  ),
+
+                // 2. Search Field
+                SliverToBoxAdapter(
+                  child: _searchBar(isDark, isHi),
+                ),
+
+                // 2.5 🤖 Vedic AI Astrologers Swarm Spotlight
+                SliverToBoxAdapter(
+                  child: _aiAstrologersSpotlight(context, isDark, isHi),
+                ),
+
+                // 3. Filter Category Pills
+                SliverToBoxAdapter(
+                  child: _filterPills(isDark, isHi),
+                ),
+
+                // 4. Astrologer Directory List
+                FutureBuilder<List<Astrologer>>(
+                  future: _future,
+                  builder: (context, snap) =>
+                      _buildAstrologerList(context, snap, session, currency, isDark, isHi),
+                ),
+
+                // Bottom Spacing
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
             ),
           ),
-          IconButton(
-            tooltip: 'Notifications',
-            icon: const Icon(Icons.notifications_none_rounded),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-            ),
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async => _reload(),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            // 1. Promotional ₹1 Banner (Clean Ribbon)
-            if (_firstConsultOffer?['eligible'] == true)
-              SliverToBoxAdapter(
-                child: _firstConsultRibbon(context),
-              ),
-
-            // 2. Search Field
-            SliverToBoxAdapter(
-              child: _searchBar(isDark),
-            ),
-
-            // 3. Filter Category Pills
-            SliverToBoxAdapter(
-              child: _filterPills(isDark),
-            ),
-
-            // 4. Astrologer Directory List
-            FutureBuilder<List<Astrologer>>(
-              future: _future,
-              builder: (context, snap) => _buildAstrologerList(context, snap, session, currency, isDark),
-            ),
-
-            // Bottom Spacing
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   /// Compact Promotional Ribbon
-  Widget _firstConsultRibbon(BuildContext context) {
+  Widget _firstConsultRibbon(BuildContext context, bool isHi) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -240,14 +490,16 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
           ),
         ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.stars_rounded, color: Color(0xFFFDE68A), size: 20),
-          SizedBox(width: 10),
+          const Icon(Icons.stars_rounded, color: Color(0xFFFDE68A), size: 20),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'First consultation at ₹1 only • 5 mins free guidance',
-              style: TextStyle(
+              isHi
+                  ? 'प्रथम ज्योतिष परामर्श मात्र ₹1 में • 5 मिनट निःशुल्क मार्गदर्शन'
+                  : 'First consultation at ₹1 only • 5 mins free guidance',
+              style: const TextStyle(
                 color: Color(0xFFFEF3C7),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -255,14 +507,146 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
               ),
             ),
           ),
-          Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFDE68A), size: 12),
+          const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFFDE68A), size: 12),
+        ],
+      ),
+    );
+  }
+
+  /// 🤖 Swarm of 10 Vedic AI Astrologers Spotlight Strip
+  Widget _aiAstrologersSpotlight(BuildContext context, bool isDark, bool isHi) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF2E1065), const Color(0xFF3B0764)]
+              : [const Color(0xFFFFF7ED), const Color(0xFFFEF3C7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.5),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.2 : 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 14),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            isHi ? '10 वैदिक AI आचार्य उपलब्ध' : '10 Vedic AI Astrologers Available',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? const Color(0xFFFEF3C7) : const Color(0xFF92400E),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isHi ? '24/7 लाइव' : '24/7 LIVE',
+                            style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      isHi
+                          ? 'वैदिक कुंडली • हस्तरेखा • टैरो • वास्तु • ₹5/मिनट'
+                          : 'Vedic Kundli • Palmistry • Tarot • Vastu • Numerology • ₹5/min',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: isDark ? Colors.white70 : const Color(0xFF78350F),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFD97706),
+                      side: const BorderSide(color: Color(0xFFD97706)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const OnlinePujaAiScreen(startInCallMode: false)),
+                    ),
+                    child: Text(
+                      isHi ? 'AI चैट' : 'Chat AI',
+                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD97706),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const OnlinePujaAiScreen(startInCallMode: true)),
+                    ),
+                    icon: const Icon(Icons.phone_in_talk_rounded, size: 12),
+                    label: Text(
+                      isHi ? 'AI कॉल' : 'Call AI',
+                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
   /// Clean Search Field
-  Widget _searchBar(bool isDark) {
+  Widget _searchBar(bool isDark, bool isHi) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Container(
@@ -289,7 +673,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
             color: isDark ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
-            hintText: 'Search astrologers by name, Vedic skill or language…',
+            hintText: isHi
+                ? 'नाम, वैदिक कौशल या भाषा से ज्योतिषी खोजें…'
+                : 'Search astrologers by name, Vedic skill or language…',
             hintStyle: TextStyle(
               fontSize: 12.5,
               color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
@@ -317,7 +703,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
   }
 
   /// Clean Horizontal Filter Pills
-  Widget _filterPills(bool isDark) {
+  Widget _filterPills(bool isDark, bool isHi) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: SizedBox(
@@ -327,11 +713,12 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: _filters.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, i) {
             final f = _filters[i];
             final isSelected = _selectedFilter == f;
             final isOnlinePill = f == 'Online Now';
+            final label = isHi ? (_filterHiLabels[f] ?? f) : f;
 
             return GestureDetector(
               onTap: () => setState(() => _selectedFilter = f),
@@ -374,7 +761,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                       ),
                     ],
                     Text(
-                      f,
+                      label,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
@@ -400,6 +787,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
     AppSession session,
     String currency,
     bool isDark,
+    bool isHi,
   ) {
     if (snap.connectionState == ConnectionState.waiting) {
       return const SliverToBoxAdapter(
@@ -428,16 +816,19 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
     final q = _query.trim().toLowerCase();
     if (q.isNotEmpty) {
       list = list.where((a) {
+        final hiMeta = _aiHindiMeta[a.id];
         return a.name.toLowerCase().contains(q) ||
             a.primarySkill.toLowerCase().contains(q) ||
             a.allSkill.toLowerCase().contains(q) ||
-            a.languageKnown.toLowerCase().contains(q);
+            a.languageKnown.toLowerCase().contains(q) ||
+            (hiMeta?['name']?.contains(q) ?? false) ||
+            (hiMeta?['skill']?.contains(q) ?? false);
       }).toList();
     }
 
     // Category / availability filter
     if (_selectedFilter == 'Online Now') {
-      list = list.where((a) => a.isChatOnline || a.isCallOnline).toList();
+      list = list.where((a) => a.isChatOnline || a.isCallOnline || a.email == 'ai@onlinepuja.live').toList();
     } else if (_selectedFilter != 'All') {
       final s = _selectedFilter.toLowerCase();
       list = list.where((a) {
@@ -459,7 +850,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'No Astrologers Found',
+                  isHi ? 'कोई ज्योतिषी नहीं मिले' : 'No Astrologers Found',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -468,7 +859,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Try resetting filters or searching for another Vedic skill.',
+                  isHi
+                      ? 'कृपया फ़िल्टर रीसेट करें या किसी अन्य वैदिक कौशल की खोज करें।'
+                      : 'Try resetting filters or searching for another Vedic skill.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -484,7 +877,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                       _searchController.clear();
                     });
                   },
-                  child: const Text('Reset All Filters'),
+                  child: Text(isHi ? 'फ़िल्टर रीसेट करें' : 'Reset All Filters'),
                 ),
               ],
             ),
@@ -499,10 +892,10 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList.separated(
         itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, i) {
           final a = list[i];
-          return _cleanAstrologerCard(context, a, session, currency, isEligible, isDark);
+          return _cleanAstrologerCard(context, a, session, currency, isEligible, isDark, isHi);
         },
       ),
     );
@@ -516,17 +909,33 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
     String currency,
     bool isEligible,
     bool isDark,
+    bool isHi,
   ) {
-    final isOnline = a.isChatOnline || a.isCallOnline;
-    final rate = a.charge > 0 ? '$currency${a.charge.toInt()}/min' : 'FREE';
+    final isAiAcharya = a.email == 'ai@onlinepuja.live';
+    final isOnline = isAiAcharya || a.isChatOnline || a.isCallOnline;
+    final hiMeta = isHi ? _aiHindiMeta[a.id] : null;
+    final displayName = hiMeta?['name'] ?? a.name;
+    final displaySkill = hiMeta?['skill'] ??
+        (a.primarySkill.isNotEmpty
+            ? a.primarySkill
+            : (isHi ? 'वैदिक ज्योतिषी एवं आचार्य' : 'Vedic Astrologer'));
+    final displayLang = hiMeta?['lang'] ??
+        (a.languageKnown.isNotEmpty
+            ? a.languageKnown
+            : (isHi ? 'हिंदी, अंग्रेज़ी' : 'Hindi, English'));
+    final rate = a.charge > 0
+        ? '$currency${a.charge.toInt()}/${isHi ? 'मिनट' : 'min'}'
+        : (isHi ? 'निःशुल्क' : 'FREE');
 
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1A1429) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
-          width: 1,
+          color: isAiAcharya
+              ? const Color(0xFFF59E0B).withValues(alpha: 0.55)
+              : (isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+          width: isAiAcharya ? 1.3 : 1,
         ),
         boxShadow: [
           BoxShadow(
@@ -540,7 +949,16 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => context.openAstrologer(a.id ?? 0).then((_) => _reload()),
+          onTap: isAiAcharya
+              ? () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => OnlinePujaAiScreen(
+                        initialAiAstrologerId: a.id,
+                        startInCallMode: false,
+                      ),
+                    ),
+                  )
+              : () => context.openAstrologer(a.id ?? 0).then((_) => _reload()),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -571,7 +989,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                                 ? Image.network(
                                     a.imageUrl,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => _avatarFallback(a.name),
+                                    errorBuilder: (_, _, _) => _avatarFallback(a.name),
                                   )
                                 : _avatarFallback(a.name),
                           ),
@@ -606,7 +1024,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  a.name,
+                                  displayName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -617,12 +1035,29 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF0284C7)),
+                              if (isAiAcharya)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF7C3AED),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'AI 24/7',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8.5,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF0284C7)),
                             ],
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            a.primarySkill.isNotEmpty ? a.primarySkill : 'Vedic Astrologer',
+                            displaySkill,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -633,7 +1068,7 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            a.languageKnown.isNotEmpty ? a.languageKnown : 'Hindi, English',
+                            displayLang,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -670,7 +1105,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '${a.experienceInYears > 0 ? a.experienceInYears : 5}+ yrs exp',
+                                isHi
+                                    ? '${a.experienceInYears > 0 ? a.experienceInYears : 5}+ वर्ष अनुभव'
+                                    : '${a.experienceInYears > 0 ? a.experienceInYears : 5}+ yrs exp',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: isDark ? Colors.white60 : const Color(0xFF64748B),
@@ -694,9 +1131,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                               color: const Color(0xFFFEE2E2),
                               borderRadius: BorderRadius.circular(5),
                             ),
-                            child: const Text(
-                              '₹1 OFFER',
-                              style: TextStyle(
+                            child: Text(
+                              isHi ? '₹1 ऑफर' : '₹1 OFFER',
+                              style: const TextStyle(
                                 color: Color(0xFFB91C1C),
                                 fontWeight: FontWeight.w900,
                                 fontSize: 9,
@@ -704,9 +1141,9 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            '₹1/min',
-                            style: TextStyle(
+                          Text(
+                            isHi ? '₹1/मिनट' : '₹1/min',
+                            style: const TextStyle(
                               fontSize: 14.5,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFFDC2626),
@@ -743,47 +1180,71 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                 ),
                 const SizedBox(height: 10),
 
-                // Clean Action Buttons: Chat & Call
+                // Clean Action Buttons: Chat (or AI Twin 24/7 when offline) & Call
                 Row(
                   children: [
-                    // Chat Action Button
+                    // Chat / AI Twin Action Button
                     Expanded(
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: a.isChatOnline
+                          foregroundColor: (isAiAcharya || a.isChatOnline)
                               ? const Color(0xFF047857)
-                              : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                              : const Color(0xFF7C3AED),
                           side: BorderSide(
-                            color: a.isChatOnline
+                            color: (isAiAcharya || a.isChatOnline)
                                 ? const Color(0xFF10B981)
-                                : (isDark ? Colors.white12 : const Color(0xFFCBD5E1)),
+                                : const Color(0xFF7C3AED).withValues(alpha: 0.65),
                             width: 1.2,
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         icon: Icon(
-                          Icons.chat_bubble_outline_rounded,
+                          (isAiAcharya || a.isChatOnline)
+                              ? Icons.chat_bubble_outline_rounded
+                              : Icons.auto_awesome_rounded,
                           size: 15,
-                          color: a.isChatOnline ? const Color(0xFF047857) : const Color(0xFF94A3B8),
+                          color: (isAiAcharya || a.isChatOnline)
+                              ? const Color(0xFF047857)
+                              : const Color(0xFF7C3AED),
                         ),
                         label: Text(
-                          a.isChatOnline ? 'Chat Now' : 'Chat Offline',
+                          (isAiAcharya || a.isChatOnline)
+                              ? (isHi ? 'चैट करें' : 'Chat Now')
+                              : (isHi ? 'AI आचार्य चैट' : 'AI Twin 24/7'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: a.isChatOnline
+                            color: (isAiAcharya || a.isChatOnline)
                                 ? const Color(0xFF047857)
-                                : (isDark ? Colors.white38 : const Color(0xFF94A3B8)),
+                                : const Color(0xFF7C3AED),
                           ),
                         ),
-                        onPressed: a.isChatOnline
-                            ? () => context.openChat(
-                                  astrologerId: a.id ?? 0,
-                                  astrologerName: a.name,
-                                  isFree: a.isFreeAvailable,
+                        onPressed: isAiAcharya
+                            ? () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => OnlinePujaAiScreen(
+                                      initialAiAstrologerId: a.id,
+                                      startInCallMode: false,
+                                    ),
+                                  ),
                                 )
-                            : () => _joinWaitlist(context, a, session),
+                            : (a.isChatOnline
+                                ? () => context.openChat(
+                                      astrologerId: a.id ?? 0,
+                                      astrologerName: a.name,
+                                      isFree: a.isFreeAvailable,
+                                    )
+                                : () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => OnlinePujaAiScreen(
+                                          initialAstrologerId: a.id ?? 1,
+                                          initialAstrologerName: a.name,
+                                          initialAstrologerSkill: a.primarySkill,
+                                          initialAstrologerRate: a.charge > 0 ? a.charge.toDouble() : 10.0,
+                                        ),
+                                      ),
+                                    )),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -792,38 +1253,59 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
                     Expanded(
                       child: FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: a.isCallOnline
+                          backgroundColor: (isAiAcharya || a.isCallOnline)
                               ? const Color(0xFFD97706)
                               : (isDark ? const Color(0xFF261E38) : const Color(0xFFF1F5F9)),
-                          foregroundColor: a.isCallOnline
+                          foregroundColor: (isAiAcharya || a.isCallOnline)
                               ? Colors.white
                               : (isDark ? Colors.white38 : const Color(0xFF64748B)),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          elevation: a.isCallOnline ? 1 : 0,
+                          elevation: (isAiAcharya || a.isCallOnline) ? 1 : 0,
                         ),
                         icon: Icon(
                           Icons.phone_rounded,
                           size: 15,
-                          color: a.isCallOnline ? Colors.white : const Color(0xFF94A3B8),
+                          color: (isAiAcharya || a.isCallOnline) ? Colors.white : const Color(0xFF94A3B8),
                         ),
                         label: Text(
-                          a.isCallOnline ? 'Call Now' : 'Call Offline',
+                          (isAiAcharya || a.isCallOnline)
+                              ? (isHi ? 'कॉल करें' : 'Call Now')
+                              : (isHi ? 'AI आचार्य कॉल' : 'Call AI Twin'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: a.isCallOnline
+                            color: (isAiAcharya || a.isCallOnline)
                                 ? Colors.white
-                                : (isDark ? Colors.white38 : const Color(0xFF64748B)),
+                                : (isDark ? Colors.white70 : const Color(0xFF475569)),
                           ),
                         ),
-                        onPressed: a.isCallOnline
-                            ? () => context.openCall(
-                                  astrologerId: a.id ?? 0,
-                                  astrologerName: a.name,
-                                  ratePerMinute: a.charge > 0 ? a.charge.toDouble() : 15.0,
+                        onPressed: isAiAcharya
+                            ? () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => OnlinePujaAiScreen(
+                                      initialAiAstrologerId: a.id,
+                                      startInCallMode: true,
+                                    ),
+                                  ),
                                 )
-                            : () => _joinWaitlist(context, a, session),
+                            : (a.isCallOnline
+                                ? () => context.openCall(
+                                      astrologerId: a.id ?? 0,
+                                      astrologerName: a.name,
+                                      ratePerMinute: a.charge > 0 ? a.charge.toDouble() : 15.0,
+                                    )
+                                : () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => OnlinePujaAiScreen(
+                                          initialAstrologerId: a.id ?? 1,
+                                          initialAstrologerName: a.name,
+                                          initialAstrologerSkill: a.primarySkill,
+                                          initialAstrologerRate: a.charge > 0 ? a.charge.toDouble() : 10.0,
+                                          startInCallMode: true,
+                                        ),
+                                      ),
+                                    )),
                       ),
                     ),
                   ],
@@ -848,91 +1330,5 @@ class _AstrologersScreenState extends State<AstrologersScreen> {
       ),
     );
   }
-
-  void _joinWaitlist(BuildContext context, Astrologer a, AppSession session) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: a.imageUrl.isNotEmpty ? NetworkImage(a.imageUrl) : null,
-                      radius: 22,
-                      child: a.imageUrl.isEmpty ? _avatarFallback(a.name) : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(a.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(
-                            '${a.primarySkill.isNotEmpty ? a.primarySkill : "Vedic Acharya"} · Offline',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'This Astrologer is currently offline or in an ongoing consultation. Would you like to receive an instant push notification when they become available?',
-                  style: TextStyle(fontSize: 13, height: 1.4),
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(backgroundColor: CustomerTheme.brandSaffron),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('You will be notified when ${a.name} comes online.'),
-                              backgroundColor: CustomerTheme.brandSaffron,
-                            ),
-                          );
-                        },
-                        child: const Text('Notify Me'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
+

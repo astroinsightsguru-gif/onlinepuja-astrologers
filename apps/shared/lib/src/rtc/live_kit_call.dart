@@ -136,10 +136,19 @@ class LiveKitCallController extends ChangeNotifier {
     final others = room.remoteParticipants.values.toList();
     if (others.isEmpty) {
       _remoteName = null;
+      _remoteVideoTrack = null;
       return;
     }
     final remote = others.first;
     _remoteName = remote.name.isNotEmpty ? remote.name : remote.identity;
+    if (_remoteVideoTrack == null) {
+      for (final pub in remote.videoTrackPublications) {
+        if (pub.track != null && !pub.muted) {
+          _remoteVideoTrack = pub.track;
+          break;
+        }
+      }
+    }
   }
 
   /// Toggle the local microphone; optimistic UI, reverted on failure.

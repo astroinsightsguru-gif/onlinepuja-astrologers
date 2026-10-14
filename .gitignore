@@ -17,10 +17,27 @@ apps/partner/pubget.txt
 apps/partner/an.txt
 apps/shared/pubget.txt
 apps/shared/an.txt
+**/test/failures/
 
 # Secrets
 Backend/.env
 **/google-services.json
 **/GoogleService-Info.plist
 **/*.keystore
+**/*.jks
 **/service-account*.json
+
+# Scratch scripts and binary releases
+apps/*.php
+apps/*.ps1
+apps/*.py
+apps/*.sh
+apps/*.txt
+apps/*.json
+apps/*.err
+apps/*.log
+apps/PLAY_STORE_RELEASES/
+apps/release-apks/
+apps/customer/
+apps/partner/
+apps/=

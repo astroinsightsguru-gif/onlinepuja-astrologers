@@ -8,7 +8,9 @@ import 'ui/screens/auth/otp_screen.dart';
 import 'ui/screens/auth/partner_register_screen.dart';
 import 'ui/screens/call/call_session_screen.dart';
 import 'ui/screens/chat/chat_session_screen.dart';
+import 'ui/screens/home/availability_screen.dart';
 import 'ui/screens/home/home_shell.dart';
+import 'ui/screens/home/requests_screen.dart';
 import 'ui/screens/orders/orders_fulfillment_screen.dart';
 import 'ui/screens/profile/profile_screen.dart';
 import 'ui/screens/splash_screen.dart';
@@ -36,6 +38,8 @@ class OnlinePujaPartnerApp extends StatelessWidget {
         OtpScreen.route: (_) => const OtpScreen(),
         PartnerRegisterScreen.route: (_) => const PartnerRegisterScreen(),
         HomeShell.route: (_) => const HomeShell(),
+        AvailabilityScreen.route: (_) => const AvailabilityScreen(),
+        RequestsScreen.route: (_) => const RequestsScreen(kind: 'all'),
         OrdersFulfillmentScreen.route: (_) => const OrdersFulfillmentScreen(),
         ProfileScreen.route: (_) => const ProfileScreen(),
         WalletScreen.route: (_) => const WalletScreen(),

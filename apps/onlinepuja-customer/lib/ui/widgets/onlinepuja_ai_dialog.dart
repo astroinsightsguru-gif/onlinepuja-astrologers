@@ -44,9 +44,14 @@ class OnlinePujaAiDialog extends StatefulWidget {
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (_) => SizedBox(
-          height: MediaQuery.of(context).size.height * 0.88,
-          child: const OnlinePujaAiDialog(),
+        builder: (sheetCtx) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(sheetCtx).size.height * 0.88,
+            child: const OnlinePujaAiDialog(),
+          ),
         ),
       );
     }
@@ -188,7 +193,7 @@ class _OnlinePujaAiDialogState extends State<OnlinePujaAiDialog> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFF59E0B).withOpacity(0.5),
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.5),
                           blurRadius: 10,
                         ),
                       ],
@@ -280,7 +285,7 @@ class _OnlinePujaAiDialogState extends State<OnlinePujaAiDialog> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E1B2E),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -318,7 +323,7 @@ class _OnlinePujaAiDialogState extends State<OnlinePujaAiDialog> {
                   final prompt = _suggestedPrompts[i];
                   return ActionChip(
                     backgroundColor: const Color(0xFF1E1B2E),
-                    side: BorderSide(color: const Color(0xFFF59E0B).withOpacity(0.4)),
+                    side: BorderSide(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
                     label: Text(
                       prompt,
                       style: const TextStyle(
@@ -377,7 +382,7 @@ class _OnlinePujaAiDialogState extends State<OnlinePujaAiDialog> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFF59E0B).withOpacity(0.4),
+                              color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
                               blurRadius: 8,
                             ),
                           ],
@@ -418,7 +423,7 @@ class _OnlinePujaAiDialogState extends State<OnlinePujaAiDialog> {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFB45309).withOpacity(0.3),
+                color: const Color(0xFFB45309).withValues(alpha: 0.3),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),

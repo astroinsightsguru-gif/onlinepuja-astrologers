@@ -235,6 +235,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_tts:
+    dependency: "direct main"
+    description:
+      name: flutter_tts
+      sha256: ce5eb209b40e95f2f4a1397116c87ab2fcdff32257d04ed7a764e75894c03775
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.5"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -480,6 +488,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  onesignal_flutter:
+    dependency: transitive
+    description:
+      name: onesignal_flutter
+      sha256: "93f33118978a68ab3ee4df936e71fc08cda0a2cce56cc89d9a32bbd9692d71ca"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.7.0"
   op_shared:
     dependency: "direct main"
     description:

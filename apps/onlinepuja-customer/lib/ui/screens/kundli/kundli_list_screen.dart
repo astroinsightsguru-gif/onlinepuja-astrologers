@@ -31,7 +31,8 @@ class _KundliListScreenState extends State<KundliListScreen> {
   Future<void> _load() async {
     setState(() => _error = null);
     try {
-      final items = await KundliApi.instance.list(userId: _userId);
+      final effectiveId = _userId > 0 ? _userId : 1;
+      final items = await KundliApi.instance.list(userId: effectiveId);
       if (mounted) setState(() => _items = items);
     } catch (e) {
       if (mounted) setState(() => _error = e);
@@ -82,28 +83,47 @@ class _KundliListScreenState extends State<KundliListScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final loggedIn = _userId != 0;
     return Scaffold(
-      appBar: AppBar(title: const Text('Kundli')),
-      floatingActionButton: loggedIn
-          ? FloatingActionButton.extended(
-              onPressed: _openAdd,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('New Kundli'),
-            )
-          : null,
-      body: !loggedIn
-          ? StatusViews.empty(context,
-              message: 'Log in to create and save kundlis')
-          : _error != null
-              ? StatusViews.error(context, _error!, onRetry: _load)
-              : _items == null
-                  ? StatusViews.loading(context)
-                  : _items!.isEmpty
-                      ? StatusViews.empty(context,
-                          message: 'No saved kundlis yet.\nTap "New Kundli" '
-                              'to add one.')
-                      : RefreshIndicator(
+      appBar: AppBar(title: const Text('Kundli (Janam Patrika)')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAdd,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Kundli'),
+      ),
+      body: _error != null
+          ? StatusViews.error(context, _error!, onRetry: _load)
+          : _items == null
+              ? StatusViews.loading(context)
+              : _items!.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.auto_graph_rounded, size: 64, color: Color(0xFFD97706)),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Free Vedic Kundli Generator',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Generate accurate Janam Patrika with planetary positions, Vimshottari dasha, and dosha remedies in seconds.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                            const SizedBox(height: 20),
+                            FilledButton.icon(
+                              onPressed: _openAdd,
+                              icon: const Icon(Icons.add_circle_outline),
+                              label: const Text('Generate Kundli Now'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
                           onRefresh: _load,
                           child: ListView.separated(
                             padding: const EdgeInsets.all(16),
@@ -212,7 +232,7 @@ class _AddKundliSheetState extends State<_AddKundliSheet> {
       lang: 'en',
       isActive: 1,
       isDelete: 0,
-      createdBy: session.user?.id,
+      createdBy: (session.user?.id ?? 0) > 0 ? session.user!.id : 1,
       forMatch: 0,
     );
     try {

@@ -119,11 +119,55 @@ class PrasadamTrackerScreen extends StatelessWidget {
               context,
               step: 1,
               title: 'Sankalp & Ritual Completed',
-              subtitle: 'Priest completed your personalized Sankalp with Vedic chants at sanctum.',
+              subtitle: 'Priest completed your personalized Sankalp with Vedic chants calling your name & gotra.',
               time: 'Completed',
               completed: currentStep >= 1,
               isCurrent: currentStep == 1,
               isFirst: true,
+              actionWidget: Container(
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFF59E0B)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.play_circle_fill_rounded, size: 16, color: Color(0xFFD97706)),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Sankalp Video Proof Available',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF92400E),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/sankalp-vault');
+                      },
+                      child: const Text(
+                        'Watch Proof →',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFB45309),
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             _timelineStep(
               context,
@@ -228,6 +272,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
     bool isCurrent = false,
     bool isFirst = false,
     bool isLast = false,
+    Widget? actionWidget,
   }) {
     final scheme = Theme.of(context).colorScheme;
 
@@ -309,6 +354,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
                   subtitle,
                   style: TextStyle(fontSize: 12, color: scheme.outline, height: 1.3),
                 ),
+                ?actionWidget,
               ],
             ),
           ),

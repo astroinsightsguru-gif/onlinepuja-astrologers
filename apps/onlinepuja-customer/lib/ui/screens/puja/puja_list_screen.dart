@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
+import '../../theme/customer_theme.dart';
 import 'puja_detail_screen.dart';
 import '../history/history_screen.dart';
 
-/// Sri Mandir & DevDarshan Grade Puja & Chadhava Experience
+/// Authentic OnlinePuja Sacred Vedic Puja & Chadhava Experience
 class PujaListScreen extends StatefulWidget {
   const PujaListScreen({super.key});
 
@@ -138,11 +139,18 @@ class _PujaListScreenState extends State<PujaListScreen> {
   @override
   Widget build(BuildContext context) {
     final displayItems = _filteredItems;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+    final cardBg = isDark ? CustomerTheme.cosmicCardDark : Colors.white;
+    final cardBorder = isDark ? CustomerTheme.cosmicBorderDark : const Color(0xFFE2E8F0);
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.white70 : const Color(0xFF64748B);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF9F5),
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
         elevation: 0.5,
         titleSpacing: 16,
         title: Column(
@@ -150,15 +158,38 @@ class _PujaListScreenState extends State<PujaListScreen> {
           children: [
             Row(
               children: [
-                RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2))])),
-                SizedBox(width: 6),
-                Text('🛕', style: TextStyle(fontSize: 15)),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'OnlinePuja',
+                        style: TextStyle(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w900,
+                          color: textPrimary,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: '.live',
+                        style: TextStyle(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFD97706),
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text('🛕', style: TextStyle(fontSize: 15)),
               ],
             ),
-            SizedBox(height: 1),
+            const SizedBox(height: 1),
             Text(
               'Vedic Sankalp at 51 Holy Teerths & Shaktipeeths',
-              style: TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 10.5, color: textSecondary, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -210,20 +241,20 @@ class _PujaListScreenState extends State<PujaListScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   // 1. Festive Hero Mahotsav Banner
-                  SliverToBoxAdapter(child: _buildFestiveHeroBanner()),
+                  SliverToBoxAdapter(child: _buildFestiveHeroBanner(displayItems)),
 
                   // 2. Devotional Ambient Chant Bar (Compact & Sleek)
-                  SliverToBoxAdapter(child: _buildAmbientAudioBar()),
+                  SliverToBoxAdapter(child: _buildAmbientAudioBar(isDark)),
 
                   // 3. Search Bar
-                  SliverToBoxAdapter(child: _buildSearchBar()),
+                  SliverToBoxAdapter(child: _buildSearchBar(cardBg, cardBorder, textPrimary, textSecondary)),
 
                   // 4. Custom Deity Filter Pills (Zero Overflow)
-                  SliverToBoxAdapter(child: _buildDeityFilterStrip()),
+                  SliverToBoxAdapter(child: _buildDeityFilterStrip(cardBg, cardBorder, isDark)),
 
                   // 5. Category Chips (Title Cased, Clean)
                   if (_categories != null && _categories!.isNotEmpty)
-                    SliverToBoxAdapter(child: _buildCategoryStrip()),
+                    SliverToBoxAdapter(child: _buildCategoryStrip(cardBg, cardBorder, isDark)),
 
                   // 6. Section Header
                   SliverToBoxAdapter(
@@ -245,10 +276,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 _selectedDeity == "All" ? "Upcoming Auspicious Pujas" : "$_selectedDeity Special Pujas",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.5,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF1E293B),
+                                  color: textPrimary,
                                 ),
                               ),
                             ],
@@ -256,15 +287,15 @@ class _PujaListScreenState extends State<PujaListScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: isDark ? CustomerTheme.cosmicCardElevated : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               "${displayItems.length} Available",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF64748B),
+                                color: textSecondary,
                               ),
                             ),
                           ),
@@ -295,12 +326,12 @@ class _PujaListScreenState extends State<PujaListScreen> {
                             const SizedBox(height: 12),
                             Text(
                               'No pujas found for "$_selectedDeity"',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: textPrimary),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
+                            Text(
                               'Try selecting "All Pujas" or clear search filter',
-                              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                              style: TextStyle(fontSize: 12, color: textSecondary),
                             ),
                             const SizedBox(height: 16),
                             TextButton.icon(
@@ -326,7 +357,15 @@ class _PujaListScreenState extends State<PujaListScreen> {
                       sliver: SliverList.separated(
                         itemCount: displayItems.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 18),
-                        itemBuilder: (context, i) => _buildSriMandirPujaCard(context, displayItems[i]),
+                        itemBuilder: (context, i) => _buildSriMandirPujaCard(
+                          context,
+                          displayItems[i],
+                          cardBg,
+                          cardBorder,
+                          textPrimary,
+                          textSecondary,
+                          isDark,
+                        ),
                       ),
                     ),
                 ],
@@ -335,10 +374,16 @@ class _PujaListScreenState extends State<PujaListScreen> {
     );
   }
 
-  // ---------------- WIDGETS ----------------
-
   /// Festive Hero Banner with rich spiritual gradient, live counters & trust points
-  Widget _buildFestiveHeroBanner() {
+  Widget _buildFestiveHeroBanner(List<Puja> items) {
+    final topPuja = items.isNotEmpty ? items.first : null;
+    final bannerTitle = topPuja != null && (topPuja.title?.isNotEmpty ?? false)
+        ? topPuja.title!
+        : "Navratri & Shradh Mahotsav 2026";
+    final bannerSubtitle = topPuja != null && (topPuja.subtitle?.isNotEmpty ?? false)
+        ? topPuja.subtitle!
+        : "Participate in Sacred Pujas at Kashi Vishwanath, Gaya & Holy Teerths with personalized Sankalp.";
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
       child: Container(
@@ -414,20 +459,24 @@ class _PujaListScreenState extends State<PujaListScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Navratri & Shradh Mahotsav 2026",
-                    style: TextStyle(
+                  Text(
+                    bannerTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.2,
                       height: 1.2,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    "Participate in Sacred Pujas at Kashi Vishwanath, Gaya & Holy Teerths with personalized Sankalp.",
-                    style: TextStyle(color: Color(0xFFFEF3C7), fontSize: 11, height: 1.35),
+                  Text(
+                    bannerSubtitle,
+                    style: const TextStyle(color: Color(0xFFFEF3C7), fontSize: 11, height: 1.35),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 12),
                   // Trust pills strip
@@ -465,13 +514,13 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   /// Compact Devotional Ambient Chant Bar
-  Widget _buildAmbientAudioBar() {
+  Widget _buildAmbientAudioBar(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: isDark ? CustomerTheme.cosmicCardElevated : const Color(0xFF1E293B),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -497,13 +546,13 @@ class _PujaListScreenState extends State<PujaListScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
-                    "Vakratunda Mahakaya • Sri Mandir Dhyaan",
+                    "Vakratunda Mahakaya • OnlinePuja Vedic Dhyaan",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 11,
@@ -539,15 +588,15 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   /// Instant Live Search Bar
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(Color cardBg, Color cardBorder, Color textPrimary, Color textSecondary) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
       child: Container(
         height: 42,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: cardBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -559,14 +608,14 @@ class _PujaListScreenState extends State<PujaListScreen> {
         child: TextField(
           controller: _searchController,
           onChanged: (v) => setState(() => _searchQuery = v),
-          style: const TextStyle(fontSize: 12.5),
+          style: TextStyle(fontSize: 12.5, color: textPrimary),
           decoration: InputDecoration(
             hintText: "Search Puja, Deity, or Holy Dham (Kashi, Gaya...)",
-            hintStyle: const TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+            hintStyle: TextStyle(fontSize: 11.5, color: textSecondary),
             prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Color(0xFFD97706)),
             suffixIcon: _searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear_rounded, size: 16, color: Color(0xFF94A3B8)),
+                    icon: Icon(Icons.clear_rounded, size: 16, color: textSecondary),
                     onPressed: () {
                       _searchController.clear();
                       setState(() => _searchQuery = "");
@@ -582,7 +631,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   /// Custom Deity Filter Strip (Zero Overflow, Animated, Elegant)
-  Widget _buildDeityFilterStrip() {
+  Widget _buildDeityFilterStrip(Color cardBg, Color cardBorder, bool isDark) {
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -607,10 +656,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
                         colors: [Color(0xFFD97706), Color(0xFFB45309)],
                       )
                     : null,
-                color: isSelected ? null : Colors.white,
+                color: isSelected ? null : cardBg,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected ? const Color(0xFFD97706) : const Color(0xFFE2E8F0),
+                  color: isSelected ? const Color(0xFFD97706) : cardBorder,
                   width: 1.2,
                 ),
                 boxShadow: isSelected
@@ -633,7 +682,9 @@ class _PujaListScreenState extends State<PujaListScreen> {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFF334155),
+                      color: isSelected
+                          ? Colors.white
+                          : (isDark ? Colors.white70 : const Color(0xFF334155)),
                     ),
                   ),
                 ],
@@ -646,7 +697,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   /// Secondary Category Horizontal List (Title-Cased, Clean)
-  Widget _buildCategoryStrip() {
+  Widget _buildCategoryStrip(Color cardBg, Color cardBorder, bool isDark) {
     return SizedBox(
       height: 38,
       child: ListView.separated(
@@ -665,10 +716,12 @@ class _PujaListScreenState extends State<PujaListScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFFEF3C7) : Colors.white,
+                color: isSelected
+                    ? (isDark ? const Color(0xFF78350F) : const Color(0xFFFEF3C7))
+                    : cardBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? const Color(0xFFF59E0B) : const Color(0xFFCBD5E1),
+                  color: isSelected ? const Color(0xFFF59E0B) : cardBorder,
                 ),
               ),
               child: Row(
@@ -683,7 +736,9 @@ class _PujaListScreenState extends State<PujaListScreen> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected ? const Color(0xFF92400E) : const Color(0xFF475569),
+                      color: isSelected
+                          ? (isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E))
+                          : (isDark ? Colors.white70 : const Color(0xFF475569)),
                     ),
                   ),
                 ],
@@ -696,7 +751,15 @@ class _PujaListScreenState extends State<PujaListScreen> {
   }
 
   /// High Quality Sri Mandir-Grade Puja Card
-  Widget _buildSriMandirPujaCard(BuildContext context, Puja p) {
+  Widget _buildSriMandirPujaCard(
+    BuildContext context,
+    Puja p,
+    Color cardBg,
+    Color cardBorder,
+    Color textPrimary,
+    Color textSecondary,
+    bool isDark,
+  ) {
     final price = p.startingPrice ?? 501;
     final strikePrice = (price * 2.2).round();
     final place = (p.place != null && p.place.toString().isNotEmpty)
@@ -706,12 +769,12 @@ class _PujaListScreenState extends State<PujaListScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
@@ -846,10 +909,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
                   // Title
                   Text(
                     p.title?.toString() ?? 'Vedic Mahapuja',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15.5,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
+                      color: textPrimary,
                       letterSpacing: -0.2,
                       height: 1.25,
                     ),
@@ -862,7 +925,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
                   if (p.subtitle != null && p.subtitle.toString().isNotEmpty) ...[
                     Text(
                       p.subtitle.toString(),
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.3),
+                      style: TextStyle(fontSize: 11, color: textSecondary, height: 1.3),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -877,7 +940,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
                       Expanded(
                         child: Text(
                           place,
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: textSecondary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -890,16 +953,16 @@ class _PujaListScreenState extends State<PujaListScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: isDark ? CustomerTheme.cosmicCardElevated : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: cardBorder),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        _PujaPerk(icon: "📹", label: "Video Proof"),
-                        _PujaPerk(icon: "🌸", label: "Gotra Chanted"),
-                        _PujaPerk(icon: "📦", label: "Home Prasad"),
+                      children: [
+                        _PujaPerk(icon: "📹", label: "Video Proof", isDark: isDark),
+                        _PujaPerk(icon: "🌸", label: "Gotra Chanted", isDark: isDark),
+                        _PujaPerk(icon: "📦", label: "Home Prasad", isDark: isDark),
                       ],
                     ),
                   ),
@@ -914,12 +977,12 @@ class _PujaListScreenState extends State<PujaListScreen> {
                         children: [
                           Row(
                             children: [
-                              const Text("Sankalp Starts ", style: TextStyle(fontSize: 9.5, color: Color(0xFF94A3B8))),
+                              Text("Sankalp Starts ", style: TextStyle(fontSize: 9.5, color: textSecondary)),
                               Text(
                                 "₹$strikePrice",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  color: Color(0xFF94A3B8),
+                                  color: textSecondary,
                                   decoration: TextDecoration.lineThrough,
                                 ),
                               ),
@@ -1094,9 +1157,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
 }
 
 class _PujaPerk extends StatelessWidget {
-  const _PujaPerk({required this.icon, required this.label});
+  const _PujaPerk({required this.icon, required this.label, this.isDark = false});
   final String icon;
   final String label;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -1107,7 +1171,11 @@ class _PujaPerk extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white70 : const Color(0xFF475569),
+          ),
         ),
       ],
     );

@@ -1,11 +1,13 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart' as lk;
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
+import '../profile/wallet_screen.dart';
 
 /// Audio/video call session screen.
 ///
@@ -46,6 +48,9 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   bool _active = false;
   bool _ending = false;
 
+  int _waitingSeconds = 0;
+  bool _remoteJoined = false;
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +73,37 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
             const SnackBar(content: Text('Please log in to start a consultation.')),
           );
           Navigator.of(context).pop();
+        }
+        return;
+      }
+      final balance = session.user?.walletAmount ?? 0;
+      final rate = widget.ratePerMinute > 0 ? widget.ratePerMinute : 15.0;
+      if (balance < rate) {
+        if (mounted) {
+          final recharge = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Insufficient Wallet Balance'),
+              content: Text(
+                'Your wallet balance is ₹${balance.toStringAsFixed(0)}. You need at least ₹${rate.toStringAsFixed(0)} to consult with ${widget.astrologerName}.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Recharge Wallet'),
+                ),
+              ],
+            ),
+          );
+          if (recharge == true && mounted) {
+            Navigator.of(context).pushReplacementNamed(WalletScreen.route);
+          } else if (mounted) {
+            Navigator.of(context).pop();
+          }
         }
         return;
       }
@@ -94,8 +130,39 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       }
       if (!mounted) return;
       setState(() => _active = true);
-      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      _ticker = Timer.periodic(const Duration(seconds: 1), (_) async {
         if (!mounted) return;
+
+        // 1. While waiting for the astrologer to answer
+        if (!_remoteJoined) {
+          _waitingSeconds++;
+          if (_waitingSeconds % 3 == 0 && _sessionId != null) {
+            final callInfo = await AstrologerApi.instance.getCallById(callId: _sessionId!);
+            final st = (callInfo?['callStatus'] ?? '').toString().toLowerCase();
+            if (st == 'rejected' || st == 'declined') {
+              if (!_ending && mounted) {
+                _end(suppressFeedback: true);
+                showSnack(context, '${widget.astrologerName} is currently unavailable.', error: true);
+                return;
+              }
+            } else if (st == 'accepted') {
+              _remoteJoined = true;
+            }
+          }
+
+          if (_waitingSeconds >= 45 && !_ending) {
+            _end(suppressFeedback: true);
+            if (mounted) {
+              showSnack(context, '${widget.astrologerName} did not answer. Please try again later.');
+            }
+            return;
+          }
+
+          setState(() {});
+          return;
+        }
+
+        // 2. Active connected consultation timer & wallet billing
         setState(() => _elapsed += const Duration(seconds: 1));
 
         final session = context.read<AppSession>();
@@ -115,16 +182,29 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   }
 
   void _onRtc() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final remoteName = _rtc?.remoteName;
+    if (remoteName != null && !_remoteJoined) {
+      _remoteJoined = true;
+    } else if (_remoteJoined && remoteName == null && !_ending) {
+      _end();
+      showSnack(context, 'Consultation ended by ${widget.astrologerName}.');
+      return;
+    }
+    setState(() {});
   }
 
   String get _clock {
+    if (!_remoteJoined) {
+      final rem = (45 - _waitingSeconds).clamp(0, 45);
+      return 'Calling… (${rem}s)';
+    }
     final m = _elapsed.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _elapsed.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '${_elapsed.inHours.toString().padLeft(2, '0')}:$m:$s';
   }
 
-  Future<void> _end() async {
+  Future<void> _end({bool suppressFeedback = false}) async {
     if (_ending) return;
     setState(() => _ending = true);
     _ticker?.cancel();
@@ -137,11 +217,163 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
       }
     } catch (_) {/* server best-effort */}
     if (!mounted) return;
+    if (!suppressFeedback && _remoteJoined) {
+      await showConsultationFeedbackDialog(
+        context: context,
+        astrologerId: widget.astrologerId,
+        astrologerName: widget.astrologerName,
+      );
+    }
+    if (!mounted) return;
     Navigator.of(context).pop();
-    showConsultationFeedbackDialog(
+  }
+
+  Future<void> _quickRecharge(double amount) async {
+    try {
+      final payUrl = await WalletApi.instance.addPayment(amount: amount);
+      if (payUrl != null && payUrl.isNotEmpty) {
+        final uri = Uri.parse(payUrl);
+        final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
+      if (!mounted) return;
+      await context.read<AppSession>().refreshUser();
+      if (!mounted) return;
+      showSnack(context, 'Wallet recharged! Consultation extended.');
+      setState(() {});
+    } on ApiException catch (e) {
+      if (mounted) showSnack(context, e.message, error: true);
+    } catch (_) {}
+  }
+
+  void _showQuickRechargeSheet(BuildContext context) {
+    final session = context.read<AppSession>();
+    final balance = session.user?.walletAmount ?? 0;
+
+    showModalBottomSheet(
       context: context,
-      astrologerId: widget.astrologerId,
-      astrologerName: widget.astrologerName,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.bolt_rounded, color: Colors.amber, size: 28),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('In-Call Talktime Top-Up',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Current balance: ₹${balance.toStringAsFixed(0)} • Keep call active without disconnect',
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _callRechargeOptionButton(
+                      ctx,
+                      amount: 50,
+                      label: '₹50',
+                      sublabel: 'Basic',
+                      isPopular: false,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _callRechargeOptionButton(
+                      ctx,
+                      amount: 100,
+                      label: '₹100',
+                      sublabel: 'Most Popular',
+                      isPopular: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _callRechargeOptionButton(
+                      ctx,
+                      amount: 200,
+                      label: '₹200',
+                      sublabel: 'Best Value',
+                      isPopular: false,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _callRechargeOptionButton(
+    BuildContext ctx, {
+    required double amount,
+    required String label,
+    required String sublabel,
+    required bool isPopular,
+  }) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(ctx);
+        _quickRecharge(amount);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isPopular ? Colors.amber.shade50 : Theme.of(ctx).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPopular ? Colors.amber.shade700 : Colors.grey.shade300,
+            width: isPopular ? 1.8 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isPopular ? Colors.amber.shade900 : null,
+                )),
+            const SizedBox(height: 4),
+            Text(sublabel,
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: isPopular ? Colors.amber.shade800 : Colors.grey.shade600,
+                )),
+          ],
+        ),
+      ),
     );
   }
 
@@ -221,7 +453,7 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: rtc?.connected == true ? Colors.greenAccent : Colors.amberAccent,
+                          color: _remoteJoined ? Colors.greenAccent : Colors.amberAccent,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -351,13 +583,15 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          rtc?.connected == true
-              ? 'LiveKit connected · HD Audio'
-              : rtc?.connecting == true
-                  ? 'Connecting to LiveKit…'
-                  : _active
-                      ? 'Call in progress'
-                      : 'Connecting…',
+          _remoteJoined
+              ? 'Astrologer connected · HD Audio'
+              : rtc?.connected == true
+                  ? 'Ringing ${widget.astrologerName}…'
+                  : rtc?.connecting == true
+                      ? 'Connecting to LiveKit…'
+                      : _active
+                          ? 'Call in progress'
+                          : 'Connecting…',
           style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
         ),
         const SizedBox(height: 22),
@@ -371,39 +605,75 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
           builder: (ctx) {
             final session = ctx.watch<AppSession>();
             final balance = session.user?.walletAmount ?? 0;
-            const rate = 15.0;
+            final rate = widget.ratePerMinute > 0 ? widget.ratePerMinute : 15.0;
             final totalAllowedSecs = ((balance / rate) * 60).floor();
             final remainingSecs = (totalAllowedSecs - _elapsed.inSeconds).clamp(0, 99999);
             final remMin = (remainingSecs / 60).floor();
             final remSec = (remainingSecs % 60).toString().padLeft(2, '0');
             final isLow = remainingSecs < 120;
 
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: isLow ? Colors.red.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isLow ? Colors.redAccent : Colors.white24),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    isLow ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined,
-                    color: isLow ? Colors.redAccent : Colors.amberAccent,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '⏳ $remMin:$remSec remaining (₹${balance.toStringAsFixed(0)})',
-                    style: TextStyle(
-                      color: isLow ? Colors.redAccent : Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => _showQuickRechargeSheet(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isLow ? Colors.red.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: isLow ? Colors.redAccent : Colors.white24),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isLow ? Icons.warning_amber_rounded : Icons.account_balance_wallet_outlined,
+                          color: isLow ? Colors.redAccent : Colors.amberAccent,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '⏳ $remMin:$remSec remaining (₹${balance.toStringAsFixed(0)})',
+                          style: TextStyle(
+                            color: isLow ? Colors.redAccent : Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (isLow) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.amberAccent,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text('⚡ Top-Up',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+                ),
+                if (isLow) ...[
+                  const SizedBox(height: 12),
+                  FilledButton.tonalIcon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.amber.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () => _showQuickRechargeSheet(context),
+                    icon: const Icon(Icons.bolt_rounded, size: 18),
+                    label: const Text('Add ₹100 Talktime (Keep Talking)',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
+                  ),
                 ],
-              ),
+              ],
             );
           },
         ),

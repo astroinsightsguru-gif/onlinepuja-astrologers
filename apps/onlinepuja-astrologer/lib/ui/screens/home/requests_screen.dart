@@ -16,6 +16,8 @@ import '../chat/chat_session_screen.dart';
 class RequestsScreen extends StatefulWidget {
   const RequestsScreen({super.key, required this.kind});
 
+  static const route = '/requests';
+
   final String kind; // 'call' or 'chat' or 'all'
 
   @override
@@ -44,52 +46,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
     super.dispose();
   }
 
-  int? _activeIncomingAlertId;
-
-  void _checkForIncomingAlert(List<Map<String, dynamic>> list) {
-    if (!_isCall || !mounted) return;
-    for (final row in list) {
-      final id = int.tryParse(
-              (row['id'] ?? row['callId'] ?? row['_id']).toString()) ??
-          0;
-      final status =
-          (row['call_status'] ?? row['status'])?.toString() ?? 'Pending';
-      if (id > 0 &&
-          status.toLowerCase().contains('pending') &&
-          _activeIncomingAlertId != id) {
-        _activeIncomingAlertId = id;
-        final customerName = row['userName']?.toString() ??
-            row['customerName']?.toString() ??
-            'Customer';
-        final avatar =
-            row['profile']?.toString() ?? row['userProfile']?.toString();
-        final callType =
-            (row['call_type'] ?? row['callType'])?.toString() ?? '';
-        final isVideo =
-            callType == '11' || callType.toLowerCase().contains('video');
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          IncomingCallDialog.show(
-            context,
-            callerName: customerName,
-            callerAvatar: avatar,
-            isVideo: isVideo,
-            onAccept: () async {
-              Navigator.of(context, rootNavigator: true).pop();
-              await _respond(row, accept: true);
-            },
-            onDecline: () async {
-              Navigator.of(context, rootNavigator: true).pop();
-              await _respond(row, accept: false);
-            },
-          );
-        });
-        break;
-      }
-    }
-  }
-
   Future<List<Map<String, dynamic>>> _load() async {
     final astrologerId = context.read<PartnerSession>().astrologerId;
     if (astrologerId <= 0) return const [];
@@ -113,7 +69,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
     final isCallRow = _isCall || (row.containsKey('call_type') || row.containsKey('callType'));
     final kindStr = isCallRow ? 'call' : 'chat';
     final id = int.tryParse(
-            (row['id'] ?? row['${kindStr}Id'] ?? row['_id']).toString()) ??
+            (row['${kindStr}Id'] ?? row['id'] ?? row['_id']).toString()) ??
         0;
     try {
       if (isCallRow) {
@@ -143,11 +99,18 @@ class _RequestsScreenState extends State<RequestsScreen> {
 
   void _openSession(Map<String, dynamic> row, {bool? forceCall}) {
     final isCallSession = forceCall ?? (_isCall || row.containsKey('call_type') || row.containsKey('callType'));
-    final customerId = int.tryParse(row['userId']?.toString() ?? '') ?? 0;
-    final customerName = row['userName']?.toString() ??
-        row['customerName']?.toString() ??
-        'Customer';
-    final sessionId = (row['id'] ?? row['${isCallSession ? "call" : "chat"}Id'] ?? row['_id'])
+    final customerId = int.tryParse(row['userId']?.toString() ?? row['id']?.toString() ?? '') ?? 0;
+    final rawName = (row['userName'] ??
+            row['customerName'] ??
+            row['name'] ??
+            '')
+        .toString()
+        .trim();
+    final contactNo = (row['contactNo'] ?? row['mobile'] ?? row['phone'])?.toString().trim();
+    final customerName = rawName.isNotEmpty
+        ? rawName
+        : (contactNo != null && contactNo.isNotEmpty ? 'भक्त ($contactNo)' : 'देवभक्त');
+    final sessionId = (row['${isCallSession ? "call" : "chat"}Id'] ?? row['id'] ?? row['_id'])
         ?.toString();
     final callType = (row['call_type'] ?? row['callType'])?.toString() ?? '';
     final isVideo = callType == '11' || callType.toLowerCase().contains('video');
@@ -210,7 +173,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
                       onRetry: _reload);
                 }
                 var items = snap.data ?? const <Map<String, dynamic>>[];
-                _checkForIncomingAlert(items);
 
                 // Filter logic
                 if (_filterIndex == 1) {
@@ -302,10 +264,16 @@ class _RequestsScreenState extends State<RequestsScreen> {
 
   Widget _requestCard(
       BuildContext context, Map<String, dynamic> row, bool dark) {
-    final name = row['userName']?.toString() ??
-        row['customerName']?.toString() ??
-        row['name']?.toString() ??
-        'Devotee';
+    final rawName = (row['userName'] ??
+            row['customerName'] ??
+            row['name'] ??
+            '')
+        .toString()
+        .trim();
+    final contactNo = (row['contactNo'] ?? row['mobile'] ?? row['phone'])?.toString().trim();
+    final name = rawName.isNotEmpty
+        ? rawName
+        : (contactNo != null && contactNo.isNotEmpty ? 'भक्त ($contactNo)' : 'देवभक्त');
     final callType = (row['call_type'] ?? row['callType'])?.toString() ?? '';
     final isCallRow = _isCall || (row.containsKey('call_type') || row.containsKey('callType'));
     final isVideo = isCallRow && (callType == '11' || callType.toLowerCase().contains('video'));
@@ -374,7 +342,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '₹35/min',
+                          '₹${row['charge'] ?? row['callRate'] ?? 25}/min',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -413,24 +381,43 @@ class _RequestsScreenState extends State<RequestsScreen> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _respond(row, accept: false),
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                  label: Text(AppStrings.decline),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: PartnerTheme.crimson,
-                    side: BorderSide(
-                      color: PartnerTheme.crimson.withValues(alpha: 0.4),
+                flex: 2,
+                child: SizedBox(
+                  height: 44,
+                  child: OutlinedButton(
+                    onPressed: () => _respond(row, accept: false),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: PartnerTheme.crimson,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      side: BorderSide(
+                        color: PartnerTheme.crimson.withValues(alpha: 0.4),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.close_rounded, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            AppStrings.decline,
+                            maxLines: 1,
+                            softWrap: false,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Container(
                   height: 44,
                   decoration: BoxDecoration(
@@ -444,21 +431,28 @@ class _RequestsScreenState extends State<RequestsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       onTap: () => _respond(row, accept: true),
                       child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.check_circle_rounded,
-                                size: 18, color: Colors.white),
-                            const SizedBox(width: 6),
-                            Text(
-                              AppStrings.acceptAndStart,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                              ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.check_circle_rounded,
+                                    size: 18, color: Colors.white),
+                                const SizedBox(width: 6),
+                                Text(
+                                  AppStrings.acceptAndStart,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

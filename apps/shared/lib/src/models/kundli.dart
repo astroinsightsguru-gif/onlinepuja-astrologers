@@ -132,15 +132,26 @@ class KundliBasic {
   String sunRise;
   String sunSet;
 
-  factory KundliBasic.fromJson(Map<String, dynamic> json) => KundliBasic(
-        id: json['id'],
-        tithi: json['Tithi'] ?? '',
-        karan: json['Karan'] ?? '',
-        yog: json['Yog'] ?? '',
-        nakshatra: json['Nakshatra'] ?? '',
-        sunRise: json['SunRise'] ?? '',
-        sunSet: json['SunSet'] ?? '',
-      );
+  factory KundliBasic.fromJson(Map<String, dynamic> json) {
+    final panchang = json['panchang'] is Map<String, dynamic>
+        ? json['panchang'] as Map<String, dynamic>
+        : (json['recordList'] is Map<String, dynamic>
+            ? json['recordList'] as Map<String, dynamic>
+            : const <String, dynamic>{});
+
+    String val(String k1, String k2) =>
+        (json[k1] ?? json[k2] ?? panchang[k1] ?? panchang[k2] ?? '').toString();
+
+    return KundliBasic(
+      id: json['id'] is num ? (json['id'] as num).toInt() : int.tryParse(json['id']?.toString() ?? ''),
+      tithi: val('Tithi', 'tithi'),
+      karan: val('Karan', 'karan'),
+      yog: val('Yog', 'yog'),
+      nakshatra: val('Nakshatra', 'nakshatra'),
+      sunRise: val('SunRise', 'sunrise'),
+      sunSet: val('SunSet', 'sunset'),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

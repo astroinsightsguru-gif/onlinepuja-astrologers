@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:op_shared/op_shared.dart';
 
 import '../../theme/customer_theme.dart';
 
@@ -15,15 +14,21 @@ class ChoghadiyaRadarScreen extends StatefulWidget {
 }
 
 class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
-  bool _isDay = true;
+  late bool _isDay;
   DateTime _now = DateTime.now();
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    _isDay = _now.hour >= 6 && _now.hour < 18;
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted) setState(() => _now = DateTime.now());
+      if (mounted) {
+        setState(() {
+          _now = DateTime.now();
+          _isDay = _now.hour >= 6 && _now.hour < 18;
+        });
+      }
     });
   }
 
@@ -142,16 +147,16 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
         gradient: LinearGradient(
           colors: [
             const Color(0xFF1A132F),
-            badgeColor.withOpacity(0.35),
+            badgeColor.withValues(alpha: 0.35),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: badgeColor.withOpacity(0.5)),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: badgeColor.withOpacity(0.18),
+            color: badgeColor.withValues(alpha: 0.18),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -188,7 +193,7 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
-                  color: badgeColor.withOpacity(0.2),
+                  color: badgeColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: badgeColor),
                 ),
@@ -235,7 +240,7 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -378,10 +383,10 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: isActive ? color.withOpacity(0.08) : Colors.white,
+        color: isActive ? color.withValues(alpha: 0.08) : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isActive ? color : Colors.black.withOpacity(0.06),
+          color: isActive ? color : Colors.black.withValues(alpha: 0.06),
           width: isActive ? 1.5 : 1,
         ),
       ),
@@ -437,7 +442,7 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

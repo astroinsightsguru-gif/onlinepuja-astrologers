@@ -250,11 +250,18 @@ class MiscApi {
     return const {};
   }
 
-  /// Resolved image URL helper for blog/story/gift images.
+  /// Resolved image URL helper for blog/story/gift/product images.
   static String imageUrl(String path) {
     final p = path.trim();
     if (p.isEmpty) return '';
-    if (p.startsWith('http')) return p;
-    return '${Env.imageBase}$p';
+    if (p.startsWith('http://') || p.startsWith('https://')) {
+      // Fix potential public/ in full URLs as well
+      return p.replaceFirst('/public/storage/', '/storage/');
+    }
+    final clean = p.startsWith('public/')
+        ? p.substring(7)
+        : (p.startsWith('/public/') ? p.substring(8) : p);
+    final relative = clean.startsWith('/') ? clean.substring(1) : clean;
+    return '${Env.imageBase}$relative';
   }
 }

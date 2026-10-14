@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
+import '../../theme/customer_theme.dart';
 import '../checkout/checkout_screen.dart';
 
-/// Sri Mandir-Grade High-Conversion Puja & Chadhava Detail Experience
+/// Authentic Vedic Sacred Puja & Chadhava Detail Experience
 class PujaDetailScreen extends StatefulWidget {
   static const route = '/puja-detail';
   const PujaDetailScreen({super.key, required this.puja});
@@ -15,18 +16,43 @@ class PujaDetailScreen extends StatefulWidget {
 }
 
 class _PujaDetailScreenState extends State<PujaDetailScreen> {
+  late Puja _puja = widget.puja;
   List<Map<String, dynamic>>? _faqs;
   PujaPackage? _selectedPackage;
   int _selectedPackageIndex = 0;
+  bool _loadingDetails = false;
 
   @override
   void initState() {
     super.initState();
-    final pkgs = widget.puja.packages ?? const <PujaPackage>[];
+    _puja = widget.puja;
+    final pkgs = _puja.packages ?? const <PujaPackage>[];
     if (pkgs.isNotEmpty) {
       _selectedPackage = pkgs.first;
     }
+    _loadDetails();
     _loadFaqs();
+  }
+
+  Future<void> _loadDetails() async {
+    if (_puja.id == null) return;
+    try {
+      setState(() => _loadingDetails = true);
+      final detailed = await PujaApi.instance.detail(_puja.id);
+      if (detailed != null && mounted) {
+        setState(() {
+          _puja = detailed;
+          final pkgs = _puja.packages ?? const <PujaPackage>[];
+          if (pkgs.isNotEmpty) {
+            _selectedPackage = pkgs.first;
+            _selectedPackageIndex = 0;
+          }
+        });
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingDetails = false);
+    }
   }
 
   Future<void> _loadFaqs() async {
@@ -44,7 +70,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
   }
 
   void _proceedToBooking() {
-    final packages = widget.puja.packages ?? const <PujaPackage>[];
+    final packages = _puja.packages ?? const <PujaPackage>[];
     PujaPackage? pkg = _selectedPackage ?? (packages.isNotEmpty ? packages.first : null);
     pkg ??= PujaPackage(
       id: 1,
@@ -60,7 +86,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
 
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => CheckoutScreen.puja(
-        puja: widget.puja,
+        puja: _puja,
         package: pkg!,
       ),
     ));
@@ -68,7 +94,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.puja;
+    final p = _puja;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
     final packages = (p.packages != null && p.packages!.isNotEmpty)
         ? p.packages!
         : [
@@ -109,34 +137,49 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     }
 
     final currentPrice = _selectedPackage?.priceValue ?? 501.0;
+    final cardBg = isDark ? CustomerTheme.cosmicCardDark : Colors.white;
+    final cardBorder = isDark ? CustomerTheme.cosmicBorderDark : const Color(0xFFE2E8F0);
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.white70 : const Color(0xFF64748B);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F7F2),
+      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
         elevation: 0.5,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               p.title?.toString() ?? 'Puja Details',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: textPrimary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const Text(
-              'Verified Vedic Temple Ritual',
-              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+            Text(
+              'OnlinePuja Verified Vedic Ritual',
+              style: TextStyle(fontSize: 11, color: textSecondary),
             ),
           ],
         ),
+        bottom: _loadingDetails
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(2),
+                child: LinearProgressIndicator(
+                  minHeight: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(CustomerTheme.brandGold),
+                  backgroundColor: Colors.transparent,
+                ),
+              )
+            : null,
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: Color(0xFF475569)),
+            icon: Icon(Icons.share_outlined, color: textSecondary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Puja link copied to share')),
@@ -148,10 +191,11 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
+          border: Border(top: BorderSide(color: cardBorder, width: 1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
               blurRadius: 10,
               offset: const Offset(0, -3),
             ),
@@ -167,10 +211,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   children: [
                     Text(
                       _selectedPackage?.name ?? 'Selected Package',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
+                        color: textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -179,10 +223,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                       children: [
                         Text(
                           '₹${currentPrice.toStringAsFixed(0)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF1E293B),
+                            color: textPrimary,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -249,7 +293,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               AspectRatio(
                 aspectRatio: 16 / 10,
                 child: p.coverImage.isNotEmpty
-                    ? Image.network(MiscApi.imageUrl(p.coverImage), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF78350F), Color(0xFFB45309)], begin: Alignment.topLeft, end: Alignment.bottomRight)), child: const Center(child: Icon(Icons.temple_hindu_rounded, size: 64, color: Colors.white38))))
+                    ? Image.network(MiscApi.imageUrl(p.coverImage), fit: BoxFit.cover, errorBuilder: (_, _, _) => Container(decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF78350F), Color(0xFFB45309)], begin: Alignment.topLeft, end: Alignment.bottomRight)), child: const Center(child: Icon(Icons.temple_hindu_rounded, size: 64, color: Colors.white38))))
                     : Container(
                         color: const Color(0xFFFEF3C7),
                         child: const Icon(Icons.temple_hindu_rounded,
@@ -261,9 +305,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.black.withOpacity(0.6),
+                        Colors.black.withValues(alpha: 0.6),
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withValues(alpha: 0.8),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -280,10 +324,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
+                    color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: const Color(0xFFF59E0B).withOpacity(0.6)),
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.6)),
                   ),
                   child: Row(
                     children: [
@@ -340,7 +384,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -366,10 +410,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 // Title and Subtitle
                 Text(
                   p.title?.toString() ?? 'Vedic Puja',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1E293B),
+                    color: textPrimary,
                     height: 1.2,
                   ),
                 ),
@@ -377,10 +421,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   const SizedBox(height: 6),
                   Text(
                     p.subtitle.toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B),
+                      color: textSecondary,
                     ),
                   ),
                 ],
@@ -391,9 +435,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: cardBorder),
                   ),
                   child: Row(
                     children: [
@@ -402,28 +446,34 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                         color: const Color(0xFF25D366),
                         title: 'Video Proof',
                         subtitle: 'On WhatsApp',
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
                       ),
-                      const SizedBox(
+                      SizedBox(
                         height: 28,
                         child: VerticalDivider(
-                            color: Color(0xFFE2E8F0), thickness: 1),
+                            color: cardBorder, thickness: 1),
                       ),
                       _trustItem(
                         icon: Icons.local_shipping_rounded,
                         color: const Color(0xFFF59E0B),
                         title: 'Prasad Box',
                         subtitle: 'SpeedPost Delivery',
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
                       ),
-                      const SizedBox(
+                      SizedBox(
                         height: 28,
                         child: VerticalDivider(
-                            color: Color(0xFFE2E8F0), thickness: 1),
+                            color: cardBorder, thickness: 1),
                       ),
                       _trustItem(
                         icon: Icons.workspace_premium_rounded,
                         color: const Color(0xFF3B82F6),
                         title: 'Kashi Acharyas',
                         subtitle: '100% Vedic Mantras',
+                        textPrimary: textPrimary,
+                        textSecondary: textSecondary,
                       ),
                     ],
                   ),
@@ -432,7 +482,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 const SizedBox(height: 20),
 
                 if (packages.isNotEmpty) ...[
-                  // 3. Select Package (Sri Mandir interactive cards)
+                  // 3. Select Package
                   Row(
                     children: [
                       const Icon(Icons.card_giftcard_rounded,
@@ -440,24 +490,24 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                       const SizedBox(width: 8),
                       Text(
                         AppStrings.choosePackage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
+                          color: textPrimary,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Select the seva tier for your family’s sankalp',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 12, color: textSecondary),
                   ),
                   const SizedBox(height: 12),
 
                   // Package List
                   for (int i = 0; i < packages.length; i++) ...[
-                    _packageCard(packages[i], i),
+                    _packageCard(packages[i], i, cardBg, cardBorder, textPrimary, textSecondary),
                     const SizedBox(height: 10),
                   ],
 
@@ -470,9 +520,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: cardBorder),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,22 +534,19 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                             const SizedBox(width: 8),
                             Text(
                               AppStrings.significanceVidhi,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
+                                color: textPrimary,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Text(
+                        _buildVedicDescription(
                           p.longDescription.toString(),
-                          style: const TextStyle(
-                            fontSize: 13.5,
-                            color: Color(0xFF475569),
-                            height: 1.5,
-                          ),
+                          textPrimary,
+                          textSecondary,
                         ),
                       ],
                     ),
@@ -571,19 +618,19 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: cardBorder),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'How Online Puja Works',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
+                          color: textPrimary,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -616,12 +663,12 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
 
                 // 7. FAQs
                 if (_faqs != null && _faqs!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Frequently Asked Questions',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
+                      color: textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -629,19 +676,19 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardBg,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: cardBorder),
                       ),
                       child: ExpansionTile(
                         tilePadding:
                             const EdgeInsets.symmetric(horizontal: 14),
                         title: Text(
                           (f['question'] ?? f['title'] ?? 'Q').toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
+                            color: textPrimary,
                           ),
                         ),
                         childrenPadding: const EdgeInsets.only(
@@ -652,9 +699,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                             child: Text(
                               (f['answer'] ?? f['description'] ?? '')
                                   .toString(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF64748B),
+                                color: textSecondary,
                                 height: 1.4,
                               ),
                             ),
@@ -678,6 +725,8 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     required Color color,
     required String title,
     required String subtitle,
+    required Color textPrimary,
+    required Color textSecondary,
   }) {
     return Expanded(
       child: Column(
@@ -686,19 +735,19 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
           Text(
             subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+              color: textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -707,7 +756,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     );
   }
 
-  Widget _packageCard(PujaPackage pkg, int index) {
+  Widget _packageCard(
+    PujaPackage pkg,
+    int index,
+    Color cardBg,
+    Color cardBorder,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
     final isSelected = _selectedPackageIndex == index;
     final isPopular = index == 1;
 
@@ -722,18 +778,18 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF059669)
-                : const Color(0xFFE2E8F0),
+                : cardBorder,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: const Color(0xFF059669).withOpacity(0.12),
+                color: const Color(0xFF059669).withValues(alpha: 0.12),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -762,7 +818,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? const Color(0xFF059669)
-                          : const Color(0xFF1E293B),
+                          : textPrimary,
                     ),
                   ),
                 ),
@@ -792,13 +848,13 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     fontWeight: FontWeight.w900,
                     color: isSelected
                         ? const Color(0xFF059669)
-                        : const Color(0xFF1E293B),
+                        : textPrimary,
                   ),
                 ),
               ],
             ),
             if (pkg.inclusions != null && pkg.inclusions!.isNotEmpty) ...[
-              const Divider(height: 18, color: Color(0xFFF1F5F9)),
+              Divider(height: 18, color: cardBorder.withValues(alpha: 0.5)),
               for (final inc in pkg.inclusions!) ...[
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,9 +868,9 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     Expanded(
                       child: Text(
                         inc,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF475569),
+                          color: textSecondary,
                           height: 1.3,
                         ),
                       ),
@@ -836,6 +892,11 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     required String desc,
     bool isLast = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final cardBorder = isDark ? CustomerTheme.cosmicBorderDark : const Color(0xFFE2E8F0);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -845,8 +906,8 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               width: 24,
               height: 24,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFEF3C7),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF451A03) : const Color(0xFFFEF3C7),
                 shape: BoxShape.circle,
               ),
               child: Text(
@@ -862,7 +923,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               Container(
                 width: 1.5,
                 height: 36,
-                color: const Color(0xFFE2E8F0),
+                color: cardBorder,
               ),
           ],
         ),
@@ -873,18 +934,18 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
+                  color: textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 desc,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.5,
-                  color: Color(0xFF64748B),
+                  color: textSecondary,
                   height: 1.3,
                 ),
               ),
@@ -895,5 +956,179 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       ],
     );
   }
+
+  Widget _buildVedicDescription(
+    String raw,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    if (raw.trim().isEmpty) return const SizedBox.shrink();
+    if (!raw.contains('<') || !raw.contains('>')) {
+      return Text(
+        raw,
+        style: TextStyle(
+          fontSize: 13,
+          color: textSecondary,
+          height: 1.5,
+        ),
+      );
+    }
+
+    final widgets = <Widget>[];
+
+    // Normalize newlines and clean structural wrapping
+    final cleaned = raw
+        .replaceAll(RegExp(r'<div[^>]*>', caseSensitive: false), '')
+        .replaceAll(RegExp(r'<\/div>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<ul[^>]*>', caseSensitive: false), '')
+        .replaceAll(RegExp(r'<\/ul>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<ol[^>]*>', caseSensitive: false), '')
+        .replaceAll(RegExp(r'<\/ol>', caseSensitive: false), '\n')
+        .replaceAll(RegExp(r'<br\s*\/?>', caseSensitive: false), '\n');
+
+    final blockRegex = RegExp(
+      r'<(h2|h3|p|li)[^>]*>(.*?)<\/\1>',
+      dotAll: true,
+      caseSensitive: false,
+    );
+    final matches = blockRegex.allMatches(cleaned).toList();
+
+    if (matches.isEmpty) {
+      final plainText = cleaned.replaceAll(RegExp(r'<[^>]*>'), '').trim();
+      return Text(
+        plainText,
+        style: TextStyle(fontSize: 13, color: textSecondary, height: 1.5),
+      );
+    }
+
+    for (final m in matches) {
+      final tag = m.group(1)!.toLowerCase();
+      final inner = m.group(2)!.trim();
+      if (inner.isEmpty) continue;
+
+      if (tag == 'h2') {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top: 14, bottom: 6),
+          child: Text(
+            inner.replaceAll(RegExp(r'<[^>]*>'), ''),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: textPrimary,
+              height: 1.3,
+            ),
+          ),
+        ));
+      } else if (tag == 'h3') {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 4),
+          child: Text(
+            inner.replaceAll(RegExp(r'<[^>]*>'), ''),
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w700,
+              color: textPrimary,
+              height: 1.3,
+            ),
+          ),
+        ));
+      } else if (tag == 'li') {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 6, right: 8),
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: CustomerTheme.brandSaffron,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: _parseRichSpans(inner, textPrimary, textSecondary),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+      } else {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text.rich(
+            TextSpan(
+              children: _parseRichSpans(inner, textPrimary, textSecondary),
+            ),
+          ),
+        ));
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
+    );
+  }
+
+  List<InlineSpan> _parseRichSpans(
+    String html,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    final spans = <InlineSpan>[];
+    final tokenRegex = RegExp(
+      r'<(strong|b)[^>]*>(.*?)<\/\1>|<[^>]*>',
+      dotAll: true,
+      caseSensitive: false,
+    );
+
+    int lastIndex = 0;
+    for (final match in tokenRegex.allMatches(html)) {
+      if (match.start > lastIndex) {
+        final text = html.substring(lastIndex, match.start);
+        if (text.isNotEmpty) {
+          spans.add(TextSpan(
+            text: text,
+            style: TextStyle(fontSize: 13, color: textSecondary, height: 1.45),
+          ));
+        }
+      }
+
+      final boldTag = match.group(1);
+      if (boldTag != null) {
+        final boldContent = match.group(2) ?? '';
+        final cleanBold = boldContent.replaceAll(RegExp(r'<[^>]*>'), '');
+        spans.add(TextSpan(
+          text: cleanBold,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: textPrimary,
+            height: 1.45,
+          ),
+        ));
+      }
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < html.length) {
+      final trailing = html.substring(lastIndex);
+      if (trailing.isNotEmpty) {
+        spans.add(TextSpan(
+          text: trailing,
+          style: TextStyle(fontSize: 13, color: textSecondary, height: 1.45),
+        ));
+      }
+    }
+
+    return spans;
+  }
 }
+
 

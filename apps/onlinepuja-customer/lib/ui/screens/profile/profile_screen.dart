@@ -295,7 +295,7 @@ class ProfileScreen extends StatelessWidget {
     bool isDark,
   ) {
     final displayName = u?.displayName ?? '';
-    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'ð-ï¸';
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '🕉️';
 
     return SacredCard(
       padding: const EdgeInsets.all(18),
@@ -711,4 +711,3 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 }
-

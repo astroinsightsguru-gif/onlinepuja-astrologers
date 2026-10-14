@@ -29,6 +29,13 @@ class AppSession extends ChangeNotifier {
     flags = SessionStore.instance.flags;
     booted = true;
     notifyListeners();
+
+    // Initialize OneSignal & sync device push token
+    final appId = flags.get('OneSignalAppId');
+    await PushNotificationService.instance.init(appId: appId.isNotEmpty ? appId : null);
+    if (user != null && user!.id != null && user!.id! > 0) {
+      await PushNotificationService.instance.syncDeviceToken(userId: user!.id!);
+    }
   }
 
   /// Ask backend to SMS the OTP (legacy `checkContactNoExistForUser`).
@@ -59,6 +66,9 @@ class AppSession extends ChangeNotifier {
       fcmToken: fcmToken,
     );
     flags = SessionStore.instance.flags;
+    if (user != null && user!.id != null && user!.id! > 0) {
+      await PushNotificationService.instance.syncDeviceToken(userId: user!.id!);
+    }
     notifyListeners();
   }
 

@@ -40,6 +40,8 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
   LiveKitCallController? _rtc;
   Object? _error;
   bool _ending = false;
+  bool _remoteJoined = false;
+  int _waitingSeconds = 0;
 
   @override
   void initState() {
@@ -89,9 +91,17 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
       if (!mounted) return;
       setState(() {});
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-        if (mounted) {
-          setState(() => _elapsed += const Duration(seconds: 1));
+        if (!mounted) return;
+        if (!_remoteJoined) {
+          _waitingSeconds++;
+          if (_waitingSeconds >= 45 && !_ending) {
+            _endInternal(message: 'Devotee did not connect. Call ended.');
+            return;
+          }
+          setState(() {});
+          return;
         }
+        setState(() => _elapsed += const Duration(seconds: 1));
       });
     } catch (e) {
       if (mounted) setState(() => _error = e);
@@ -99,19 +109,57 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
   }
 
   void _onRtc() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final remoteName = _rtc?.remoteName;
+    if (remoteName != null && !_remoteJoined) {
+      _remoteJoined = true;
+    } else if (_remoteJoined && remoteName == null && !_ending) {
+      _endInternal(message: 'Devotee ended the consultation.');
+      return;
+    }
+    setState(() {});
   }
 
   String get _clock {
+    if (!_remoteJoined) {
+      final rem = (45 - _waitingSeconds).clamp(0, 45);
+      return 'Calling… (${rem}s)';
+    }
     final m = _elapsed.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _elapsed.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '${_elapsed.inHours.toString().padLeft(2, '0')}:$m:$s';
   }
 
   int get _estimatedEarnings {
-    final ratePerMin = widget.isVideo ? 50 : 35;
+    if (!_remoteJoined) return 0;
+    final session = context.read<PartnerSession>();
+    final u = session.user;
+    final double configuredRate = widget.isVideo
+        ? (u?.videoCallRate != null && u!.videoCallRate > 0 ? u.videoCallRate : 50.0)
+        : (u?.charge != null && u!.charge > 0 ? u.charge : 35.0);
     final mins = _elapsed.inMinutes + 1;
-    return mins * ratePerMin;
+    return (mins * configuredRate).round();
+  }
+
+  Future<void> _endInternal({String? message}) async {
+    if (_ending) return;
+    setState(() => _ending = true);
+    _ticker?.cancel();
+    try {
+      await _rtc?.leave();
+    } catch (_) {/* best effort */}
+    try {
+      if (_sessionId != null) {
+        await AstrologerApi.instance.endCall(callId: _sessionId!);
+      }
+    } catch (_) {/* server best-effort */}
+    if (!mounted) return;
+    if (message != null && message.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+    Navigator.of(context).pop();
   }
 
   Future<void> _end() async {
@@ -139,20 +187,9 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
-
-    setState(() => _ending = true);
-    _ticker?.cancel();
-    try {
-      await _rtc?.leave();
-    } catch (_) {/* best effort */}
-    try {
-      if (_sessionId != null) {
-        await AstrologerApi.instance.endCall(callId: _sessionId!);
-      }
-    } catch (_) {/* server best-effort */}
-    if (!mounted) return;
-    Navigator.of(context).pop();
+    if (confirmed == true && mounted) {
+      await _endInternal();
+    }
   }
 
   @override
@@ -297,7 +334,7 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: rtc?.connected == true
+                          color: _remoteJoined
                               ? PartnerTheme.emerald
                               : PartnerTheme.amber,
                         ),
@@ -421,6 +458,11 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
                             (rtc?.connected == true && rtc?.camEnabled == true)
                                 ? () => rtc!.switchCamera()
                                 : null,
+                      ),
+                      _roundAction(
+                        icon: Icons.temple_hindu_rounded,
+                        color: PartnerTheme.saffron.withValues(alpha: 0.4),
+                        onTap: _showPrescribeRemedySheet,
                       ),
                       _roundAction(
                         icon: Icons.auto_awesome,
@@ -552,11 +594,11 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            rtc?.connected == true
+            _remoteJoined
                 ? 'High-Fidelity Audio Connected'
                 : 'Connecting to Devotee...',
             style: TextStyle(
-              color: rtc?.connected == true
+              color: _remoteJoined
                   ? PartnerTheme.emeraldLight
                   : Colors.white60,
               fontSize: 13,
@@ -621,6 +663,11 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
                   onTap: rtc?.connected == true ? () => rtc!.toggleMic() : null,
                 ),
                 _roundAction(
+                  icon: Icons.temple_hindu_rounded,
+                  color: PartnerTheme.saffron.withValues(alpha: 0.45),
+                  onTap: _showPrescribeRemedySheet,
+                ),
+                _roundAction(
                   icon: Icons.auto_awesome,
                   color: PartnerTheme.gold.withValues(alpha: 0.3),
                   onTap: _showClientInfoSheet,
@@ -656,6 +703,221 @@ class _CallSessionScreenState extends State<CallSessionScreen> {
       ),
       icon: Icon(icon, size: 22),
       onPressed: onTap,
+    );
+  }
+
+  void _showPrescribeRemedySheet() {
+    final session = context.read<PartnerSession>();
+    final astroId = session.astrologerId > 0 ? session.astrologerId : 1;
+    final reasonCtrl = TextEditingController(
+      text: 'Post-Call Planetary Dosha Nivaran & Graha Shanti',
+    );
+    final mantraCtrl = TextEditingController(
+      text: 'Om Namah Shivaya (108x daily at Brahma Muhurat)',
+    );
+    final gemstoneCtrl = TextEditingController(
+      text: '5-Mukhi Nepal Rudraksha',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.85,
+        ),
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xFF171324),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient: PartnerTheme.saffronGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.temple_hindu_rounded,
+                      color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Prescribe Call Remedy & Puja',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800),
+                      ),
+                      Text(
+                        'Instant Sankalp prescription for ${widget.customerName}',
+                        style: const TextStyle(
+                            color: Colors.white60, fontSize: 11.5),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white70),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonCtrl,
+              style: const TextStyle(color: Colors.white, fontSize: 12.5),
+              decoration: const InputDecoration(
+                labelText: 'Dosha / Consultation Diagnosis',
+                labelStyle: TextStyle(color: Colors.white60),
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: mantraCtrl,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    decoration: const InputDecoration(
+                      labelText: 'Prescribed Mantra',
+                      labelStyle: TextStyle(color: Colors.white60),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: gemstoneCtrl,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    decoration: const InputDecoration(
+                      labelText: 'Gemstone / Rudraksha',
+                      labelStyle: TextStyle(color: Colors.white60),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Select Sacred Temple Puja to Prescribe:',
+              style: TextStyle(
+                  color: PartnerTheme.gold,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: AiTwinApi.instance.fetchAvailablePujas(),
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final pujas = snap.data ?? const [];
+                  if (pujas.isEmpty) {
+                    return const Center(
+                      child: Text('No pujas available',
+                          style: TextStyle(color: Colors.white60)),
+                    );
+                  }
+                  return ListView.separated(
+                    itemCount: pujas.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final p = pujas[index];
+                      final title = p['puja_title']?.toString() ?? 'Vedic Puja';
+                      final place = p['puja_place']?.toString() ?? 'Kashi';
+                      final price = p['puja_price']?.toString() ?? '1100';
+                      final pid = p['id'] is int
+                          ? p['id'] as int
+                          : int.tryParse(p['id'].toString()) ?? 1;
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13.5),
+                                  ),
+                                  Text(
+                                    '$place • ₹$price',
+                                    style: const TextStyle(
+                                        color: Colors.white60, fontSize: 11.5),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FilledButton(
+                              style: FilledButton.styleFrom(
+                                backgroundColor: PartnerTheme.saffron,
+                              ),
+                              onPressed: () async {
+                                await AiTwinApi.instance.prescribeRemedy(
+                                  astrologerId: astroId,
+                                  userId: widget.customerId,
+                                  pujaId: pid,
+                                  remedyTitle: title,
+                                  reason: reasonCtrl.text.trim(),
+                                  mantra: mantraCtrl.text.trim(),
+                                  gemstone: gemstoneCtrl.text.trim(),
+                                );
+                                if (ctx.mounted) {
+                                  Navigator.pop(ctx);
+                                }
+                                if (mounted) {
+                                  ScaffoldMessenger.of(this.context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: PartnerTheme.emerald,
+                                      content: Text(
+                                          'Prescribed "$title" to ${widget.customerName}!'),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text('Prescribe'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

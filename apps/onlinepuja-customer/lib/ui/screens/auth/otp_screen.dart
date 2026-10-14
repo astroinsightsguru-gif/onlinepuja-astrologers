@@ -22,6 +22,7 @@ class _OtpScreenState extends State<OtpScreen> {
   bool _verifying = false;
   String? _contactNo;
   String? _countryCode;
+  String? _expectedOtp;
 
   @override
   void didChangeDependencies() {
@@ -31,8 +32,11 @@ class _OtpScreenState extends State<OtpScreen> {
     _contactNo ??= args?['contactNo'] as String?;
     _countryCode ??= args?['countryCode'] as String? ?? '+91';
     final testOtp = args?['testOtp'] as String?;
-    if (testOtp != null && testOtp.isNotEmpty && _otp.text.isEmpty) {
-      _otp.text = testOtp;
+    if (testOtp != null && testOtp.isNotEmpty) {
+      _expectedOtp = testOtp;
+      if (_otp.text.isEmpty) {
+        _otp.text = testOtp;
+      }
     }
   }
 
@@ -43,8 +47,13 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   Future<void> _verify() async {
-    if (_otp.text.trim().length < 4) {
+    final entered = _otp.text.trim();
+    if (entered.length < 4) {
       showSnack(context, 'Enter the OTP you received', error: true);
+      return;
+    }
+    if (_expectedOtp != null && _expectedOtp!.isNotEmpty && entered != _expectedOtp) {
+      showSnack(context, 'Incorrect verification code. Please check your SMS.', error: true);
       return;
     }
     setState(() => _verifying = true);
@@ -74,10 +83,13 @@ class _OtpScreenState extends State<OtpScreen> {
 
   Future<void> _resend() async {
     try {
-      await context.read<AppSession>().sendOtp(
+      final newOtp = await context.read<AppSession>().sendOtp(
             contactNo: _contactNo!,
             countryCode: _countryCode!,
           );
+      if (newOtp != null && newOtp.isNotEmpty) {
+        _expectedOtp = newOtp;
+      }
       if (mounted) showSnack(context, 'OTP resent successfully');
     } catch (_) {
       if (mounted) showSnack(context, 'Could not resend OTP', error: true);

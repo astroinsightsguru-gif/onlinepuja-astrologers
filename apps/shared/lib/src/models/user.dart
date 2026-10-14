@@ -3,6 +3,8 @@
 class User {
   User({
     this.id,
+    this.userId,
+    this.astrologerId,
     this.name = 'User',
     this.contactNo,
     this.email = '',
@@ -36,6 +38,8 @@ class User {
   });
 
   int? id;
+  int? userId;
+  int? astrologerId;
   String? name;
   String? contactNo;
   String? email;
@@ -87,6 +91,24 @@ class User {
             : (json['id'] is num
                 ? (json['id'] as num).toInt()
                 : int.tryParse(json['id'].toString())),
+        userId = json['userId'] == null
+            ? (json['user_id'] == null
+                ? null
+                : (json['user_id'] is num
+                    ? (json['user_id'] as num).toInt()
+                    : int.tryParse(json['user_id'].toString())))
+            : (json['userId'] is num
+                ? (json['userId'] as num).toInt()
+                : int.tryParse(json['userId'].toString())),
+        astrologerId = json['astrologerId'] == null
+            ? (json['astrologer_id'] == null
+                ? null
+                : (json['astrologer_id'] is num
+                    ? (json['astrologer_id'] as num).toInt()
+                    : int.tryParse(json['astrologer_id'].toString())))
+            : (json['astrologerId'] is num
+                ? (json['astrologerId'] as num).toInt()
+                : int.tryParse(json['astrologerId'].toString())),
         name = json['name']?.toString() ?? 'User',
         contactNo = json['contactNo']?.toString() ?? '',
         email = json['email']?.toString() ?? '',
@@ -128,6 +150,8 @@ class User {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'userId': userId ?? id,
+        'astrologerId': astrologerId,
         'name': name,
         'contactNo': contactNo,
         'email': email,

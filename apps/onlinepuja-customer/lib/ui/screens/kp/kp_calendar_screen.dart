@@ -93,7 +93,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: CustomerTheme.brandGold.withOpacity(0.2),
+                    color: CustomerTheme.brandGold.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -119,7 +119,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                         'Krishnamurti Paddhati 249 Sub-Lords',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -193,7 +193,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white12),
         ),
@@ -225,10 +225,10 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withOpacity(0.2),
+                        color: const Color(0xFF10B981).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: const Color(0xFF10B981).withOpacity(0.5)),
+                            color: const Color(0xFF10B981).withValues(alpha: 0.5)),
                       ),
                       child: const Text(
                         'TODAY',
@@ -266,7 +266,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.15),
+            color: Colors.purple.withValues(alpha: 0.15),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -297,7 +297,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: CustomerTheme.brandGold.withOpacity(0.2),
+                  color: CustomerTheme.brandGold.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -356,8 +356,8 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: highlight
-            ? CustomerTheme.brandGold.withOpacity(0.15)
-            : Colors.white.withOpacity(0.06),
+            ? CustomerTheme.brandGold.withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: highlight ? CustomerTheme.brandGold : Colors.white12,
@@ -430,12 +430,12 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF1A132F)
-                : Colors.black.withOpacity(0.1),
+                : Colors.black.withValues(alpha: 0.1),
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   )
@@ -506,11 +506,11 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: statusColor.withOpacity(0.2),
+              color: statusColor.withValues(alpha: 0.2),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -529,7 +529,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.12),
+                            color: statusColor.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -555,9 +555,9 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.12),
+                        color: statusColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: statusColor.withOpacity(0.4)),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.4)),
                       ),
                       child: Text(
                         isShubh ? 'SHUBH' : 'ASHUBH',
@@ -690,7 +690,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -728,7 +728,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: CustomerTheme.brandGold,
                     thumbColor: CustomerTheme.brandGold,
-                    overlayColor: CustomerTheme.brandGold.withOpacity(0.2),
+                    overlayColor: CustomerTheme.brandGold.withValues(alpha: 0.2),
                   ),
                   child: Slider(
                     value: _selectedHoraryNumber.toDouble(),
@@ -752,11 +752,11 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: CustomerTheme.brandGold.withOpacity(0.4),
+                color: CustomerTheme.brandGold.withValues(alpha: 0.4),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amber.withOpacity(0.08),
+                  color: Colors.amber.withValues(alpha: 0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -780,7 +780,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: CustomerTheme.brandGold.withOpacity(0.2),
+                        color: CustomerTheme.brandGold.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -865,7 +865,7 @@ class _KpCalendarScreenState extends State<KpCalendarScreen>
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
         color: highlight
-            ? CustomerTheme.brandGold.withOpacity(0.15)
+            ? CustomerTheme.brandGold.withValues(alpha: 0.15)
             : const Color(0xFFF9F7F2),
         borderRadius: BorderRadius.circular(10),
         border: highlight

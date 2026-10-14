@@ -6,6 +6,7 @@ import '../../../app.dart';
 import '../../../state/app_session.dart';
 import '../../theme/customer_theme.dart';
 import '../../widgets/customer_widgets.dart';
+import '../cosmic_ai_screen.dart';
 
 class AstrologerDetailScreen extends StatefulWidget {
   const AstrologerDetailScreen({super.key, required this.id});
@@ -387,6 +388,7 @@ class _AstrologerDetailScreenState extends State<AstrologerDetailScreen> {
               ? () => context.openChat(
                     astrologerId: widget.id,
                     astrologerName: a.name,
+                    ratePerMinute: a.charge > 0 ? a.charge.toDouble() : 15.0,
                     isFree: isFree,
                   )
               : null,
@@ -434,6 +436,28 @@ class _AstrologerDetailScreenState extends State<AstrologerDetailScreen> {
                         : 25.0,
                   )
               : null,
+        ),
+        const SizedBox(height: 10),
+        _actionTile(
+          icon: Icons.auto_awesome_rounded,
+          title: 'Chat with ${a.name}\'s AI Twin (24/7)',
+          subtitle: 'Trained on ${a.name}\'s exact Vedic Jyotish & Upay style • Zero wait',
+          price: '₹${(a.charge > 0 ? (a.charge * 0.5).clamp(5, 25) : 10).toStringAsFixed(0)}/min',
+          isFree: false,
+          isOnline: true,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7C3AED), Color(0xFFD97706)],
+          ),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => OnlinePujaAiScreen(
+                initialAstrologerId: widget.id,
+                initialAstrologerName: a.name,
+                initialAstrologerSkill: a.primarySkill,
+                initialAstrologerRate: a.charge > 0 ? a.charge.toDouble() : 10.0,
+              ),
+            ),
+          ),
         ),
       ],
     );

@@ -19,8 +19,6 @@ class AvailabilityScreen extends StatefulWidget {
 }
 
 class _AvailabilityScreenState extends State<AvailabilityScreen> {
-  int? _selectedBreakMinutes;
-
   @override
   Widget build(BuildContext context) {
     final session = context.watch<PartnerSession>();
@@ -144,9 +142,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   color: PartnerTheme.purple,
                   title: 'Video Face-to-Face Calls',
                   subtitle: 'Face-to-face Kundli reading & palmistry',
-                  active: session.callStatus == 'Online',
+                  active: session.videoCallStatus == 'Online',
                   onChanged: (v) => session.setStatus(
-                    call: v ? 'Online' : 'Offline',
+                    videoCall: v ? 'Online' : 'Offline',
                   ),
                 ),
               ],
@@ -278,21 +276,17 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
   }
 
   Widget _breakChip(int minutes, String label, IconData icon, PartnerSession session) {
-    final isSelected = _selectedBreakMinutes == minutes;
+    final isSelected = session.activeBreakMinutes == minutes;
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            if (isSelected) {
-              _selectedBreakMinutes = null;
-              session.setStatus(chat: 'Online', call: 'Online');
-              showSnack(context, 'Break cancelled. You are Online.');
-            } else {
-              _selectedBreakMinutes = minutes;
-              session.setStatus(chat: 'Offline', call: 'Offline');
-              showSnack(context, '$minutes min break started. Status set to Offline.');
-            }
-          });
+          if (isSelected) {
+            session.cancelBreak();
+            showSnack(context, 'Break cancelled. You are Online.');
+          } else {
+            session.startBreak(minutes);
+            showSnack(context, '$minutes min break started. Status set to Offline.');
+          }
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),

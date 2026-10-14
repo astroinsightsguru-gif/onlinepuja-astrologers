@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 
@@ -12,8 +13,8 @@ class PartnerSession extends ChangeNotifier {
   bool booted = false;
 
   bool get isLoggedIn => SessionStore.instance.isLoggedIn;
-  String get myId => (user?.id ?? 0).toString();
-  int get astrologerId => user?.id ?? 0;
+  String get myId => (user?.astrologerId ?? user?.id ?? 0).toString();
+  int get astrologerId => user?.astrologerId ?? user?.id ?? 0;
 
   ThemeMode get themeMode => SessionStore.instance.themeMode;
 
@@ -25,22 +26,35 @@ class PartnerSession extends ChangeNotifier {
   /// Availability state surfaced in the home shell (legacy default online).
   String chatStatus = 'Online';
   String callStatus = 'Online';
+  String videoCallStatus = 'Online';
+  Timer? _breakTimer;
+  int? activeBreakMinutes;
 
   Future<void> init() async {
     ApiClient.instance.tokenResolver = () => SessionStore.instance.token;
     ApiClient.instance.tokenTypeResolver =
         () => SessionStore.instance.tokenType;
     await SessionStore.instance.load();
+    await LocaleManager.instance.init();
     user = SessionStore.instance.user;
     flags = SessionStore.instance.flags;
     chatStatus = user?.chatStatus ?? 'Online';
     callStatus = user?.callStatus ?? 'Online';
+    videoCallStatus = user?.callStatus ?? 'Online';
     booted = true;
     notifyListeners();
+
+    // Initialize OneSignal & sync astrologer device push token
+    final appId = flags.get('OneSignalAppId');
+    await PushNotificationService.instance.init(appId: appId.isNotEmpty ? appId : null);
+    final targetUid = user?.id ?? user?.astrologerId;
+    if (targetUid != null && targetUid > 0) {
+      await PushNotificationService.instance.syncDeviceToken(userId: targetUid);
+    }
   }
 
   /// Ask backend to SMS the OTP (legacy `checkContactNoExist`).
-  Future<void> sendOtp({
+  Future<String?> sendOtp({
     required String contactNo,
     required String countryCode,
   }) =>
@@ -67,14 +81,24 @@ class PartnerSession extends ChangeNotifier {
     flags = SessionStore.instance.flags;
     chatStatus = user?.chatStatus ?? 'Online';
     callStatus = user?.callStatus ?? 'Online';
+    videoCallStatus = user?.callStatus ?? 'Online';
+
+    final targetUid = user?.id ?? user?.astrologerId;
+    if (targetUid != null && targetUid > 0) {
+      await PushNotificationService.instance.syncDeviceToken(userId: targetUid);
+    }
     notifyListeners();
   }
 
-  /// Toggle chat/call availability via `astrologer/update`.
+  /// Toggle chat/call/video availability via `astrologer/update`.
   Future<void> setStatus({
     String? chat,
     String? call,
+    String? videoCall,
   }) async {
+    if (videoCall != null) {
+      videoCallStatus = videoCall;
+    }
     await PartnerApi.instance.setStatus(
       astrologerId: astrologerId,
       chatStatus: chat,
@@ -83,6 +107,26 @@ class PartnerSession extends ChangeNotifier {
     chatStatus = chat ?? chatStatus;
     callStatus = call ?? callStatus;
     notifyListeners();
+  }
+
+  /// Start a timed break (DND) that automatically restores Online status.
+  void startBreak(int minutes) {
+    cancelBreak();
+    activeBreakMinutes = minutes;
+    setStatus(chat: 'Offline', call: 'Offline', videoCall: 'Offline');
+    _breakTimer = Timer(Duration(minutes: minutes), () {
+      activeBreakMinutes = null;
+      setStatus(chat: 'Online', call: 'Online', videoCall: 'Online');
+    });
+    notifyListeners();
+  }
+
+  /// Cancel active break and return online.
+  void cancelBreak() {
+    _breakTimer?.cancel();
+    _breakTimer = null;
+    activeBreakMinutes = null;
+    setStatus(chat: 'Online', call: 'Online', videoCall: 'Online');
   }
 
   /// Update consultation tariff rates and emergency pricing

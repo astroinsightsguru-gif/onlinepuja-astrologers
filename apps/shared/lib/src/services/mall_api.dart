@@ -33,6 +33,7 @@ class MallApi {
   /// Product list, optionally filtered by category.
   Future<List<Product>> list({dynamic categoryId}) async {
     final decoded = await _api.post('/getAstromallProduct', body: {
+      'productCategoryId': ?categoryId,
       'categoryId': ?categoryId,
     });
     return _asMapList(decoded).map(Product.fromJson).toList();

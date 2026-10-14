@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _sending = true);
     final session = context.read<PartnerSession>();
     try {
-      await session.sendOtp(
+      final sentOtp = await session.sendOtp(
         contactNo: _phone.text.trim(),
         countryCode: _countryCode,
       );
@@ -45,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushNamed(OtpScreen.route, arguments: {
         'contactNo': _phone.text.trim(),
         'countryCode': _countryCode,
+        'otp': sentOtp,
       });
     } on ApiException catch (e) {
       if (mounted) showSnack(context, e.message, error: true);

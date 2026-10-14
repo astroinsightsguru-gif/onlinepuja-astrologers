@@ -73,7 +73,7 @@ class OnlinePujaApp extends StatelessWidget {
         FamilyGotraVaultScreen.route: (_) => const FamilyGotraVaultScreen(),
         MallScreen.route: (_) => const MallScreen(),
         OnlinePujaAiScreen.route: (_) => const OnlinePujaAiScreen(),
-        CosmicAiScreen.route: (_) => const OnlinePujaAiScreen(),
+        '/cosmic-ai': (_) => const OnlinePujaAiScreen(),
         BlogScreen.route: (_) => const BlogScreen(),
         HistoryScreen.route: (_) => const HistoryScreen(),
         KpCalendarScreen.route: (_) => const KpCalendarScreen(),
@@ -82,17 +82,20 @@ class OnlinePujaApp extends StatelessWidget {
         final args = settings.arguments;
         Map<String, dynamic> map() =>
             args is Map<String, dynamic> ? args : const {};
+        int asInt(dynamic v, [int fallback = 0]) =>
+            v is int ? v : (v is num ? v.toInt() : (int.tryParse(v?.toString() ?? '') ?? fallback));
         switch (settings.name) {
           case AstrologerDetailScreen.route:
             return MaterialPageRoute(
               builder: (_) =>
-                  AstrologerDetailScreen(id: map()['astrologerId'] as int),
+                  AstrologerDetailScreen(id: asInt(map()['astrologerId'])),
             );
           case ChatSessionScreen.route:
             return MaterialPageRoute(
               builder: (_) => ChatSessionScreen(
-                astrologerId: map()['astrologerId'] as int,
+                astrologerId: asInt(map()['astrologerId']),
                 astrologerName: map()['astrologerName'] as String? ?? 'Astrologer',
+                ratePerMinute: ((map()['ratePerMinute'] as num?)?.toDouble()) ?? 15.0,
                 sessionId: map()['sessionId'] as String?,
                 isFree: map()['isFree'] as bool? ?? false,
               ),
@@ -105,13 +108,13 @@ class OnlinePujaApp extends StatelessWidget {
                 temple: map()['temple'] as String?,
                 trackingCode: map()['trackingCode'] as String?,
                 courierName: map()['courierName'] as String?,
-                currentStep: (map()['currentStep'] as int?) ?? 3,
+                currentStep: asInt(map()['currentStep'], 3),
               ),
             );
           case AudioCallScreen.route:
             return MaterialPageRoute(
               builder: (_) => AudioCallScreen(
-                astrologerId: map()['astrologerId'] as int,
+                astrologerId: asInt(map()['astrologerId']),
                 astrologerName:
                     map()['astrologerName'] as String? ?? 'Astrologer',
                 sessionId: map()['sessionId'] as String?,
@@ -129,6 +132,18 @@ class OnlinePujaApp extends StatelessWidget {
             if (args is Puja) {
               return MaterialPageRoute(
                 builder: (_) => PujaDetailScreen(puja: args),
+              );
+            }
+            if (args is int) {
+              return MaterialPageRoute(
+                builder: (_) => PujaDetailScreen(puja: Puja(id: args, title: 'Vedic Sacred Puja')),
+              );
+            }
+            if (args is Map<String, dynamic>) {
+              final id = asInt(args['id'] ?? args['pujaId'] ?? args['puja_id']);
+              final title = args['title']?.toString() ?? args['puja_title']?.toString() ?? 'Vedic Sacred Puja';
+              return MaterialPageRoute(
+                builder: (_) => PujaDetailScreen(puja: Puja(id: id, title: title)),
               );
             }
             break;
@@ -161,12 +176,14 @@ extension OpNav on BuildContext {
   Future<void> openChat({
     required int astrologerId,
     required String astrologerName,
+    double ratePerMinute = 15.0,
     String? sessionId,
     bool isFree = false,
   }) =>
       pushNamed(ChatSessionScreen.route, {
         'astrologerId': astrologerId,
         'astrologerName': astrologerName,
+        'ratePerMinute': ratePerMinute,
         'sessionId': sessionId,
         'isFree': isFree,
       });

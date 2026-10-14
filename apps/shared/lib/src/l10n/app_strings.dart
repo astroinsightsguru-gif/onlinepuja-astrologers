@@ -260,7 +260,199 @@ class AppStrings {
   static String get privacyPolicy => tr('privacy_policy');
   static String get deleteAccount => tr('delete_account');
 
+  // Checkout & Sankalp
+  static String get checkout => tr('checkout');
+  static String get sankalpInformation => tr('sankalp_information');
+  static String get sankalpNotice => tr('sankalp_notice');
+  static String get devoteeName => tr('devotee_name');
+  static String get gotraHint => tr('gotra_hint');
+  static String get whatsappNumber => tr('whatsapp_number');
+  static String get sankalpWish => tr('sankalp_wish');
+  static String get sankalpWishHint => tr('sankalp_wish_hint');
+  static String get deliverHolyPrasadTo => tr('deliver_holy_prasad_to');
+  static String get deliverTo => tr('deliver_to');
+  static String get addDeliveryAddress => tr('add_delivery_address');
+  static String get newAddress => tr('new_address');
+  static String get orderItem => tr('order_item');
+  static String get orderPrice => tr('order_price');
+  static String get orderPayment => tr('order_payment');
+  static String get walletBalanceText => tr('wallet_balance_text');
+  static String get walletDeductNotice => tr('wallet_deduct_notice');
+  static String get placeOrder => tr('place_order');
+  static String get familyGotraVault => tr('family_gotra_vault');
+
   static final Map<String, Map<AppLanguage, String>> _translations = {
+    'checkout': {
+      AppLanguage.en: 'Checkout',
+      AppLanguage.hi: 'चेकआउट',
+      AppLanguage.sa: 'सङ्कल्पपुष्टिः',
+      AppLanguage.gu: 'ચેકઆઉટ',
+      AppLanguage.mr: 'चेकआउट',
+      AppLanguage.bho: 'चेकआउट',
+      AppLanguage.mai: 'चेकआउट',
+    },
+    'sankalp_information': {
+      AppLanguage.en: 'Vedic Sankalp Information',
+      AppLanguage.hi: 'वैदिक संकल्प विवरण',
+      AppLanguage.sa: 'वैदिकसङ्कल्पविवरणम्',
+      AppLanguage.gu: 'વૈદિક સંકલ્પ વિગત',
+      AppLanguage.mr: 'वैदिक संकल्प माहिती',
+      AppLanguage.bho: 'वैदिक संकल्प जानकारी',
+      AppLanguage.mai: 'वैदिक संकल्प विवरण',
+    },
+    'sankalp_notice': {
+      AppLanguage.en: 'Our Vedic Pandits will chant your sacred Name and Gotra during the live ritual.',
+      AppLanguage.hi: 'हमारे वैदिक पंडित लाइव अनुष्ठान के दौरान आपके पवित्र नाम और गोत्र का उच्चारण करेंगे।',
+      AppLanguage.sa: 'अस्माकं वैदिकाः विप्राः अनुष्ठाने भवतां नाम गोत्रं च उच्चारयिष्यन्ति।',
+      AppLanguage.gu: 'અમારા વૈદિક પંડિતો લાઈવ પૂજા દરમિયાન તમારા નામ અને ગોત્રનું ઉચ્ચારણ કરશે.',
+      AppLanguage.mr: 'आमचे वैदिक पंडित थेट पूजेदरम्यान तुमच्या पवित्र नावाचा आणि गोत्राचा उच्चार करतील.',
+      AppLanguage.bho: 'हमार वैदिक पंडित लाइव पूजा में राउर नाम आ गोत्र के उच्चारण करिहें।',
+      AppLanguage.mai: 'हमर वैदिक पंडित लाइव पूजा मे अहाँक नाम आ गोत्रक उच्चारण करताह।',
+    },
+    'devotee_name': {
+      AppLanguage.en: 'Devotee / Family Head Name *',
+      AppLanguage.hi: 'यजमान / परिवार के मुखिया का नाम *',
+      AppLanguage.sa: 'यजमानस्य / कुलप्रमुखस्य नाम *',
+      AppLanguage.gu: 'યજમાન / કુટુંબના વડાનું નામ *',
+      AppLanguage.mr: 'यजमान / कुटुंब प्रमुखाचे नाव *',
+      AppLanguage.bho: 'यजमान / परिवार के मुखिया के नाम *',
+      AppLanguage.mai: 'यजमान / परिवारक मुखियाक नाम *',
+    },
+    'gotra_hint': {
+      AppLanguage.en: 'Gotra (or Kashyap)',
+      AppLanguage.hi: 'गोत्र (अथवा कश्यप)',
+      AppLanguage.sa: 'गोत्रम् (अथवा कश्यपः)',
+      AppLanguage.gu: 'ગોત્ર (અથવા કશ્યપ)',
+      AppLanguage.mr: 'गोत्र (किंवा कश्यप)',
+      AppLanguage.bho: 'गोत्र (चाहे कश्यप)',
+      AppLanguage.mai: 'गोत्र (अथवा कश्यप)',
+    },
+    'whatsapp_number': {
+      AppLanguage.en: 'WhatsApp No. *',
+      AppLanguage.hi: 'व्हाट्सएप नंबर *',
+      AppLanguage.sa: 'व्हाट्सएप सङ्ख्या *',
+      AppLanguage.gu: 'વોટ્સએપ નંબર *',
+      AppLanguage.mr: 'व्हॉट्सअ‍ॅप क्रमांक *',
+      AppLanguage.bho: 'व्हाट्सएप नंबर *',
+      AppLanguage.mai: 'व्हाट्सएप नंबर *',
+    },
+    'sankalp_wish': {
+      AppLanguage.en: 'Sankalp Wish / Manoratha',
+      AppLanguage.hi: 'संकल्प की कामना / मनोरथ',
+      AppLanguage.sa: 'सङ्कल्पकामना / मनोरथः',
+      AppLanguage.gu: 'સંકલ્પ કામના / મનોકામના',
+      AppLanguage.mr: 'संकल्प कामना / मनोरथ',
+      AppLanguage.bho: 'संकल्प के कामना / मनोरथ',
+      AppLanguage.mai: 'संकल्पक कामना / मनोरथ',
+    },
+    'sankalp_wish_hint': {
+      AppLanguage.en: 'e.g. Health, Business Success, Peace',
+      AppLanguage.hi: 'उदा. उत्तम स्वास्थ्य, व्यापार वृद्धि, शांति',
+      AppLanguage.sa: 'यथा उत्तमस्वास्थ्यम्, व्यवसायवृद्धिः, शान्तिः',
+      AppLanguage.gu: 'દા.ત. સારું સ્વાસ્થ્ય, વ્યાપાર વૃદ્ધિ, શાંતિ',
+      AppLanguage.mr: 'उदा. उत्तम आरोग्य, व्यवसाय वाढ, शांती',
+      AppLanguage.bho: 'उदा. नीमन स्वास्थ्य, व्यापार वृद्धि, शांति',
+      AppLanguage.mai: 'उदा. उत्तम स्वास्थ्य, व्यापार वृद्धि, शांति',
+    },
+    'deliver_holy_prasad_to': {
+      AppLanguage.en: 'Deliver Holy Prasad to',
+      AppLanguage.hi: 'पवित्र प्रसाद वितरण पता',
+      AppLanguage.sa: 'पवित्रप्रसादप्रेषणस्थानम्',
+      AppLanguage.gu: 'પવિત્ર પ્રસાદ વિતરણ સરનામું',
+      AppLanguage.mr: 'पवित्र प्रसाद वितरण पत्ता',
+      AppLanguage.bho: 'पवित्र प्रसाद पहुँचावे के पता',
+      AppLanguage.mai: 'पवित्र प्रसाद पठबै कऽ पता',
+    },
+    'deliver_to': {
+      AppLanguage.en: 'Deliver to',
+      AppLanguage.hi: 'वितरण पता',
+      AppLanguage.sa: 'प्रेषणस्थानम्',
+      AppLanguage.gu: 'વિતરણ સરનામું',
+      AppLanguage.mr: 'वितरण पत्ता',
+      AppLanguage.bho: 'पहुँचावे के पता',
+      AppLanguage.mai: 'वितरण पता',
+    },
+    'add_delivery_address': {
+      AppLanguage.en: 'Add delivery address',
+      AppLanguage.hi: 'वितरण पता जोड़ें',
+      AppLanguage.sa: 'सङ्केतं योजयतु',
+      AppLanguage.gu: 'સરનામું ઉમેરો',
+      AppLanguage.mr: 'पत्ता जोडा',
+      AppLanguage.bho: 'पता जोड़ीं',
+      AppLanguage.mai: 'पता जोड़ू',
+    },
+    'new_address': {
+      AppLanguage.en: 'New address',
+      AppLanguage.hi: '+ नया पता',
+      AppLanguage.sa: '+ नूतनसङ्केतः',
+      AppLanguage.gu: '+ નવું સરનામું',
+      AppLanguage.mr: '+ नवीन पत्ता',
+      AppLanguage.bho: '+ नया पता',
+      AppLanguage.mai: '+ नव पता',
+    },
+    'order_item': {
+      AppLanguage.en: 'Item',
+      AppLanguage.hi: 'पूजन / सेवा',
+      AppLanguage.sa: 'सेवा',
+      AppLanguage.gu: 'પૂજન / સેવા',
+      AppLanguage.mr: 'पूजन / सेवा',
+      AppLanguage.bho: 'पूजन / सेवा',
+      AppLanguage.mai: 'पूजन / सेवा',
+    },
+    'order_price': {
+      AppLanguage.en: 'Price',
+      AppLanguage.hi: 'दक्षिणा / मूल्य',
+      AppLanguage.sa: 'दक्षिणा',
+      AppLanguage.gu: 'દક્ષિણા / કિંમત',
+      AppLanguage.mr: 'दक्षिणा / किंमत',
+      AppLanguage.bho: 'दक्षिणा',
+      AppLanguage.mai: 'दक्षिणा',
+    },
+    'order_payment': {
+      AppLanguage.en: 'Payment',
+      AppLanguage.hi: 'भुगतान प्रकार',
+      AppLanguage.sa: 'भुगतानम्',
+      AppLanguage.gu: 'ચૂકવણી',
+      AppLanguage.mr: 'पेमेंट',
+      AppLanguage.bho: 'भुगतान',
+      AppLanguage.mai: 'भुगतान',
+    },
+    'wallet_balance_text': {
+      AppLanguage.en: 'Wallet balance',
+      AppLanguage.hi: 'वॉलेट शेष',
+      AppLanguage.sa: 'वॉलेटशेषम्',
+      AppLanguage.gu: 'વોલેટ બેલેન્સ',
+      AppLanguage.mr: 'वॉलेट शिल्लक',
+      AppLanguage.bho: 'वॉलेट बैलेंस',
+      AppLanguage.mai: 'वॉलेट बैलेंस',
+    },
+    'wallet_deduct_notice': {
+      AppLanguage.en: 'The order amount is deducted from your wallet balance by the server. Recharge in the wallet if it is low.',
+      AppLanguage.hi: 'ऑर्डर राशि आपके वॉलेट बैलेंस से स्वतः कट जाएगी। शेष राशि कम होने पर वॉलेट रिचार्ज करें।',
+      AppLanguage.sa: 'आदेशराशिः भवतः वॉलेटशेषात् स्वयमेव अपकर्तिष्यते। न्यूने सति पुनराधानं कुर्वन्तु।',
+      AppLanguage.gu: 'ઓર્ડરની રકમ તમારા વોલેટમાંથી કાપવામાં આવશે. ઓછી હોય તો વોલેટ રિચાર્જ કરો.',
+      AppLanguage.mr: 'ऑर्डरची रक्कम तुमच्या वॉलेटमधून वजा केली जाईल. शिल्लक कमी असल्यास रिचार्ज करा.',
+      AppLanguage.bho: 'ऑर्डर राशि राउर वॉलेट बैलेंस से कट जाई। बैलेंस कम होखे त रिचार्ज करीं।',
+      AppLanguage.mai: 'ऑर्डरक राशि अहाँक वॉलेट बैलेंस सं कटि जायत। बैलेंस कम रहला पर रिचार्ज करू।',
+    },
+    'place_order': {
+      AppLanguage.en: 'Place order',
+      AppLanguage.hi: 'संकल्प लें एवं ऑर्डर करें',
+      AppLanguage.sa: 'सङ्कल्पं स्वीकरोतु',
+      AppLanguage.gu: 'ઓર્ડર પૂર્ણ કરો',
+      AppLanguage.mr: 'ऑर्डर पूर्ण करा',
+      AppLanguage.bho: 'ऑर्डर करीं',
+      AppLanguage.mai: 'ऑर्डर करू',
+    },
+    'family_gotra_vault': {
+      AppLanguage.en: 'Family Gotra Vault',
+      AppLanguage.hi: 'पारिवारिक गोत्र सूची',
+      AppLanguage.sa: 'पारिवारिकगोत्रसञ्चयः',
+      AppLanguage.gu: 'કૌટુંબિક ગોત્ર યાદી',
+      AppLanguage.mr: 'कौटुंबिक गोत्र यादी',
+      AppLanguage.bho: 'पारिवारिक गोत्र लिस्ट',
+      AppLanguage.mai: 'पारिवारिक गोत्र सूची',
+    },
     'app_title': {
       AppLanguage.en: 'OnlinePuja.live',
       AppLanguage.hi: 'ऑनलाइन पूजा',

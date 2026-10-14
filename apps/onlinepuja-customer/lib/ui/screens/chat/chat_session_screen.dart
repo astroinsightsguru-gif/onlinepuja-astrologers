@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
+import '../profile/wallet_screen.dart';
+import '../puja/puja_list_screen.dart';
 
 /// 1:1 consultation chat with live wallet countdown ticker and quick Kundli intake.
 class ChatSessionScreen extends StatefulWidget {
@@ -12,6 +15,7 @@ class ChatSessionScreen extends StatefulWidget {
     super.key,
     required this.astrologerId,
     required this.astrologerName,
+    this.ratePerMinute = 15.0,
     this.sessionId,
     this.isFree = false,
   });
@@ -20,6 +24,7 @@ class ChatSessionScreen extends StatefulWidget {
 
   final int astrologerId;
   final String astrologerName;
+  final double ratePerMinute;
   final String? sessionId;
   final bool isFree;
 
@@ -34,6 +39,7 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   String? _sessionId;
   List<ChatMessage> _messages = const [];
   bool _sending = false;
+  bool _ending = false;
   Object? _error;
   Duration _elapsed = Duration.zero;
   DateTime? _sessionStart;
@@ -66,6 +72,46 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   Future<void> _openOrReuse() async {
     final session = context.read<AppSession>();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please log in to start a consultation.')),
+        );
+        Navigator.of(context).pop();
+      }
+      return;
+    }
+    final balance = session.user?.walletAmount ?? 0;
+    final rate = widget.ratePerMinute > 0 ? widget.ratePerMinute : 15.0;
+    if (!widget.isFree && balance < rate) {
+      if (mounted) {
+        final recharge = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Insufficient Wallet Balance'),
+            content: Text(
+              'Your wallet balance is ₹${balance.toStringAsFixed(0)}. You need at least ₹${rate.toStringAsFixed(0)} to chat with ${widget.astrologerName}.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Recharge Wallet'),
+              ),
+            ],
+          ),
+        );
+        if (recharge == true && mounted) {
+          Navigator.of(context).pushReplacementNamed(WalletScreen.route);
+        } else if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+      return;
+    }
     final userId = session.user?.id ?? 0;
     try {
       _sessionId ??= await AstrologerApi.instance
@@ -78,7 +124,11 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
       _sessionStart ??= DateTime.now();
       if (!mounted) return;
       await _fetch();
-      _poller = Timer.periodic(const Duration(seconds: 3), (_) => _fetch());
+      _poller = Timer.periodic(const Duration(seconds: 3), (_) {
+        if (!mounted) return;
+        _fetch();
+        _checkWalletExpiry();
+      });
       setState(() {});
 
       // Auto-send Kundli Intake details on first session message
@@ -89,7 +139,7 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
           final tob = (u.birthTime != null && u.birthTime!.isNotEmpty) ? u.birthTime! : 'Not specified';
           final pob = (u.birthPlace != null && u.birthPlace!.isNotEmpty) ? u.birthPlace! : 'India';
           final intake = '🕉️ [Kundli Intake Details]\n'
-              '• Name: ${u.displayName}\n'
+              '• Name: ${u.name ?? "Devotee"}\n'
               '• Gender: ${u.gender ?? "Not specified"}\n'
               '• DOB: $dob\n'
               '• Time: $tob\n'
@@ -100,6 +150,41 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
       }
     } catch (e) {
       if (mounted) setState(() => _error = e);
+    }
+  }
+
+  void _checkWalletExpiry() {
+    if (_ending || _sessionId == null) return;
+    final session = context.read<AppSession>();
+    final balance = session.user?.walletAmount ?? 0;
+    final rate = widget.ratePerMinute > 0 ? widget.ratePerMinute : 15.0;
+    final totalAllowedSecs = widget.isFree ? 300 : ((balance / rate) * 60).floor();
+    final remainingSecs = totalAllowedSecs - _elapsed.inSeconds;
+
+    if (remainingSecs <= 0) {
+      _autoEndChat();
+    }
+  }
+
+  Future<void> _autoEndChat() async {
+    if (_ending) return;
+    _ending = true;
+    _poller?.cancel();
+    try {
+      if (_sessionId != null) {
+        await AstrologerApi.instance.endChat(sessionId: _sessionId!);
+      }
+    } catch (_) {}
+    if (mounted) {
+      showSnack(context, 'Chat consultation ended: Wallet balance exhausted.', error: true);
+      await showConsultationFeedbackDialog(
+        context: context,
+        astrologerId: widget.astrologerId,
+        astrologerName: widget.astrologerName,
+      );
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -185,12 +270,14 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
       await AstrologerApi.instance.endChat(sessionId: _sessionId!);
     } catch (_) {}
     if (mounted) {
-      Navigator.of(context).pop();
-      showConsultationFeedbackDialog(
+      await showConsultationFeedbackDialog(
         context: context,
         astrologerId: widget.astrologerId,
         astrologerName: widget.astrologerName,
       );
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -200,54 +287,213 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
     return '${_elapsed.inHours}:$m:$s';
   }
 
+  Future<void> _quickRecharge(double amount) async {
+    try {
+      final payUrl = await WalletApi.instance.addPayment(amount: amount);
+      if (payUrl != null && payUrl.isNotEmpty) {
+        final uri = Uri.parse(payUrl);
+        final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
+      if (!mounted) return;
+      await context.read<AppSession>().refreshUser();
+      if (!mounted) return;
+      showSnack(context, 'Wallet refreshed! Consultation extended.');
+      setState(() {});
+    } on ApiException catch (e) {
+      if (mounted) showSnack(context, e.message, error: true);
+    } catch (_) {}
+  }
+
+  void _showQuickRechargeSheet(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final session = context.read<AppSession>();
+    final balance = session.user?.walletAmount ?? 0;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.bolt_rounded, color: Colors.amber, size: 28),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Quick Talktime Top-Up',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('Current balance: ₹${balance.toStringAsFixed(0)} • Keep talking without disconnect',
+                            style: TextStyle(fontSize: 12, color: scheme.outline)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _rechargeOptionButton(
+                      ctx,
+                      amount: 50,
+                      label: '₹50',
+                      sublabel: 'Basic',
+                      isPopular: false,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _rechargeOptionButton(
+                      ctx,
+                      amount: 100,
+                      label: '₹100',
+                      sublabel: 'Most Popular',
+                      isPopular: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _rechargeOptionButton(
+                      ctx,
+                      amount: 200,
+                      label: '₹200',
+                      sublabel: 'Best Value',
+                      isPopular: false,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.of(context).pushNamed(WalletScreen.route);
+                  },
+                  icon: const Icon(Icons.account_balance_wallet_outlined, size: 18),
+                  label: const Text('View All Recharge Packs'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _rechargeOptionButton(
+    BuildContext ctx, {
+    required double amount,
+    required String label,
+    required String sublabel,
+    required bool isPopular,
+  }) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(ctx);
+        _quickRecharge(amount);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isPopular ? Colors.amber.shade50 : Theme.of(ctx).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPopular ? Colors.amber.shade700 : Colors.grey.shade300,
+            width: isPopular ? 1.8 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isPopular ? Colors.amber.shade900 : null,
+                )),
+            const SizedBox(height: 4),
+            Text(sublabel,
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: isPopular ? Colors.amber.shade800 : Colors.grey.shade600,
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final session = context.watch<AppSession>();
+    final balance = session.user?.walletAmount ?? 0;
+    final rate = widget.ratePerMinute > 0 ? widget.ratePerMinute : 15.0;
+    final totalAllowedSecs = widget.isFree ? 300 : ((balance / rate) * 60).floor();
+    final remainingSecs = (totalAllowedSecs - _elapsed.inSeconds).clamp(0, 99999);
+    final remMin = (remainingSecs / 60).floor();
+    final remSec = (remainingSecs % 60).toString().padLeft(2, '0');
+    final isLowBalance = !widget.isFree && remainingSecs <= 120 && remainingSecs > 0;
+
     return Scaffold(
       appBar: AppBar(
-        title: Builder(
-          builder: (ctx) {
-            final session = ctx.watch<AppSession>();
-            final balance = session.user?.walletAmount ?? 0;
-            const rate = 15.0; // default consultation rate per min
-            final totalAllowedSecs = widget.isFree ? 300 : ((balance / rate) * 60).floor();
-            final remainingSecs = (totalAllowedSecs - _elapsed.inSeconds).clamp(0, 99999);
-            final remMin = (remainingSecs / 60).floor();
-            final remSec = (remainingSecs % 60).toString().padLeft(2, '0');
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.astrologerName,
+                style: Theme.of(context).textTheme.titleMedium),
+            Row(
               children: [
-                Text(widget.astrologerName,
-                    style: Theme.of(context).textTheme.titleMedium),
-                Row(
-                  children: [
-                    Text('⏱️ $_timerLabel',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: scheme.outline)),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                      decoration: BoxDecoration(
-                        color: remainingSecs < 120 ? Colors.red.shade100 : Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        widget.isFree ? 'FREE ($remMin:$remSec)' : '⏳ $remMin:$remSec left (₹${balance.toStringAsFixed(0)})',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: remainingSecs < 120 ? Colors.red.shade800 : Colors.green.shade800,
-                        ),
-                      ),
+                Text('⏱️ $_timerLabel',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: scheme.outline)),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                  decoration: BoxDecoration(
+                    color: remainingSecs < 120 ? Colors.red.shade100 : Colors.green.shade100,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    widget.isFree ? 'FREE ($remMin:$remSec)' : '⏳ $remMin:$remSec left (₹${balance.toStringAsFixed(0)})',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: remainingSecs < 120 ? Colors.red.shade800 : Colors.green.shade800,
                     ),
-                  ],
+                  ),
                 ),
               ],
-            );
-          },
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -273,6 +519,45 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
                               _bubble(context, _messages[i]),
                         ),
                 ),
+                if (isLowBalance)
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.amber.shade600, width: 1.2),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.hourglass_bottom_rounded, color: Colors.amber.shade800, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '⚠️ Talktime ends in $remMin:$remSec. Top up to stay connected.',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        FilledButton.tonal(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.amber.shade800,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () => _showQuickRechargeSheet(context),
+                          child: const Text('⚡ Add ₹100', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -326,6 +611,16 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   Widget _bubble(BuildContext context, ChatMessage m) {
     final scheme = Theme.of(context).colorScheme;
     final mine = m.isMine;
+
+    // Check if this message is a Vedic Remedy / Puja prescription
+    final isRemedy = m.text.contains('[Vedic Remedy Recommendation]') ||
+        m.text.contains('[Puja Prescription]') ||
+        m.text.startsWith('🌸 [Vedic Remedy');
+
+    if (isRemedy) {
+      return _remedyBubble(context, m);
+    }
+
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -348,6 +643,107 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
           m.text,
           style: TextStyle(
               color: mine ? Colors.white : scheme.onSurface, height: 1.3),
+        ),
+      ),
+    );
+  }
+
+  Widget _remedyBubble(BuildContext context, ChatMessage m) {
+    final cleanText = m.text
+        .replaceAll('🌸 [Vedic Remedy Recommendation]:', '')
+        .replaceAll('[Vedic Remedy Recommendation]:', '')
+        .replaceAll('[Puja Prescription]:', '')
+        .trim();
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.85),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.amber.shade50,
+              Colors.orange.shade50,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFD97706), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amber.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD97706),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.temple_hindu_rounded,
+                        color: Colors.white, size: 16),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'VEDIC REMEDY PRESCRIBED',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.6,
+                        color: Color(0xFFB45309),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                cleanText,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                  color: Color(0xFF451A03),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFD97706),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                  icon: const Icon(Icons.auto_awesome, size: 16),
+                  label: const Text(
+                    'Book Recommended Ritual',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, PujaListScreen.route);
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

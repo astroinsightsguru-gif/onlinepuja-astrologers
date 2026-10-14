@@ -98,9 +98,27 @@ class PujaApi {
     return _asMap(decoded);
   }
 
-  /// A single puja by id — falls back to filtering the list response since
-  /// the legacy backend has no dedicated detail endpoint.
+  /// Fetch full puja details by id from backend (`/getPujaDetails`).
+  Future<Puja?> detail(dynamic pujaId) async {
+    try {
+      final decoded = await _api.post('/getPujaDetails', body: {'id': pujaId});
+      final map = _asMap(decoded);
+      if (map.isNotEmpty) {
+        return Puja.fromJson(map);
+      }
+    } catch (_) {}
+    return byId(pujaId: pujaId);
+  }
+
+  /// A single puja by id — attempts detail first, falls back to list filter.
   Future<Puja?> byId({required dynamic pujaId}) async {
+    try {
+      final decoded = await _api.post('/getPujaDetails', body: {'id': pujaId});
+      final map = _asMap(decoded);
+      if (map.isNotEmpty) {
+        return Puja.fromJson(map);
+      }
+    } catch (_) {}
     final all = await list();
     for (final p in all) {
       if (p.id.toString() == pujaId.toString()) return p;

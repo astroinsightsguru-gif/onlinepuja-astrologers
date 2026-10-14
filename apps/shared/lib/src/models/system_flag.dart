@@ -39,6 +39,9 @@ class SystemFlags {
     return fallback;
   }
 
+  String get(String name, [String fallback = '']) => call(name, fallback);
+  String get oneSignalAppId => call('OneSignalAppId', '');
+
   String get appName => call('AppName', 'Online Puja');
   String get currency => call('currency', '₹');
   String get appVersion => call('appVersion', '1.0.0');

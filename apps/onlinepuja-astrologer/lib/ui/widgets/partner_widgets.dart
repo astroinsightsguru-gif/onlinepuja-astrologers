@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:op_shared/op_shared.dart';
 import '../theme/partner_theme.dart';
 
 /// Elevated card with subtle border highlight and shadow.
@@ -369,33 +370,36 @@ class SegmentedPills extends StatelessWidget {
 }
 
 /// Devotee Birth Details & Kundli Bottom Sheet (Accessible during call, chat & requests).
-class DevoteeKundliSheet extends StatelessWidget {
+class DevoteeKundliSheet extends StatefulWidget {
   const DevoteeKundliSheet({
     super.key,
     required this.devoteeName,
-    this.birthDate = '15 Aug 1994',
-    this.birthTime = '08:45 AM',
-    this.birthPlace = 'Varanasi, Uttar Pradesh',
-    this.rashi = 'Simha (Leo)',
-    this.nakshatra = 'Purva Phalguni',
-    this.lagna = 'Kanya (Virgo)',
-    this.concern = 'Career promotion & Marriage timing consultation',
-    this.gender = 'Male',
+    this.userId,
+    this.birthDate,
+    this.birthTime,
+    this.birthPlace,
+    this.rashi,
+    this.nakshatra,
+    this.lagna,
+    this.concern,
+    this.gender,
   });
 
   final String devoteeName;
-  final String birthDate;
-  final String birthTime;
-  final String birthPlace;
-  final String rashi;
-  final String nakshatra;
-  final String lagna;
-  final String concern;
-  final String gender;
+  final int? userId;
+  final String? birthDate;
+  final String? birthTime;
+  final String? birthPlace;
+  final String? rashi;
+  final String? nakshatra;
+  final String? lagna;
+  final String? concern;
+  final String? gender;
 
   static void show(
     BuildContext context, {
     required String devoteeName,
+    int? userId,
     String? birthDate,
     String? birthTime,
     String? birthPlace,
@@ -411,16 +415,71 @@ class DevoteeKundliSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => DevoteeKundliSheet(
         devoteeName: devoteeName,
-        birthDate: birthDate ?? '15 Aug 1994',
-        birthTime: birthTime ?? '08:45 AM',
-        birthPlace: birthPlace ?? 'Varanasi, Uttar Pradesh',
-        rashi: rashi ?? 'Simha (Leo)',
-        nakshatra: nakshatra ?? 'Purva Phalguni',
-        lagna: lagna ?? 'Kanya (Virgo)',
-        concern: concern ?? 'Career & Life Path Astrology',
-        gender: gender ?? 'Male',
+        userId: userId,
+        birthDate: birthDate,
+        birthTime: birthTime,
+        birthPlace: birthPlace,
+        rashi: rashi,
+        nakshatra: nakshatra,
+        lagna: lagna,
+        concern: concern,
+        gender: gender,
       ),
     );
+  }
+
+  @override
+  State<DevoteeKundliSheet> createState() => _DevoteeKundliSheetState();
+}
+
+class _DevoteeKundliSheetState extends State<DevoteeKundliSheet> {
+  late String _birthDate;
+  late String _birthTime;
+  late String _birthPlace;
+  late String _rashi;
+  late String _nakshatra;
+  late String _lagna;
+  late String _concern;
+  late String _gender;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _birthDate = widget.birthDate ?? 'Not Provided';
+    _birthTime = widget.birthTime ?? 'Not Provided';
+    _birthPlace = widget.birthPlace ?? 'Not Provided';
+    _rashi = widget.rashi ?? 'Pending Calculation';
+    _nakshatra = widget.nakshatra ?? 'Pending Calculation';
+    _lagna = widget.lagna ?? 'Pending Calculation';
+    _concern = widget.concern ?? 'General Astrological Guidance';
+    _gender = widget.gender ?? 'Not Specified';
+
+    if (widget.userId != null && widget.userId! > 0) {
+      _loadIntake();
+    }
+  }
+
+  Future<void> _loadIntake() async {
+    setState(() => _loading = true);
+    try {
+      final data = await AstrologerApi.instance.getIntakeForm(userId: widget.userId);
+      if (data != null && mounted) {
+        setState(() {
+          if (data['birthDate'] != null) _birthDate = data['birthDate'].toString();
+          if (data['birthTime'] != null) _birthTime = data['birthTime'].toString();
+          if (data['birthPlace'] != null) _birthPlace = data['birthPlace'].toString();
+          if (data['gender'] != null) _gender = data['gender'].toString();
+          if (data['rashi'] != null) _rashi = data['rashi'].toString();
+          if (data['nakshatra'] != null) _nakshatra = data['nakshatra'].toString();
+          if (data['lagna'] != null) _lagna = data['lagna'].toString();
+          if (data['concern'] != null || data['problem'] != null) {
+            _concern = (data['concern'] ?? data['problem']).toString();
+          }
+        });
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loading = false);
   }
 
   @override
@@ -478,7 +537,7 @@ class DevoteeKundliSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      devoteeName,
+                      widget.devoteeName,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -486,7 +545,9 @@ class DevoteeKundliSheet extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Devotee Horoscope & Birth Details',
+                      _loading
+                          ? 'Fetching birth chart details...'
+                          : 'Devotee Horoscope & Birth Details',
                       style: TextStyle(
                         fontSize: 12,
                         color: dark ? Colors.white60 : Colors.black54,
@@ -535,7 +596,7 @@ class DevoteeKundliSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        concern,
+                        _concern,
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -563,14 +624,14 @@ class DevoteeKundliSheet extends StatelessWidget {
             crossAxisSpacing: 10,
             childAspectRatio: 2.3,
             children: [
-              _infoTile(context, Icons.calendar_today_rounded, 'Date of Birth', birthDate),
-              _infoTile(context, Icons.access_time_rounded, 'Time of Birth', birthTime),
-              _infoTile(context, Icons.location_on_rounded, 'Place of Birth', birthPlace),
-              _infoTile(context, Icons.person_outline_rounded, 'Gender', gender),
-              _infoTile(context, Icons.wb_sunny_outlined, 'Lagna (Ascendant)', lagna),
-              _infoTile(context, Icons.nightlight_round, 'Moon Sign (Rashi)', rashi),
-              _infoTile(context, Icons.star_border_rounded, 'Birth Nakshatra', nakshatra),
-              _infoTile(context, Icons.security_rounded, 'Kundli Status', 'Manglik: Mild'),
+              _infoTile(context, Icons.calendar_today_rounded, 'Date of Birth', _birthDate),
+              _infoTile(context, Icons.access_time_rounded, 'Time of Birth', _birthTime),
+              _infoTile(context, Icons.location_on_rounded, 'Place of Birth', _birthPlace),
+              _infoTile(context, Icons.person_outline_rounded, 'Gender', _gender),
+              _infoTile(context, Icons.wb_sunny_outlined, 'Lagna (Ascendant)', _lagna),
+              _infoTile(context, Icons.nightlight_round, 'Moon Sign (Rashi)', _rashi),
+              _infoTile(context, Icons.star_border_rounded, 'Birth Nakshatra', _nakshatra),
+              _infoTile(context, Icons.security_rounded, 'Kundli Status', 'Manglik: Verified'),
             ],
           ),
         ],

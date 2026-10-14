@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:op_shared/op_shared.dart';
 import '../../../app.dart';
 
@@ -217,10 +218,13 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   Widget _pujaOrderCard(BuildContext context, Map<String, dynamic> row) {
     final scheme = Theme.of(context).colorScheme;
     final id = row['id']?.toString() ?? '';
-    final name = (row['puja_name'] ?? 'Vedic Temple Puja').toString();
-    final amount = row['order_total_price'] ?? row['order_price'] ?? 0;
-    final status = (row['puja_order_status'] ?? 'Confirmed').toString();
+    final name = (row['puja_name'] ?? row['pujaTitle'] ?? 'Vedic Temple Puja').toString();
+    final amount = row['order_total_price'] ?? row['totalPrice'] ?? row['order_price'] ?? 0;
+    final status = (row['puja_order_status'] ?? row['orderStatus'] ?? 'Confirmed').toString();
     final date = (row['created_at'] ?? '').toString();
+    final temple = (row['templeLocation'] ?? row['puja_place'] ?? 'Kashi Vishwanath Sanctum, Varanasi').toString();
+    final packageTitle = (row['packageTitle'] ?? row['package_name'] ?? '').toString();
+    final videoUrl = (row['videoUrl'] ?? row['puja_video'] ?? '').toString().trim();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -265,6 +269,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           ),
           const SizedBox(height: 10),
           Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          if (packageTitle.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(packageTitle, style: TextStyle(color: AppTheme.brandSaffron, fontSize: 12, fontWeight: FontWeight.w600)),
+          ],
           const SizedBox(height: 4),
           Row(
             children: [
@@ -275,7 +283,29 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               ],
             ],
           ),
-          const SizedBox(height: 12),
+          if (videoUrl.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                icon: const Icon(Icons.play_circle_fill_rounded, size: 18),
+                label: const Text('📹 Watch Sacred Sankalp Video', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                onPressed: () async {
+                  final uri = Uri.tryParse(videoUrl);
+                  if (uri != null) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -290,7 +320,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 context.openPrasadamTracker(
                   orderId: 'OP-PUJA-$id',
                   pujaName: name,
-                  temple: 'Kashi Vishwanath Sanctum, Varanasi',
+                  temple: temple,
                   trackingCode: 'BD-${id}9824',
                 );
               },
@@ -323,8 +353,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, i) {
             final row = items[i];
-            final name = (row['productName'] ?? 'AstroMall Item').toString();
-            final price = row['productAmount'] ?? 0;
+            final name = (row['productName'] ?? row['name'] ?? 'AstroMall Item').toString();
+            final price = row['productAmount'] ?? row['productPrice'] ?? row['amount'] ?? 0;
             final date = (row['created_at'] ?? '').toString();
 
             return Card(

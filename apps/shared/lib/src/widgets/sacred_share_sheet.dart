@@ -247,7 +247,7 @@ class _SacredShareSheetState extends State<SacredShareSheet> {
               style: TextStyle(fontSize: 11),
             ),
             value: _includeReferral,
-            activeColor: const Color(0xFFD97706),
+            activeThumbColor: const Color(0xFFD97706),
             onChanged: (val) => setState(() => _includeReferral = val),
           ),
 

@@ -40,13 +40,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isHi = LocaleManager.instance.currentLanguage.value != AppLanguage.en;
     final p = widget.product;
     final images = p.images ?? const <String>[];
     final hasDiscount = p.discountPrice != null &&
         p.discountPrice != '' &&
         double.tryParse(p.discountPrice.toString()) != null;
     return Scaffold(
-      appBar: AppBar(title: Text(p.name?.toString() ?? 'Product')),
+      appBar: AppBar(title: Text(p.name?.toString() ?? (isHi ? 'वैदिक सामग्री' : 'Sacred Product'))),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -59,7 +60,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : Text('Order now · ₹${p.displayPrice.toStringAsFixed(0)}'),
+                : Text(isHi
+                    ? 'अभी आर्डर करें · ₹${p.displayPrice.toStringAsFixed(0)}'
+                    : 'Order now · ₹${p.displayPrice.toStringAsFixed(0)}'),
           ),
         ),
       ),
@@ -112,8 +115,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               const Spacer(),
               Text(
                 ((p.stock is int ? p.stock as int : int.tryParse(p.stock?.toString() ?? '') ?? 0)) > 0
-                    ? 'In stock'
-                    : 'Out of stock',
+                    ? (isHi ? 'उपलब्ध (In stock)' : 'In stock')
+                    : (isHi ? 'स्टॉक समाप्त' : 'Out of stock'),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: scheme.primary, fontWeight: FontWeight.w700),
               ),
@@ -121,7 +124,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           const SizedBox(height: 18),
           if ((p.description ?? '').toString().isNotEmpty) ...[
-            Text('Description',
+            Text(isHi ? 'सामग्री विवरण' : 'Description',
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium

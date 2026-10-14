@@ -61,7 +61,8 @@ class KundliApi {
     required double tz,
   }) async {
     final decoded = await _api.post('/kundali/basic', body: _astroBody(date, time, lat, lng, tz));
-    return KundliBasic.fromJson(_asMap(decoded));
+    final map = decoded is Map<String, dynamic> ? decoded : _asMap(decoded);
+    return KundliBasic.fromJson(map);
   }
 
   /// Full chart + planet details — legacy `kundali/chart`.

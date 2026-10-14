@@ -49,8 +49,44 @@ class _MallScreenState extends State<MallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isHi = LocaleManager.instance.currentLanguage.value != AppLanguage.en;
+
     return Scaffold(
-      appBar: AppBar(title: RichText(text: const TextSpan(children: [TextSpan(text: 'OnlinePuja', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.2)), TextSpan(text: '.live', style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w900, color: Color(0xFFD97706), letterSpacing: -0.2)), TextSpan(text: ' - AstroMall', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF64748B)))]))),
+      appBar: AppBar(
+        title: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'OnlinePuja',
+                style: TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const TextSpan(
+                text: '.live',
+                style: TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFFD97706),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              TextSpan(
+                text: isHi ? ' • वैदिक भण्डार' : ' • Sacred Store',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: _error != null
           ? StatusViews.error(context, _error!, onRetry: _load)
           : RefreshIndicator(
@@ -92,7 +128,10 @@ class _MallScreenState extends State<MallScreen> {
                       child: SizedBox(
                         height: 300,
                         child: StatusViews.empty(
-                            context, message: 'No products in this category'),
+                            context,
+                            message: isHi
+                                ? 'इस श्रेणी में अभी कोई सामग्री उपलब्ध नहीं है'
+                                : 'No sacred items in this category'),
                       ),
                     )
                   else
@@ -172,7 +211,7 @@ class _MallScreenState extends State<MallScreen> {
                   Row(
                     children: [
                       Text(
-                        'â¹${product.displayPrice.toStringAsFixed(0)}',
+                        '₹${product.displayPrice.toStringAsFixed(0)}',
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -183,7 +222,7 @@ class _MallScreenState extends State<MallScreen> {
                       if (hasDiscount) ...[
                         const SizedBox(width: 6),
                         Text(
-                          'â¹${double.tryParse(product.price?.toString() ?? '')?.toStringAsFixed(0) ?? '-'}',
+                          '₹${double.tryParse(product.price?.toString() ?? '')?.toStringAsFixed(0) ?? '-'}',
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

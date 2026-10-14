@@ -90,7 +90,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: CustomerTheme.brandGold.withOpacity(0.3)),
+                  border: Border.all(color: CustomerTheme.brandGold.withValues(alpha: 0.3)),
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -256,7 +256,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.12),
+            color: Colors.purple.withValues(alpha: 0.12),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -267,7 +267,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: CustomerTheme.brandGold.withOpacity(0.2),
+              color: CustomerTheme.brandGold.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.video_library_rounded,
@@ -307,10 +307,10 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.black.withOpacity(0.08)),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -351,7 +351,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withOpacity(0.2),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFF10B981)),
                   ),

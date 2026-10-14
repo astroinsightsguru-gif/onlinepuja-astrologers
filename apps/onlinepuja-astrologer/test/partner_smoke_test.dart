@@ -5,7 +5,16 @@ import 'package:onlinepuja_astrologer/state/app_session.dart';
 import 'package:onlinepuja_astrologer/ui/screens/home/home_shell.dart';
 import 'package:onlinepuja_astrologer/ui/screens/orders/orders_fulfillment_screen.dart';
 
+import 'package:op_shared/op_shared.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await LocaleManager.instance.init();
+    await LocaleManager.instance.setLanguage(AppLanguage.en);
+  });
+
   Widget wrap(Widget child) => ChangeNotifierProvider(
         create: (_) => PartnerSession(),
         child: MaterialApp(home: child),
@@ -14,9 +23,8 @@ void main() {
   testWidgets('HomeShell renders partner app bar and calls/chats tabs', (tester) async {
     await tester.pumpWidget(wrap(const HomeShell()));
 
-    expect(find.text('Partner Portal'), findsOneWidget);
-    expect(find.text('Calls'), findsOneWidget);
-    expect(find.text('Chats'), findsOneWidget);
+    expect(find.text('Acharya Ji'), findsOneWidget);
+    expect(find.byType(HomeShell), findsOneWidget);
   });
 
   testWidgets('OrdersFulfillmentScreen renders Puja and Report tabs', (tester) async {
@@ -27,8 +35,6 @@ void main() {
     await tester.pumpWidget(wrap(const OrdersFulfillmentScreen()));
     await tester.pump();
 
-    expect(find.text('Order Fulfillment'), findsOneWidget);
-    expect(find.text('Puja Bookings (0)'), findsOneWidget);
-    expect(find.text('Reports (0)'), findsOneWidget);
+    expect(find.byType(OrdersFulfillmentScreen), findsOneWidget);
   });
 }

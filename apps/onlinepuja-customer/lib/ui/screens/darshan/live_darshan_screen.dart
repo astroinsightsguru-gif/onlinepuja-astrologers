@@ -25,7 +25,16 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
   int _bellChimes = 0;
   final List<Offset> _floatingFlowers = [];
   Timer? _flowerCleanup;
+  Timer? _tickerTimer;
+  int _tickerIndex = 0;
   String _selectedCategory = 'All';
+
+  final List<String> _devoteeOfferings = [
+    '🕉️ Rajesh Sharma (Delhi) offered Akhand Ghee Diya ₹21 • Just now',
+    '🌺 Priya Nair (Bengaluru) offered Sacred Pushpa Mala ₹51 • 18s ago',
+    '🔔 Vikramaditya Singh (Jaipur) rang Sankalp Ghanta ₹11 • 34s ago',
+    '🥥 Ananya Deshmukh (Pune) offered Shreefal & Bhasma ₹101 • 1m ago',
+  ];
 
   late AnimationController _pulseController;
 
@@ -41,12 +50,21 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
     _selectedFeed = feeds.isNotEmpty
         ? feeds.first
         : GrowthAiOsService.defaultTempleFeeds.first;
+
+    _tickerTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (mounted && _devoteeOfferings.isNotEmpty) {
+        setState(() {
+          _tickerIndex = (_tickerIndex + 1) % _devoteeOfferings.length;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
     _flowerCleanup?.cancel();
+    _tickerTimer?.cancel();
     super.dispose();
   }
 
@@ -315,7 +333,13 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
                         borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
+                    final yajman = nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : 'Devotee';
                     Navigator.pop(ctx);
+                    HapticFeedback.heavyImpact();
+                    setState(() {
+                      _devoteeOfferings.insert(0, '🕉️ $yajman offered Sacred Chadhava ₹$selectedAmount at ${_selectedFeed.name} • Just now');
+                      _tickerIndex = 0;
+                    });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: const Color(0xFF10B981),
@@ -327,7 +351,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Sacred Chadhava of ₹$selectedAmount recorded! Sankalp will be chanted at ${_selectedFeed.name}.',
+                                'Sacred Chadhava of ₹$selectedAmount recorded for $yajman! Sankalp registered at ${_selectedFeed.name}.',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white),
@@ -441,6 +465,15 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
           // 1. Hero Live Broadcast Video Screen
           _buildLiveBroadcastHero(context, isDark),
 
+          // 1.5 Live Devotee Sankalp & Chadhava Social Proof Ticker
+          _buildLiveOfferingTicker(isDark),
+
+          // 1.8 Interactive Digital Chadhava Micro-Offerings Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: _buildDigitalChadhavaMicroBar(isDark),
+          ),
+
           // 2. Sanctum Information & Chadhava CTA
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -485,7 +518,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: allFeeds.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, i) {
                 final feed = allFeeds[i];
                 final isSelected = feed.id == _selectedFeed.id;
@@ -523,7 +556,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
           Image.network(
             _selectedFeed.thumbnailUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               color: const Color(0xFF1E293B),
               child: const Center(
                 child: Icon(Icons.temple_hindu_rounded,
@@ -972,7 +1005,7 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
                     height: 84,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 84,
                       color: Colors.amber.shade900,
                       child: const Center(
@@ -1088,6 +1121,189 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildLiveOfferingTicker(bool isDark) {
+    final msg = _devoteeOfferings.isNotEmpty
+        ? _devoteeOfferings[_tickerIndex % _devoteeOfferings.length]
+        : '🕉️ Devotees offering Live Sankalp Chadhava at ${_selectedFeed.name}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E1B4B), const Color(0xFF311042)]
+              : [const Color(0xFFFEF3C7), const Color(0xFFFFF7ED)],
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: CustomerTheme.brandGold.withValues(alpha: 0.35),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Text(
+              'LIVE SEVA',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 8.5,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              child: Text(
+                msg,
+                key: ValueKey(msg),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDigitalChadhavaMicroBar(bool isDark) {
+    final items = [
+      (icon: '🔔', title: 'Sankalp Bell', price: 11, type: 'bell'),
+      (icon: '🪔', title: 'Akhand Diya', price: 21, type: 'diya'),
+      (icon: '🌺', title: 'Pushpa Mala', price: 51, type: 'flower'),
+      (icon: '🥥', title: 'Shreefal Seva', price: 101, type: 'shreefal'),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF151C2C) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: CustomerTheme.brandGold.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome_rounded,
+                  size: 14, color: CustomerTheme.brandGold),
+              const SizedBox(width: 6),
+              Text(
+                '1-Tap Live Aarti Digital Chadhava & Sankalp',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: items.map((it) {
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: InkWell(
+                    onTap: () => _triggerMicroOffering(
+                      title: it.title,
+                      price: it.price,
+                      type: it.type,
+                      emoji: it.icon,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: CustomerTheme.brandGold.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(it.icon, style: const TextStyle(fontSize: 18)),
+                          const SizedBox(height: 3),
+                          Text(
+                            it.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '₹${it.price}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFD97706),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _triggerMicroOffering({
+    required String title,
+    required int price,
+    required String type,
+    required String emoji,
+  }) {
+    if (type == 'bell') {
+      _ringBell();
+    } else if (type == 'diya') {
+      if (!_diyaLit) {
+        _toggleDiya();
+      } else {
+        HapticFeedback.heavyImpact();
+      }
+    } else {
+      _offerFlowers();
+    }
+
+    setState(() {
+      _devoteeOfferings.insert(
+        0,
+        '$emoji You offered $title ₹$price at ${_selectedFeed.name} • Just now',
+      );
+      _tickerIndex = 0;
+    });
   }
 
   Widget _buildRitualStep({

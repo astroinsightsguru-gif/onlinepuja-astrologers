@@ -29,6 +29,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _saving = false;
   bool _initialized = false;
 
+  // AI Twin Studio fields
+  bool _aiTwinEnabled = false;
+  bool _aiTwinAutoOffline = true;
+  String _aiTwinTone = 'empathetic';
+  final _aiTwinGreeting = TextEditingController();
+  final _aiTwinPrompt = TextEditingController();
+  final _aiTwinCharge = TextEditingController(text: '8');
+  bool _savingAiTwin = false;
+  Map<String, dynamic>? _aiTwinStats;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -37,6 +47,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _name.text = u?.name ?? '';
       _email.text = u?.email ?? '';
       _initialized = true;
+      _loadAiTwinStatus();
+    }
+  }
+
+  Future<void> _loadAiTwinStatus() async {
+    final u = context.read<PartnerSession>().user;
+    if (u?.id == null) return;
+    try {
+      final data = await AiTwinApi.instance.getAiTwinStatus(astrologerId: u!.id!);
+      if (mounted && data.isNotEmpty) {
+        setState(() {
+          _aiTwinEnabled = (data['ai_twin_enabled'] == 1 || data['ai_twin_enabled'] == true);
+          _aiTwinAutoOffline = (data['ai_twin_auto_offline'] == 1 || data['ai_twin_auto_offline'] == true);
+          _aiTwinTone = data['ai_twin_tone']?.toString() ?? 'empathetic';
+          _aiTwinGreeting.text = data['ai_twin_greeting']?.toString() ?? '';
+          _aiTwinPrompt.text = data['ai_twin_prompt']?.toString() ?? '';
+          _aiTwinCharge.text = (data['ai_twin_charge'] ?? 8).toString();
+          _aiTwinStats = data['stats'] is Map ? Map<String, dynamic>.from(data['stats'] as Map) : null;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading AI Twin status: $e');
+    }
+  }
+
+  Future<void> _saveAiTwin() async {
+    final u = context.read<PartnerSession>().user;
+    if (u?.id == null) return;
+    setState(() => _savingAiTwin = true);
+    try {
+      final chargeVal = double.tryParse(_aiTwinCharge.text.trim()) ?? 8.0;
+      await AiTwinApi.instance.setupAiTwin(
+        astrologerId: u!.id!,
+        enabled: _aiTwinEnabled,
+        tone: _aiTwinTone,
+        greeting: _aiTwinGreeting.text.trim(),
+        prompt: _aiTwinPrompt.text.trim(),
+        charge: chargeVal,
+        autoOffline: _aiTwinAutoOffline,
+      );
+      if (mounted) showSnack(context, 'Personal AI Twin Studio saved! 🕉️');
+      await _loadAiTwinStatus();
+    } catch (e) {
+      if (mounted) showSnack(context, 'Failed to save AI Twin: $e', error: true);
+    } finally {
+      if (mounted) setState(() => _savingAiTwin = false);
     }
   }
 
@@ -45,6 +101,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _name.dispose();
     _email.dispose();
     _bio.dispose();
+    _aiTwinGreeting.dispose();
+    _aiTwinPrompt.dispose();
+    _aiTwinCharge.dispose();
     super.dispose();
   }
 
@@ -235,6 +294,232 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () => _showRatesEditor(context, session),
               ),
             ],
+          ),
+          const SizedBox(height: 18),
+
+          // 🤖 Personal AI Twin Studio (Agentic 24/7 Twin)
+          PartnerCard(
+            borderColor: _aiTwinEnabled
+                ? const Color(0xFF8B5CF6).withValues(alpha: 0.6)
+                : PartnerTheme.gold.withValues(alpha: 0.3),
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7C3AED), Color(0xFFC026D3)],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Personal AI Twin Studio',
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF7C3AED),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  '24/7 AI',
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Earn 60% revenue while offline & asleep',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: dark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _aiTwinEnabled,
+                      activeThumbColor: const Color(0xFF8B5CF6),
+                      onChanged: (val) {
+                        setState(() => _aiTwinEnabled = val);
+                      },
+                    ),
+                  ],
+                ),
+
+                if (_aiTwinEnabled) ...[
+                  const SizedBox(height: 16),
+                  const Divider(height: 1),
+                  const SizedBox(height: 14),
+
+                  // Analytics / Earnings badge if available
+                  if (_aiTwinStats != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: dark ? const Color(0xFF1E1333) : const Color(0xFFF5F3FF),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                '${_aiTwinStats!['total_sessions'] ?? 0}',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'AI Consultations',
+                                style: TextStyle(fontSize: 10.5, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          Container(width: 1, height: 26, color: Colors.grey.withValues(alpha: 0.3)),
+                          Column(
+                            children: [
+                              Text(
+                                '₹${_aiTwinStats!['total_earnings'] ?? 0}',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: PartnerTheme.emerald),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Twin Earnings (60%)',
+                                style: TextStyle(fontSize: 10.5, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Auto-takeover when offline checkbox
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _aiTwinAutoOffline,
+                        activeColor: const Color(0xFF8B5CF6),
+                        onChanged: (v) => setState(() => _aiTwinAutoOffline = v ?? true),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Auto-activate Twin when my status is Offline',
+                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // AI Twin Rate
+                  TextFormField(
+                    controller: _aiTwinCharge,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'AI Twin Chat Rate (₹/min)',
+                      prefixIcon: Icon(Icons.currency_rupee_rounded, size: 18),
+                      helperText: 'Recommended: ₹5 to ₹15/min (60% credited to your wallet)',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // AI Personality Tone Selector
+                  const Text(
+                    'Speaking Persona Tone',
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      {'id': 'empathetic', 'label': 'Empathetic & Caring (करुणा)'},
+                      {'id': 'reverent', 'label': 'Reverent & Vedic (वैदिक)'},
+                      {'id': 'scholarly', 'label': 'Scholarly & Analytical (विद्वान)'},
+                      {'id': 'mystic', 'label': 'Mystic & Spiritual (गूढ़)'},
+                    ].map((tone) {
+                      final selected = _aiTwinTone == tone['id'];
+                      return ChoiceChip(
+                        label: Text(tone['label']!, style: const TextStyle(fontSize: 11)),
+                        selected: selected,
+                        selectedColor: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+                        onSelected: (_) => setState(() => _aiTwinTone = tone['id']!),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Custom Greeting
+                  TextFormField(
+                    controller: _aiTwinGreeting,
+                    decoration: const InputDecoration(
+                      labelText: 'Personal First Greeting',
+                      hintText: 'e.g. ॐ नमो नारायण। I am Acharya Ji\'s AI Twin...',
+                      prefixIcon: Icon(Icons.waving_hand_rounded, size: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Custom System Prompt / Philosophy
+                  TextFormField(
+                    controller: _aiTwinPrompt,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Custom Knowledge / Guiding Philosophy',
+                      hintText: 'e.g. Always emphasize Satvik lifestyle and Hanuman Chalisa remedies...',
+                      prefixIcon: Icon(Icons.psychology_rounded, size: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Save Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: _savingAiTwin ? null : _saveAiTwin,
+                      icon: _savingAiTwin
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.check_circle_outline_rounded, size: 18),
+                      label: Text(
+                        _savingAiTwin ? 'Saving Studio...' : 'Save AI Twin Settings',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 18),
 
