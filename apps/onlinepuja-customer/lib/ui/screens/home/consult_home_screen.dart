@@ -45,6 +45,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
   late Future<List<Puja>> _pujaFuture;
   Map<String, dynamic>? _firstConsultOffer;
   List<Map<String, dynamic>> _prescriptions = const [];
+  List<Map<String, dynamic>> _remoteBanners = const [];
   int _bannerIndex = 0;
 
   @override
@@ -79,6 +80,15 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
       if (mounted && list.isNotEmpty) {
         setState(() {
           _prescriptions = list;
+        });
+      }
+    } catch (_) {}
+    try {
+      final homeData = await MiscApi.instance.customerHome();
+      final bannerList = homeData['banner'];
+      if (mounted && bannerList is List && bannerList.isNotEmpty) {
+        setState(() {
+          _remoteBanners = bannerList.whereType<Map<String, dynamic>>().toList();
         });
       }
     } catch (_) {}
@@ -773,101 +783,51 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
       ),
     ];
 
+    final totalCount = _remoteBanners.length + curatedBanners.length;
+
     return Column(
       children: [
         SizedBox(
           height: 154,
           child: PageView.builder(
-            itemCount: curatedBanners.length,
+            itemCount: totalCount,
             onPageChanged: (i) => setState(() => _bannerIndex = i),
             itemBuilder: (context, i) {
-              final b = curatedBanners[i];
-
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: LinearGradient(
-                    colors: b.gradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: b.gradient.first.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              b.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              b.subtitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: b.gradient.first,
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                              onPressed: b.onTap,
-                              child: Text(
-                                b.cta,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11.5,
-                                ),
-                              ),
-                            ),
-                          ],
+              if (i < _remoteBanners.length) {
+                final rb = _remoteBanners[i];
+                final imageUrl = rb['bannerImage']?.toString() ?? '';
+                if (imageUrl.isNotEmpty) {
+                  return GestureDetector(
+                    onTap: () => _goToTab(2), // Navigate to Puja tab
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.18),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          errorBuilder: (_, error, stack) => _buildCuratedBannerCard(curatedBanners[0]),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor: Colors.white.withValues(alpha: 0.22),
-                        child: Icon(b.icon, size: 34, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+                    ),
+                  );
+                }
+              }
+
+              final b = curatedBanners[i - _remoteBanners.length];
+              return _buildCuratedBannerCard(b);
             },
           ),
         ),
@@ -875,7 +835,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (int i = 0; i < curatedBanners.length; i++)
+            for (int i = 0; i < totalCount; i++)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -891,6 +851,94 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildCuratedBannerCard(dynamic b) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(
+          colors: b.gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (b.gradient.first as Color).withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    b.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    b.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: b.gradient.first,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    onPressed: b.onTap,
+                    child: Text(
+                      b.cta,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: Colors.white.withValues(alpha: 0.22),
+              child: Icon(b.icon, size: 34, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
