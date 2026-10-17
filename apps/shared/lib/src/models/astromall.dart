@@ -66,7 +66,7 @@ class Product {
       slug: json['slug'],
       description: json['description'] ?? json['longDescription'],
       images: parsedImages,
-      price: json['price'],
+      price: json['price'] ?? json['amount'],
       discountPrice: json['discountPrice'] ?? json['discount_price'],
       stock: json['stock'],
       isActive: json['isActive'],

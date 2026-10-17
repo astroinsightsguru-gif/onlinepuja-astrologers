@@ -332,5 +332,162 @@ class GrowthEngineController extends Controller
             'amount' => $amount
         ]);
     }
+
+    /**
+     * 7. POST /api/user/consultation-history (and legacy /getallhistorydetail)
+     */
+    public function getConsultationHistory(Request $request)
+    {
+        $userId = $request->input('userId') ?? $request->json('userId') ?? auth()->id() ?? 0;
+        if ($userId <= 0 && auth()->check()) {
+            $userId = auth()->id();
+        }
+
+        $records = [];
+
+        // 1. Calls from callrequest
+        if (Schema::hasTable('callrequest')) {
+            $calls = DB::table('callrequest')
+                ->leftJoin('astrologers', 'astrologers.id', '=', 'callrequest.astrologerId')
+                ->where('callrequest.userId', $userId)
+                ->select(
+                    'callrequest.id',
+                    'callrequest.astrologerId',
+                    'callrequest.callStatus as status',
+                    'callrequest.totalMin as minutes',
+                    'callrequest.callRate as rate',
+                    'callrequest.deduction as amount',
+                    'callrequest.created_at',
+                    'astrologers.name as astrologerName',
+                    'astrologers.profileImage as astrologerProfile'
+                )
+                ->orderByDesc('callrequest.created_at')
+                ->limit(50)
+                ->get();
+
+            foreach ($calls as $c) {
+                $cData = (array) $c;
+                $cData['type'] = 'Call Consultation';
+                $records[] = $cData;
+            }
+        }
+
+        // 2. Chats from chatrequest
+        if (Schema::hasTable('chatrequest')) {
+            $chats = DB::table('chatrequest')
+                ->leftJoin('astrologers', 'astrologers.id', '=', 'chatrequest.astrologerId')
+                ->where('chatrequest.userId', $userId)
+                ->select(
+                    'chatrequest.id',
+                    'chatrequest.astrologerId',
+                    'chatrequest.chatStatus as status',
+                    'chatrequest.totalMin as minutes',
+                    'chatrequest.chatRate as rate',
+                    'chatrequest.deduction as amount',
+                    'chatrequest.created_at',
+                    'astrologers.name as astrologerName',
+                    'astrologers.profileImage as astrologerProfile'
+                )
+                ->orderByDesc('chatrequest.created_at')
+                ->limit(50)
+                ->get();
+
+            foreach ($chats as $ch) {
+                $chData = (array) $ch;
+                $chData['type'] = 'Chat Consultation';
+                $records[] = $chData;
+            }
+        }
+
+        // Sort unified consultations by created_at DESC
+        usort($records, function ($a, $b) {
+            return strtotime($b['created_at'] ?? '0') - strtotime($a['created_at'] ?? '0');
+        });
+
+        return response()->json([
+            'status' => 200,
+            'recordList' => $records,
+            'totalRecords' => count($records)
+        ]);
+    }
+
+    /**
+     * 8. POST /api/user/puja-orders (and legacy /getUserPujaOrders)
+     */
+    public function getUserPujaOrders(Request $request)
+    {
+        $userId = $request->input('userId') ?? $request->json('userId') ?? auth()->id() ?? 0;
+        if ($userId <= 0 && auth()->check()) {
+            $userId = auth()->id();
+        }
+
+        $records = [];
+        if (Schema::hasTable('puja_orders')) {
+            $orders = DB::table('puja_orders')
+                ->leftJoin('pujas', 'pujas.id', '=', 'puja_orders.puja_id')
+                ->where('puja_orders.user_id', $userId)
+                ->select(
+                    'puja_orders.*',
+                    'pujas.puja_title as pujaName',
+                    'pujas.puja_place as temple'
+                )
+                ->orderByDesc('puja_orders.id')
+                ->limit(50)
+                ->get();
+
+            foreach ($orders as $o) {
+                $oData = (array) $o;
+                $oData['order_id'] = $o->order_id ?? ('#OP-PUJA-' . $o->id);
+                $oData['puja_name'] = $o->pujaName ?? $o->puja_name ?? 'Sacred Vedic Puja';
+                $oData['temple'] = $o->temple ?? 'Holy Sanctum';
+                $oData['status'] = $o->puja_order_status ?? 'completed';
+                $oData['amount'] = $o->order_total_price ?? 0;
+                $records[] = $oData;
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'recordList' => $records,
+            'totalRecords' => count($records)
+        ]);
+    }
+
+    /**
+     * 9. POST /api/user/mall-orders (and legacy /getUserOrders)
+     */
+    public function getUserOrders(Request $request)
+    {
+        $userId = $request->input('userId') ?? $request->json('userId') ?? auth()->id() ?? 0;
+        if ($userId <= 0 && auth()->check()) {
+            $userId = auth()->id();
+        }
+
+        $records = [];
+        if (Schema::hasTable('order_request')) {
+            $orders = DB::table('order_request')
+                ->leftJoin('astromall_products', 'astromall_products.id', '=', 'order_request.productId')
+                ->where('order_request.userId', $userId)
+                ->select(
+                    'order_request.*',
+                    'astromall_products.name as productName',
+                    'astromall_products.productImage'
+                )
+                ->orderByDesc('order_request.id')
+                ->limit(50)
+                ->get();
+
+            foreach ($orders as $ord) {
+                $ordData = (array) $ord;
+                $records[] = $ordData;
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'recordList' => $records,
+            'totalRecords' => count($records)
+        ]);
+    }
 }
 

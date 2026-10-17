@@ -64,7 +64,10 @@ class _PrasadamTrackerScreenState extends State<PrasadamTrackerScreen> {
 
     setState(() => _loading = true);
     try {
-      final decoded = await ApiClient.instance.post('/getUserPujaOrders');
+      final uid = SessionStore.instance.user?.id;
+      final decoded = await ApiClient.instance.post('/getUserPujaOrders', body: {
+        if (uid != null && uid > 0) 'userId': uid,
+      });
       List<dynamic> list = [];
       if (decoded is Map<String, dynamic> && decoded['recordList'] is List) {
         list = decoded['recordList'];

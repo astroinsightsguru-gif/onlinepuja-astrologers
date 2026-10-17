@@ -45,7 +45,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
   Future<List<Map<String, dynamic>>> _loadConsultations() async {
     try {
-      final decoded = await ApiClient.instance.post('/getallhistorydetail');
+      final uid = SessionStore.instance.user?.id;
+      final decoded = await ApiClient.instance.post('/getallhistorydetail', body: {
+        if (uid != null && uid > 0) 'userId': uid,
+      });
       if (decoded is Map<String, dynamic>) {
         final rl = decoded['recordList'];
         if (rl is List) return rl.whereType<Map<String, dynamic>>().toList();
@@ -56,7 +59,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
   Future<List<Map<String, dynamic>>> _loadPujaOrders() async {
     try {
-      final decoded = await ApiClient.instance.post('/getUserPujaOrders');
+      final uid = SessionStore.instance.user?.id;
+      final decoded = await ApiClient.instance.post('/getUserPujaOrders', body: {
+        if (uid != null && uid > 0) 'userId': uid,
+      });
       if (decoded is Map<String, dynamic>) {
         final rl = decoded['recordList'];
         if (rl is List) return rl.whereType<Map<String, dynamic>>().toList();
@@ -67,7 +73,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
   Future<List<Map<String, dynamic>>> _loadMallOrders() async {
     try {
-      final decoded = await ApiClient.instance.post('/getUserOrders');
+      final uid = SessionStore.instance.user?.id;
+      final decoded = await ApiClient.instance.post('/getUserOrders', body: {
+        if (uid != null && uid > 0) 'userId': uid,
+      });
       if (decoded is Map<String, dynamic>) {
         final rl = decoded['recordList'];
         if (rl is List) return rl.whereType<Map<String, dynamic>>().toList();

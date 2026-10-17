@@ -20,6 +20,7 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
   bool _loading = false;
   Object? _error;
   int _viewTab = 0; // 0: Panchang, 1: Choghadiya
+  bool? _choghadiyaIsDay;
 
   @override
   void initState() {
@@ -273,7 +274,7 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
     final weekday = now.weekday; // 1 = Mon, 7 = Sun
 
     // Vedic Day Choghadiya pattern for each weekday
-    const weekdayPatterns = {
+    const dayPatterns = {
       7: ['Udveg (उद्वेग)', 'Char (चर)', 'Labh (लाभ)', 'Amrit (अमृत)', 'Kaal (काल)', 'Shubh (शुभ)', 'Rog (रोग)', 'Udveg (उद्वेग)'], // Sunday
       1: ['Amrit (अमृत)', 'Kaal (काल)', 'Shubh (शुभ)', 'Rog (रोग)', 'Udveg (उद्वेग)', 'Char (चर)', 'Labh (लाभ)', 'Amrit (अमृत)'], // Monday
       2: ['Rog (रोग)', 'Udveg (उद्वेग)', 'Char (चर)', 'Labh (लाभ)', 'Amrit (अमृत)', 'Kaal (काल)', 'Shubh (शुभ)', 'Rog (रोग)'], // Tuesday
@@ -283,11 +284,20 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
       6: ['Kaal (काल)', 'Shubh (शुभ)', 'Rog (रोग)', 'Udveg (उद्वेग)', 'Char (चर)', 'Labh (लाभ)', 'Amrit (अमृत)', 'Kaal (काल)'], // Saturday
     };
 
-    final sequence = weekdayPatterns[weekday] ?? weekdayPatterns[1]!;
+    // Vedic Night Choghadiya pattern for each weekday
+    const nightPatterns = {
+      7: ['Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)'], // Sunday Night
+      1: ['Char (चर)', 'Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)'], // Monday Night
+      2: ['Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)', 'Kaal (काल)'], // Tuesday Night
+      3: ['Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)'], // Wednesday Night
+      4: ['Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)'], // Thursday Night
+      5: ['Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)'], // Friday Night
+      6: ['Labh (लाभ)', 'Udveg (उद्वेग)', 'Shubh (शुभ)', 'Amrit (अमृत)', 'Char (चर)', 'Rog (रोग)', 'Kaal (काल)', 'Labh (लाभ)'], // Saturday Night
+    };
 
-    // Approximate Sunrise at 06:00 and Sunset at 18:00 if not parseable
-    DateTime riseTime = DateTime(now.year, now.month, now.day, 6, 0);
-    DateTime setTime = DateTime(now.year, now.month, now.day, 18, 0);
+    // Approximate Sunrise at 06:15 and Sunset at 18:20 if not parseable
+    DateTime riseTime = DateTime(now.year, now.month, now.day, 6, 15);
+    DateTime setTime = DateTime(now.year, now.month, now.day, 18, 20);
 
     final sunriseStr = _panchang?.sunrise ?? '';
     final sunsetStr = _panchang?.sunset ?? '';
@@ -305,16 +315,22 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
       }
     } catch (_) {}
 
-    final totalDayMinutes = setTime.difference(riseTime).inMinutes;
-    final intervalMinutes = (totalDayMinutes / 8).floor();
+    final naturalIsDay = now.isAfter(riseTime) && now.isBefore(setTime);
+    final isDay = _choghadiyaIsDay ?? naturalIsDay;
+    final sequence = isDay ? (dayPatterns[weekday] ?? dayPatterns[1]!) : (nightPatterns[weekday] ?? nightPatterns[1]!);
+
+    final startTime = isDay ? riseTime : setTime;
+    final endTime = isDay ? setTime : riseTime.add(const Duration(days: 1));
+    final totalSpanMinutes = endTime.difference(startTime).inMinutes;
+    final intervalMinutes = (totalSpanMinutes / 8).floor();
 
     final timeFormatter = DateFormat('hh:mm a');
     int activeIndex = -1;
 
     final choghadiyaSlots = <Map<String, dynamic>>[];
     for (int i = 0; i < 8; i++) {
-      final slotStart = riseTime.add(Duration(minutes: i * intervalMinutes));
-      final slotEnd = riseTime.add(Duration(minutes: (i + 1) * intervalMinutes));
+      final slotStart = startTime.add(Duration(minutes: i * intervalMinutes));
+      final slotEnd = startTime.add(Duration(minutes: (i + 1) * intervalMinutes));
       final name = sequence[i];
 
       final isGood = name.contains('Amrit') || name.contains('Shubh') || name.contains('Labh');
@@ -336,6 +352,61 @@ class _PanchangScreenState extends State<PanchangScreen> with SingleTickerProvid
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Day / Night Toggle Pill
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _choghadiyaIsDay = true),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDay ? const Color(0xFFD97706) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '☀️ Day Choghadiya (दिन)',
+                      style: TextStyle(
+                        color: isDay ? Colors.white : scheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _choghadiyaIsDay = false),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: !isDay ? const Color(0xFF1E1B4B) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '🌙 Night Choghadiya (रात्रि)',
+                      style: TextStyle(
+                        color: !isDay ? Colors.white : scheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         // Live Active Choghadiya Hero Card
         if (activeIndex >= 0) ...[
           Container(

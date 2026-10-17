@@ -58,21 +58,31 @@ class _DailyHoroscopeScreenState extends State<DailyHoroscopeScreen>
     }
   }
 
+  static final _defaultVedicSigns = const [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+  ].asMap().entries.map((e) => HoroscopeSign(id: e.key + 1, name: e.value)).toList();
+
   Future<void> _loadSigns() async {
     setState(() => _error = null);
     try {
       final signs = await HoroscopeApi.instance.signs();
+      final effectiveSigns = signs.isNotEmpty ? signs : _defaultVedicSigns;
       if (mounted) {
         setState(() {
-          _signs = signs;
-          if (signs.isNotEmpty) {
-            _activeSign = signs.first;
-            _loadDetail(signs.first);
-          }
+          _signs = effectiveSigns;
+          _activeSign = effectiveSigns.first;
+          _loadDetail(effectiveSigns.first);
         });
       }
-    } catch (e) {
-      if (mounted) setState(() => _error = e);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _signs = _defaultVedicSigns;
+          _activeSign = _defaultVedicSigns.first;
+          _loadDetail(_defaultVedicSigns.first);
+        });
+      }
     }
   }
 

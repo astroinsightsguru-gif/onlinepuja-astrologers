@@ -92,9 +92,9 @@ class _WalletScreenState extends State<WalletScreen> {
       if (payUrl != null && payUrl.isNotEmpty) {
         final uri = Uri.parse(payUrl);
         final launched =
-            await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
-        if (!launched) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched && mounted) {
+          await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
         }
       }
       if (mounted) {

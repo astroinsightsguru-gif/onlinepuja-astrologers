@@ -17,23 +17,10 @@ class FamilyGotraVaultScreen extends StatefulWidget {
 class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
   static const _kPrefGotraKey = 'user_family_gotra_vault';
 
-  final _gotraCtrl = TextEditingController(text: 'Kashyap');
-  final _kuldevtaCtrl = TextEditingController(text: 'Kuldevi Vindhyavasini');
+  final _gotraCtrl = TextEditingController();
+  final _kuldevtaCtrl = TextEditingController();
 
-  List<Map<String, String>> _familyMembers = [
-    {
-      'name': 'Ramesh Sharma',
-      'relation': 'Self (Karta)',
-      'rashi': 'Mesh (Aries)',
-      'nakshatra': 'Ashwini',
-    },
-    {
-      'name': 'Sunita Sharma',
-      'relation': 'Spouse (Dharmapatni)',
-      'rashi': 'Karka (Cancer)',
-      'nakshatra': 'Pushya',
-    },
-  ];
+  List<Map<String, String>> _familyMembers = [];
 
   bool _saving = false;
 
@@ -71,13 +58,24 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
       if (raw != null) {
         final data = json.decode(raw) as Map<String, dynamic>;
         setState(() {
-          _gotraCtrl.text = data['gotra'] ?? 'Kashyap';
+          _gotraCtrl.text = data['gotra'] ?? '';
           _kuldevtaCtrl.text = data['kuldevta'] ?? '';
           if (data['members'] is List) {
             _familyMembers = (data['members'] as List)
                 .map((e) => Map<String, String>.from(e as Map))
                 .toList();
           }
+        });
+      } else if (user != null && (user.name ?? '').isNotEmpty && user.name != 'User') {
+        setState(() {
+          _familyMembers = [
+            {
+              'name': user.name!,
+              'relation': 'Self (Karta)',
+              'rashi': '',
+              'nakshatra': '',
+            }
+          ];
         });
       }
     } catch (_) {}
@@ -260,11 +258,37 @@ class _FamilyGotraVaultScreenState extends State<FamilyGotraVaultScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          ..._familyMembers.asMap().entries.map((entry) {
-            final idx = entry.key;
-            final m = entry.value;
-            return _buildMemberCard(idx, m);
-          }),
+          if (_familyMembers.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.people_outline_rounded, size: 36, color: CustomerTheme.brandSaffron),
+                  SizedBox(height: 8),
+                  Text(
+                    'No Family Members Added Yet',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Add your family members to automatically include their names, rashis and nakshatras in future temple puja sankalps.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                ],
+              ),
+            )
+          else
+            ..._familyMembers.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final m = entry.value;
+              return _buildMemberCard(idx, m);
+            }),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,

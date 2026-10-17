@@ -570,3 +570,10 @@ Route::get('user/sankalp-vault', [\App\Http\Controllers\API\User\GrowthEngineCon
 Route::get('user/checkFirstConsultOffer', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'checkFirstConsultOffer'])->name('api.user.first_consult_offer');
 Route::get('panchang/choghadiya', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getChoghadiya'])->name('api.panchang.choghadiya');
 
+// Devotee Consultation & Order History
+Route::post('user/consultation-history', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getConsultationHistory'])->name('api.user.consultation_history');
+Route::post('getallhistorydetail', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getConsultationHistory']);
+Route::post('user/puja-orders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserPujaOrders'])->name('api.user.puja_orders');
+Route::post('getUserPujaOrders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserPujaOrders']);
+Route::post('user/mall-orders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserOrders'])->name('api.user.mall_orders');
+Route::post('getUserOrders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserOrders']);

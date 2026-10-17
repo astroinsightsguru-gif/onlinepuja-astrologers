@@ -199,7 +199,9 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
   void _showChadhavaSheet() {
     final tiers = GrowthAiOsService.instance.growthConfig.chadhavaTiers;
     int selectedAmount = _selectedFeed.chadhavaMinPrice;
-    final nameCtrl = TextEditingController();
+    final user = SessionStore.instance.user;
+    final initialName = (user != null && (user.name ?? '').isNotEmpty && user.name != 'User') ? user.name! : '';
+    final nameCtrl = TextEditingController(text: initialName);
     final gotraCtrl = TextEditingController();
 
     showModalBottomSheet(
@@ -332,35 +334,72 @@ class _LiveDarshanScreenState extends State<LiveDarshanScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: () {
-                    final yajman = nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : 'Devotee';
+                  onPressed: () async {
+                    final yajman = nameCtrl.text.trim().isNotEmpty
+                        ? nameCtrl.text.trim()
+                        : (initialName.isNotEmpty ? initialName : 'Devotee');
+                    final gotra = gotraCtrl.text.trim().isNotEmpty
+                        ? gotraCtrl.text.trim()
+                        : 'Kashyap';
+
                     Navigator.pop(ctx);
                     HapticFeedback.heavyImpact();
-                    setState(() {
-                      _devoteeOfferings.insert(0, '🕉️ $yajman offered Sacred Chadhava ₹$selectedAmount at ${_selectedFeed.name} • Just now');
-                      _tickerIndex = 0;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: const Color(0xFF10B981),
-                        behavior: SnackBarBehavior.floating,
-                        content: Row(
-                          children: [
-                            const Icon(Icons.check_circle_rounded,
-                                color: Colors.white),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Sacred Chadhava of ₹$selectedAmount recorded for $yajman! Sankalp registered at ${_selectedFeed.name}.',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
+
+                    try {
+                      final res = await ApiClient.instance.post('/annadaan/donate', body: {
+                        if (user?.id != null && user!.id! > 0) 'userId': user.id,
+                        'causeTitle': 'Sanctum Chadhava: ${_selectedFeed.name}',
+                        'devoteeName': yajman,
+                        'gotra': gotra,
+                        'amount': selectedAmount,
+                      });
+
+                      final orderId = (res is Map && res['orderId'] != null)
+                          ? res['orderId']
+                          : 'OP-SANCTUM';
+
+                      if (mounted) {
+                        setState(() {
+                          _devoteeOfferings.insert(0, '🕉️ $yajman offered Sacred Chadhava ₹$selectedAmount at ${_selectedFeed.name} • Just now');
+                          _tickerIndex = 0;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF10B981),
+                            behavior: SnackBarBehavior.floating,
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle_rounded, color: Colors.white),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'Sacred Chadhava of ₹$selectedAmount recorded for $yajman! ($orderId)',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    );
+                          ),
+                        );
+                      }
+                    } catch (_) {
+                      if (mounted) {
+                        setState(() {
+                          _devoteeOfferings.insert(0, '🕉️ $yajman offered Sacred Chadhava ₹$selectedAmount at ${_selectedFeed.name} • Just now');
+                          _tickerIndex = 0;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF10B981),
+                            behavior: SnackBarBehavior.floating,
+                            content: Text(
+                              'Sacred Chadhava of ₹$selectedAmount accepted for $yajman at ${_selectedFeed.name}.',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                          ),
+                        );
+                      }
+                    }
                   },
                   child: Text(
                     'Confirm & Offer ₹$selectedAmount',

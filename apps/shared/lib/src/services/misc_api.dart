@@ -181,7 +181,7 @@ class MiscApi {
       {List<Map<String, String>>? context}) async {
     final decoded = await _api.post('/onlinepuja-ai/chat', auth: false, body: {
       'message': message,
-      if (context != null) 'context': context,
+      'context': ?context,
     });
     if (decoded is Map<String, dynamic>) {
       return (decoded['reply'] ?? decoded['message'] ?? '').toString();
@@ -242,7 +242,7 @@ class MiscApi {
   /// Get live Choghadiya & Rahu Kaal calculations from live backend.
   Future<Map<String, dynamic>> getChoghadiya({String? date}) async {
     final decoded = await _api.get('/panchang/choghadiya', query: {
-      if (date != null) 'date': date,
+      'date': ?date,
     });
     if (decoded is Map<String, dynamic>) {
       return decoded;
@@ -252,12 +252,27 @@ class MiscApi {
 
   /// Resolved image URL helper for blog/story/gift/product images.
   static String imageUrl(String path) {
-    final p = path.trim();
+    var p = path.trim();
     if (p.isEmpty) return '';
+
+    // Replace localhost or 127.0.0.1 with onlinepuja.live
+    if (p.startsWith('http://localhost') ||
+        p.startsWith('https://localhost') ||
+        p.startsWith('http://127.0.0.1') ||
+        p.startsWith('https://127.0.0.1')) {
+      p = p.replaceFirst(RegExp(r'^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?'), 'https://onlinepuja.live');
+    }
+
+    // Force https for onlinepuja.live
+    if (p.startsWith('http://onlinepuja.live')) {
+      p = p.replaceFirst('http://onlinepuja.live', 'https://onlinepuja.live');
+    }
+
     if (p.startsWith('http://') || p.startsWith('https://')) {
       // Fix potential public/ in full URLs as well
       return p.replaceFirst('/public/storage/', '/storage/');
     }
+
     final clean = p.startsWith('public/')
         ? p.substring(7)
         : (p.startsWith('/public/') ? p.substring(8) : p);
