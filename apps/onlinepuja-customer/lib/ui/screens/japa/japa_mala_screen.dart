@@ -226,6 +226,11 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
         title: const Text('Digital Rudraksha Mala'),
         actions: [
           IconButton(
+            tooltip: 'Vedic Audio Sanctum',
+            icon: const Icon(Icons.music_note_rounded),
+            onPressed: () => Navigator.of(context).pushNamed('/vedic-audio'),
+          ),
+          IconButton(
             tooltip: 'Reset Count',
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {

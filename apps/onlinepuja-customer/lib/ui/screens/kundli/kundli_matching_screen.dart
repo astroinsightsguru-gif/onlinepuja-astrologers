@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
+import 'dosha_remedy_bridge.dart';
 
 /// Kundli matching (guna milan) — legacy `kundliMatchingScreen.dart` +
 /// `matchResultScreen.dart`. Two birth-detail forms → `/KundaliMatching/add`
@@ -443,6 +446,51 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
+            const SizedBox(height: 16),
+            // Quick Dossier Action Bar
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                    label: const Text('25-Page PDF', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF92400E),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => _downloadVivahPdfDossier(totalScore is int ? totalScore : 28),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.share_rounded, size: 16),
+                    label: const Text('WhatsApp', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => _shareVivahDossierWhatsApp(
+                      totalScore is int ? totalScore : 28,
+                      verdict.toString(),
+                      breakdown,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filled(
+                  icon: const Icon(Icons.shield_outlined, size: 18),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white.withValues(alpha: 0.25),
+                    foregroundColor: Colors.white,
+                  ),
+                  tooltip: 'Dosha Nivaran Remedies',
+                  onPressed: () => DoshaRemedySheet.show(context),
+                ),
+              ],
+            ),
           ]),
         ),
         const SizedBox(height: 16),
@@ -514,7 +562,41 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
           const SizedBox(height: 14),
         ],
 
-        // Vedic Remedy Card
+        // Classical Dosha Nivaran Remedy Bridge
+        Builder(builder: (context) {
+          DoshaRemedyItem? detectedDosha;
+          if (breakdown != null) {
+            for (final e in breakdown.entries) {
+              final k = e.key.toString().toLowerCase();
+              final v = e.value;
+              if (v is Map && (v['score'] == 0 || v['score'] == '0')) {
+                if (k.contains('nadi')) {
+                  detectedDosha = DoshaRemedyItem.findById('nadi');
+                  break;
+                } else if (k.contains('bhakoot') || k.contains('bhkoot')) {
+                  detectedDosha = DoshaRemedyItem.findById('bhakoot');
+                  break;
+                }
+              }
+            }
+          }
+          detectedDosha ??= (totalScore is num && totalScore < 18)
+              ? DoshaRemedyItem.findById('nadi')
+              : null;
+
+          if (detectedDosha != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DoshaRemedyCard(remedy: detectedDosha),
+                const SizedBox(height: 14),
+              ],
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+
+        // Vedic Remedy Card from Engine
         if (remedy != null && remedy.isNotEmpty) ...[
           Card(
             color: const Color(0xFFFFFBEB),
@@ -632,4 +714,64 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
     flatten('', r);
     return out.take(6).toList();
   }
+
+  void _shareVivahDossierWhatsApp(
+    int score,
+    String verdict,
+    Map<String, dynamic>? breakdown,
+  ) async {
+    final boy = _boyName.text.trim().isEmpty ? 'Groom' : _boyName.text.trim();
+    final girl = _girlName.text.trim().isEmpty ? 'Bride' : _girlName.text.trim();
+    final buf = StringBuffer();
+    buf.writeln('🕉️ *COMPREHENSIVE VEDIC VIVAH MILAN DOSSIER* 🕉️');
+    buf.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    buf.writeln('🤵 *Groom:* $boy (${_boyDate.text.trim()})');
+    buf.writeln('👰 *Bride:* $girl (${_girlDate.text.trim()})');
+    buf.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    buf.writeln('⭐ *Ashtakoot Score:* *$score / 36 Gunas*');
+    buf.writeln('✨ *Auspicious Verdict:* $verdict');
+    buf.writeln('\n📜 *Classical 8 Kootas Breakdown:*');
+    if (breakdown != null && breakdown.isNotEmpty) {
+      for (final e in breakdown.entries) {
+        final item = e.value;
+        if (item is Map) {
+          final n = item['name'] ?? e.key;
+          final s = item['score'];
+          final m = item['max'];
+          buf.writeln('• $n: $s / $m pts');
+        }
+      }
+    }
+    buf.writeln('\n🪔 *Vedic Guidance:* Detailed Manglik, Nadi & Bhakoot dosha remedies verified by Vedic scholars.');
+    buf.writeln('\n🕊️ _Consult Top Astrologers & Book Dosha Nivaran Pujas on Online Puja:_');
+    buf.writeln('👉 https://onlinepuja.live');
+
+    final url = Uri.parse('https://api.whatsapp.com/send?text=${Uri.encodeComponent(buf.toString())}');
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (mounted) {
+        Clipboard.setData(ClipboardData(text: buf.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vivah dossier text copied to clipboard!')),
+        );
+      }
+    }
+  }
+
+  void _downloadVivahPdfDossier(int score) async {
+    final boy = Uri.encodeComponent(_boyName.text.trim());
+    final girl = Uri.encodeComponent(_girlName.text.trim());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF1B8A5A),
+        content: Text('📄 Generating 25-Page Vedic Vivah Match Dossier ($score/36 Gunas)... Download started!'),
+      ),
+    );
+    final pdfUrl = Uri.parse('https://onlinepuja.live/api/kundali/match-pdf?boy=$boy&girl=$girl&score=$score');
+    try {
+      await launchUrl(pdfUrl, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
 }
+

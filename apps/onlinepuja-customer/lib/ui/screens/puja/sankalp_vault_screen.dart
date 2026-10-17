@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:op_shared/op_shared.dart';
 
 import '../../theme/customer_theme.dart';
+import '../explore/sankalp_blessing_card_dialog.dart';
 import 'puja_list_screen.dart';
 
 class SankalpVaultScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
     }
   }
 
-  void _openVideo(String url, String pujaName) {
+  void _openVideo(String url, String pujaName, [String? gotra]) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -178,7 +179,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                       label: const Text('Sankalp Patra', style: TextStyle(fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Navigator.pop(ctx);
-                        _showCertificateDialog(pujaName);
+                        _showCertificateDialog(pujaName, gotra);
                       },
                     ),
                   ),
@@ -192,7 +193,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
     );
   }
 
-  void _showCertificateDialog(String pujaName) {
+  void _showCertificateDialog(String pujaName, [String? gotra]) {
     final devoteeName = SessionStore.instance.user?.name ?? 'Blessed Devotee';
     showDialog(
       context: context,
@@ -273,6 +274,27 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.card_giftcard_rounded, size: 16),
+                    label: const Text('Craft WhatsApp Blessing Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      SankalpBlessingCardDialog.show(
+                        context,
+                        defaultName: devoteeName,
+                        defaultGotra: gotra ?? 'Kashyap',
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -518,6 +540,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                     onPressed: () => _openVideo(
                       item['videoUrl'] as String,
                       item['pujaName'] as String,
+                      item['gotra']?.toString(),
                     ),
                   ),
                 ),

@@ -16,6 +16,7 @@ import 'ui/screens/darshan/live_darshan_screen.dart';
 import 'ui/screens/explore/explore_screen.dart';
 import 'ui/screens/explore/prashna_oracle_screen.dart';
 import 'ui/screens/explore/swapna_shastra_screen.dart';
+import 'ui/screens/explore/vedic_audio_screen.dart';
 import 'ui/screens/history/history_screen.dart';
 import 'ui/screens/horoscope/daily_horoscope_screen.dart';
 import 'ui/screens/japa/japa_mala_screen.dart';
@@ -79,6 +80,7 @@ class OnlinePujaApp extends StatelessWidget {
         HistoryScreen.route: (_) => const HistoryScreen(),
         KpCalendarScreen.route: (_) => const KpCalendarScreen(),
         ExploreScreen.route: (_) => const ExploreScreen(),
+        VedicAudioScreen.route: (_) => const VedicAudioScreen(),
       },
       onGenerateRoute: (settings) {
         final args = settings.arguments;
@@ -242,6 +244,7 @@ extension OpNav on BuildContext {
 
   Future<void> openKpCalendar() => pushNamed(KpCalendarScreen.route);
   Future<void> openNotifications() => pushNamed(NotificationsScreen.route);
+  Future<void> openVedicAudio() => pushNamed(VedicAudioScreen.route);
 
   Future<void> pushNamed(String route, [Map<String, dynamic>? args]) =>
       Navigator.of(this).pushNamed(route, arguments: args);

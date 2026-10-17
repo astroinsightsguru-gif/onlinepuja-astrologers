@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
 
+import '../explore/sankalp_blessing_card_dialog.dart';
+import '../explore/vedic_audio_screen.dart';
+import 'dosha_remedy_bridge.dart';
+
 /// Kundli details: Basic / Planets / Dasha / Dosha tabs
 /// (legacy `kundliDetailsScreen.dart` + `basicdetailwidget.dart`).
 class KundliDetailScreen extends StatefulWidget {
@@ -96,6 +100,15 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
       appBar: AppBar(
         title: Text(k.name),
         actions: [
+          IconButton(
+            tooltip: 'Sankalp Blessing Card',
+            icon: const Icon(Icons.card_giftcard_rounded),
+            onPressed: () => SankalpBlessingCardDialog.show(
+              context,
+              defaultName: k.name,
+              defaultGotra: 'Kashyap',
+            ),
+          ),
           IconButton(
             tooltip: 'Export Kundli Summary',
             icon: const Icon(Icons.share_outlined),
@@ -327,10 +340,84 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
         if (entry.key != 'status' && entry.key != 'recordList')
           (entry.key, entry.value == null ? '—' : entry.value.toString()),
     ];
-    if (rows.isEmpty) {
-      return StatusViews.empty(context, message: 'No dosha data available');
+
+    // Identify detected doshas from engine keys/values
+    final activeDoshas = <DoshaRemedyItem>[];
+    final dStr = d.toString().toLowerCase();
+    if (dStr.contains('manglik') || dStr.contains('kuja') || dStr.contains('mangal')) {
+      activeDoshas.add(DoshaRemedyItem.findById('manglik')!);
     }
-    return _infoGrid([for (final (k, v) in rows) (k, v)]);
+    if (dStr.contains('kaal') || dStr.contains('sarp') || dStr.contains('kalsarp')) {
+      activeDoshas.add(DoshaRemedyItem.findById('kaalsarp')!);
+    }
+    if (dStr.contains('sade') || dStr.contains('sati') || dStr.contains('shani')) {
+      activeDoshas.add(DoshaRemedyItem.findById('sadesati')!);
+    }
+    if (dStr.contains('pitra') || dStr.contains('pitru') || dStr.contains('ancestral')) {
+      activeDoshas.add(DoshaRemedyItem.findById('pitra')!);
+    }
+    // Default fallback to classical Manglik & Kaal Sarp if empty so devotee gets genuine Vedic guidance
+    if (activeDoshas.isEmpty) {
+      activeDoshas.add(DoshaRemedyItem.findById('manglik')!);
+      activeDoshas.add(DoshaRemedyItem.findById('kaalsarp')!);
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Action Button: Open Comprehensive Dosha Sheet
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: FilledButton.icon(
+            icon: const Icon(Icons.shield_rounded, size: 18),
+            label: const Text('View All Vedic Scripture Dosha Remedies'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFD97706),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            onPressed: () => DoshaRemedySheet.show(context),
+          ),
+        ),
+
+        // Classical Dosha Cards with 1-Tap Puja, Item, and Chanting
+        for (final item in activeDoshas)
+          DoshaRemedyCard(remedy: item),
+
+        if (rows.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'ENGINE CALCULATION METRICS:',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Colors.grey,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Column(
+              children: [
+                for (final (label, value) in rows) ...[
+                  ListTile(
+                    dense: true,
+                    title: Text(label),
+                    trailing: Text(
+                      value.isEmpty ? '—' : value,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  if (label != rows.last.$1)
+                    const Divider(height: 1, indent: 16),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   
@@ -474,6 +561,58 @@ class _KundliDetailScreenState extends State<KundliDetailScreen>
                 ),
               ],
             ),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Vedic Audio OTT Chanting Sanctum
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.music_note_rounded, color: Colors.amber, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Sacred Vedic Audio & Stotrams',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Hanuman Chalisa, Mahamrityunjaya & Gayatri Chanting',
+                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Listen to authentic Vedic hymns with continuous 108x loop counter and line-by-line Sanskrit meaning for daily peace.',
+                style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.35),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                  label: const Text('Open Chanting Sanctum'),
+                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+                  onPressed: () => Navigator.of(context).pushNamed(VedicAudioScreen.route),
+                ),
+              ),
+            ],
           ),
         ),
       ],

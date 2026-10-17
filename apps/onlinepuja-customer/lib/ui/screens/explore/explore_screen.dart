@@ -19,6 +19,9 @@ import '../kp/kp_calendar_screen.dart';
 import '../orders/prasadam_tracker_screen.dart';
 import 'prashna_oracle_screen.dart';
 import 'swapna_shastra_screen.dart';
+import 'vedic_audio_screen.dart';
+import 'sankalp_blessing_card_dialog.dart';
+import '../kundli/dosha_remedy_bridge.dart';
 
 /// Explore sanctum: Sacred spiritual tools, Vedic rituals & AstroMall
 class ExploreScreen extends StatelessWidget {
@@ -179,6 +182,14 @@ class ExploreScreen extends StatelessWidget {
                     gradient: const [Color(0xFF6366F1), Color(0xFF4338CA)],
                     screen: const SwapnaShastraScreen(),
                   ),
+                  _FeatureItem(
+                    title: 'Dosha Remedies',
+                    subtitle: 'Manglik, Kaal Sarp & Sade Sati',
+                    icon: Icons.shield_outlined,
+                    badge: 'VEDIC REMEDIES',
+                    gradient: const [Color(0xFFE11D48), Color(0xFF9F1239)],
+                    onTap: () => DoshaRemedySheet.show(context),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -193,6 +204,22 @@ class ExploreScreen extends StatelessWidget {
               _featuresGrid(
                 context,
                 [
+                  _FeatureItem(
+                    title: 'Vedic Audio OTT',
+                    subtitle: 'Chanting, Chalisa & Aartis',
+                    icon: Icons.music_note_rounded,
+                    badge: 'SACRED AUDIO',
+                    gradient: const [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+                    screen: const VedicAudioScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Blessing Card',
+                    subtitle: 'Personalized WhatsApp Ashirwad',
+                    icon: Icons.card_giftcard_rounded,
+                    badge: 'WHATSAPP CARD',
+                    gradient: const [Color(0xFFD97706), Color(0xFF92400E)],
+                    onTap: () => SankalpBlessingCardDialog.show(context),
+                  ),
                   _FeatureItem(
                     title: 'Puja',
                     subtitle: 'Book sacred pujas',
@@ -458,9 +485,12 @@ class ExploreScreen extends StatelessWidget {
         return SacredCard(
           padding: const EdgeInsets.all(12),
           elevation: 1,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => f.screen),
-          ),
+          onTap: f.onTap ??
+              (f.screen != null
+                  ? () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => f.screen!),
+                      )
+                  : null),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -529,7 +559,8 @@ class _FeatureItem {
     required this.subtitle,
     required this.icon,
     required this.gradient,
-    required this.screen,
+    this.screen,
+    this.onTap,
     this.badge,
   });
 
@@ -537,6 +568,8 @@ class _FeatureItem {
   final String subtitle;
   final IconData icon;
   final List<Color> gradient;
-  final Widget screen;
+  final Widget? screen;
+  final VoidCallback? onTap;
   final String? badge;
 }
+
