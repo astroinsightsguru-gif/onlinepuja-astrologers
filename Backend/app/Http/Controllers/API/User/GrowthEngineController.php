@@ -30,6 +30,18 @@ class GrowthEngineController extends Controller
                 $table->timestamps();
             });
         }
+
+        // Auto-seed festive pujas if not already present
+        if (Schema::hasTable('pujas')) {
+            $hasFestive = DB::table('pujas')->where('slug', 'like', '%dev-deepawali%')->exists();
+            if (!$hasFestive) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('puja:seed-festive');
+                } catch (\Throwable $e) {
+                    \Log::info('Festive puja seeding deferred: ' . $e->getMessage());
+                }
+            }
+        }
     }
 
     /**

@@ -28,12 +28,14 @@ class _PujaListScreenState extends State<PujaListScreen> {
 
   final List<Map<String, String>> _deityPills = [
     {"id": "All", "label": "All Pujas", "icon": "ॐ"},
+    {"id": "Diwali", "label": "Diwali & Lakshmi", "icon": "🪔"},
+    {"id": "Dev Deepawali", "label": "Dev Deepawali", "icon": "✨"},
+    {"id": "Kashi", "label": "Kashi & Ganga", "icon": "🌊"},
     {"id": "Durga", "label": "Maa Durga", "icon": "🌺"},
     {"id": "Shiva", "label": "Mahadev Shiva", "icon": "🔱"},
+    {"id": "Karwa Chauth", "label": "Karwa Chauth", "icon": "🌕"},
     {"id": "Ganesh", "label": "Lord Ganesh", "icon": "🐘"},
-    {"id": "Lakshmi", "label": "Maa Lakshmi", "icon": "🪔"},
     {"id": "Vishnu", "label": "Bhagwan Vishnu", "icon": "🪷"},
-    {"id": "Shradh Special", "label": "Pitru Paksha", "icon": "🪶"},
     {"id": "Navagraha", "label": "Graha Shanti", "icon": "🪐"},
   ];
 
@@ -97,6 +99,18 @@ class _PujaListScreenState extends State<PujaListScreen> {
         final sub = (p.subtitle ?? '').toLowerCase();
         final desc = (p.longDescription ?? '').toString().toLowerCase();
         final combined = '$title $sub $desc';
+        if (q.contains('diwali')) {
+          return combined.contains('diwali') || combined.contains('lakshmi') || combined.contains('laxmi') || combined.contains('kuber') || combined.contains('dhanteras');
+        }
+        if (q.contains('deepawali') || q.contains('deepdaan')) {
+          return combined.contains('deepawali') || combined.contains('deepdaan') || combined.contains('diwali') || combined.contains('ganga') || combined.contains('kashi');
+        }
+        if (q.contains('kashi')) {
+          return combined.contains('kashi') || combined.contains('varanasi') || combined.contains('ganga') || combined.contains('vishwanath') || combined.contains('ghat');
+        }
+        if (q.contains('karwa')) {
+          return combined.contains('karwa') || combined.contains('suhag') || combined.contains('parvati') || combined.contains('chauth');
+        }
         if (q == 'durga') {
           return combined.contains('durga') || combined.contains('navratri') || combined.contains('kanya') || combined.contains('devi') || combined.contains('saptashati');
         }
@@ -106,14 +120,8 @@ class _PujaListScreenState extends State<PujaListScreen> {
         if (q == 'ganesh') {
           return combined.contains('ganesh') || combined.contains('vinayak') || combined.contains('ganpati') || combined.contains('modak');
         }
-        if (q == 'lakshmi') {
-          return combined.contains('lakshmi') || combined.contains('laxmi') || combined.contains('kubera') || combined.contains('dhanteras') || combined.contains('diwali');
-        }
         if (q == 'vishnu') {
           return combined.contains('vishnu') || combined.contains('satyanarayan') || combined.contains('krishna') || combined.contains('ram') || combined.contains('ekadashi');
-        }
-        if (q.contains('shradh')) {
-          return combined.contains('shradh') || combined.contains('pitru') || combined.contains('tarpan') || combined.contains('gaya');
         }
         if (q == 'navagraha') {
           return combined.contains('navagraha') || combined.contains('graha') || combined.contains('shanti') || combined.contains('dosh') || combined.contains('mangal') || combined.contains('kaal sarp');
@@ -379,10 +387,10 @@ class _PujaListScreenState extends State<PujaListScreen> {
     final topPuja = items.isNotEmpty ? items.first : null;
     final bannerTitle = topPuja != null && (topPuja.title?.isNotEmpty ?? false)
         ? topPuja.title!
-        : "Navratri & Shradh Mahotsav 2026";
+        : "Kashi Dev Deepawali & Diwali 2026";
     final bannerSubtitle = topPuja != null && (topPuja.subtitle?.isNotEmpty ?? false)
         ? topPuja.subtitle!
-        : "Participate in Sacred Pujas at Kashi Vishwanath, Gaya & Holy Teerths with personalized Sankalp.";
+        : "Participate in Sacred 108 Deepdaan, Maha Lakshmi Havan at Kashi Vishwanath & Holy Teerths with Gotra Sankalp.";
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
