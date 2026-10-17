@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:op_shared/op_shared.dart';
 
 import '../../theme/customer_theme.dart';
@@ -84,34 +86,53 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              Container(
-                height: 220,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: CustomerTheme.brandGold.withValues(alpha: 0.3)),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const Icon(Icons.temple_hindu, size: 70, color: Colors.white12),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: CustomerTheme.brandGold,
-                          child: const Icon(Icons.play_arrow_rounded, size: 40, color: Colors.black),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Pandit Ji Calling Your Name & Gotra',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ],
+              InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () async {
+                  if (url.trim().isNotEmpty) {
+                    final uri = Uri.tryParse(url.trim());
+                    if (uri != null) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      return;
+                    }
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Your personalized Sankalp video is being sanctified by the temple priest. You will be notified once ready.'),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  height: 220,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: CustomerTheme.brandGold.withValues(alpha: 0.3)),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(Icons.temple_hindu, size: 70, color: Colors.white12),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: CustomerTheme.brandGold,
+                            child: const Icon(Icons.play_arrow_rounded, size: 40, color: Colors.black),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            url.trim().isNotEmpty ? 'Tap to Watch Sacred Video 🪔' : 'Pandit Ji Calling Your Name & Gotra',
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -126,11 +147,22 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                       ),
                       icon: const Icon(Icons.share, size: 18),
                       label: const Text('Share Video'),
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Sankalp video link copied for WhatsApp Status!')),
-                        );
+                        final targetUrl = url.trim().isNotEmpty ? url.trim() : 'https://onlinepuja.live';
+                        await Clipboard.setData(ClipboardData(text: 'Watch my sacred Puja Sankalp: $targetUrl'));
+                        final waUri = Uri.parse('whatsapp://send?text=${Uri.encodeComponent("Har Har Mahadev! Watch my sacred $pujaName Puja Sankalp: $targetUrl")}');
+                        try {
+                          if (await canLaunchUrl(waUri)) {
+                            await launchUrl(waUri, mode: LaunchMode.externalApplication);
+                            return;
+                          }
+                        } catch (_) {}
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Sankalp video link copied for WhatsApp Status!')),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -161,6 +193,7 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
   }
 
   void _showCertificateDialog(String pujaName) {
+    final devoteeName = SessionStore.instance.user?.name ?? 'Blessed Devotee';
     showDialog(
       context: context,
       builder: (ctx) {
@@ -187,6 +220,11 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                     color: Color(0xFF78350F),
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  'Issued to: $devoteeName',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'This certifies that holy rituals and sankalp for $pujaName were duly completed according to Vedic Shastras by verified Acharyas.',
@@ -194,13 +232,47 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
                   style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF78350F),
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Close'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF78350F),
+                          side: const BorderSide(color: Color(0xFF78350F)),
+                        ),
+                        icon: const Icon(Icons.share, size: 16),
+                        label: const Text('Share'),
+                        onPressed: () async {
+                          Navigator.pop(ctx);
+                          final certText = '🕉️ Vedic Sankalp for $pujaName successfully completed for $devoteeName via OnlinePuja.live! May divine blessings be upon all.';
+                          await Clipboard.setData(ClipboardData(text: certText));
+                          final waUri = Uri.parse('whatsapp://send?text=${Uri.encodeComponent(certText)}');
+                          try {
+                            if (await canLaunchUrl(waUri)) {
+                              await launchUrl(waUri, mode: LaunchMode.externalApplication);
+                              return;
+                            }
+                          } catch (_) {}
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Sankalp blessing copied to clipboard!')),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF78350F),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

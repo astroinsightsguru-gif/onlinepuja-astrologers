@@ -93,9 +93,19 @@ class _PrashnaOracleScreenState extends State<PrashnaOracleScreen> {
   }
 
   String _fallbackReading(String q) {
-    return '1. PRASHNA VERDICT: Favorable with Effort & Right Timing.\n\n'
-        '2. PLANETARY ALIGNMENT: The current Prashna lagna is influenced by Jupiter and Mercury, indicating growth through clear communication, righteous action, and perseverance. Avoid rushing into decisions without prayerful reflection.\n\n'
-        '3. VEDIC REMEDY: Chant the Gayatri Mantra 11 times every morning at sunrise. Offer water to the rising Sun (Surya Arghya) and light a sesame oil diya on Tuesday or Saturday for divine obstacles clearance.';
+    final now = DateTime.now();
+    final int sum = q.codeUnits.fold<int>(0, (int a, int b) => a + b);
+    final int seed = ((now.minute * 60 + now.second + sum) % 249) + 1;
+    final horary = KpService.instance.getHoraryReading(seed);
+    final rp = KpService.instance.getRulingPlanets(now);
+
+    final remedy = horary.isFavorable
+        ? 'Chant the Gayatri Mantra 11 times and offer fresh water to Surya Dev (Surya Arghya) at sunrise. Light a pure cow-ghee diya this evening to ground favorable planetary grace.'
+        : 'Offer raw milk to a Shiva Lingam on Monday or light a sesame oil diya for Lord Shani on Saturday. Chant "Om Namah Shivaya" 108 times for obstacles clearance.';
+
+    return '1. PRASHNA VERDICT: ${horary.verdict} (KP Horary Seed #${horary.number})\n\n'
+        '2. PLANETARY ALIGNMENT: Prashna Lagna in ${horary.sign} (Lord: ${horary.signLord}), Star: ${horary.star} (Lord: ${horary.starLord}), Sub-Lord: ${horary.subLord}. Current Day Lord: ${rp.dayLord}. ${horary.guidance}\n\n'
+        '3. VEDIC REMEDY: $remedy';
   }
 
   @override

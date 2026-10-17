@@ -83,9 +83,54 @@ class _SwapnaShastraScreenState extends State<SwapnaShastraScreen> {
   }
 
   String _fallbackInterpretation(String dream) {
-    return '1. SWAPNA MEANING: Highly Auspicious (Shubh Sanket). In Swapna Shastra, sacred symbols like temples, water, and serpents represent spiritual elevation and clearing of past karmas.\n\n'
-        '2. SPIRITUAL SIGNIFICANCE: Governed by the energies of Lord Shiva and Jupiter (Guru). Indicates divine protection and success in upcoming endeavors.\n\n'
-        '3. PRESCRIBED PRAYER: Light a ghee lamp in your home temple this morning. Chant "Om Namah Shivaya" 21 times and offer fresh water to a Tulsi plant or Peepal tree for continuous blessings.';
+    final d = dream.toLowerCase();
+
+    // 1. Serpents / Nagas
+    if (d.contains('snake') || d.contains('serpent') || d.contains('saap') || d.contains('nag') || d.contains('cobra')) {
+      return '1. SWAPNA MEANING: Highly Auspicious & Protective (Shubh Nag Sanket). In ancient Swapna Shastra, witnessing a serpent without fear signifies the awakening of dormant Kundalini shakti, divine protection, and clearance of ancestral hurdles.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Lord Shiva and Rahu-Ketu mitigation. Signals release from sudden obstacles and hidden blessings.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Offer raw milk or fresh Bilva leaves to a Shiva Lingam on Monday. Chant "Om Namah Shivaya" 21 times and pray for familial peace.';
+    }
+
+    // 2. Temples / Deities
+    if (d.contains('temple') || d.contains('mandir') || d.contains('god') || d.contains('shiva') || d.contains('krishna') || d.contains('devi') || d.contains('hanuman') || d.contains('ganesh') || d.contains('idol')) {
+      return '1. SWAPNA MEANING: Divine Benediction (Deva Kripa). According to the Agni Purana, seeing a holy temple, sanctum, or divine deity foretells the fulfillment of deeply held wishes and spiritual elevation.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Brihaspati (Jupiter) and your Ishta Devata. Auspicious Jupiter infuses your aura with righteous luck and wisdom.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Light a pure cow-ghee diya in your home temple this morning. Offer yellow flowers or sweet batasha and chant the Gayatri Mantra 11 times.';
+    }
+
+    // 3. Water / Rivers / Ganga
+    if (d.contains('water') || d.contains('river') || d.contains('ganga') || d.contains('ocean') || d.contains('rain') || d.contains('swim') || d.contains('bath') || d.contains('pani')) {
+      return '1. SWAPNA MEANING: Purification of Past Karmas (Chitta Shuddhi). Flowing sacred water symbolizes spiritual renewal, mental tranquility, and freedom from accumulated stress.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Chandra Dev (Moon) and Varuna Deva. Indicates emotional harmony and favorable domestic peace.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Offer fresh water in a copper vessel to Surya Dev at sunrise facing east. Chant "Om Som Somaya Namah" 11 times for mental serenity.';
+    }
+
+    // 4. Elephants / Royal Omens
+    if (d.contains('elephant') || d.contains('hathi') || d.contains('gaj') || d.contains('horse') || d.contains('lion') || d.contains('king')) {
+      return '1. SWAPNA MEANING: Royal Elevation & Prosperity (Gajraj Rajayoga). Swapna Chintamani identifies elephants as the foremost herald of prosperity, social dignity, and career triumph.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Lord Ganesha and Goddess Mahalakshmi. Indicates monumental progress in ventures.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Feed green fodder or bananas to a cow or give charity to the underprivileged on Wednesday or Thursday. Chant "Om Gam Ganapataye Namah" 21 times.';
+    }
+
+    // 5. Fire / Hawan / Light / Gold
+    if (d.contains('fire') || d.contains('flame') || d.contains('hawan') || d.contains('diya') || d.contains('gold') || d.contains('jewel') || d.contains('sona')) {
+      return '1. SWAPNA MEANING: Auspicious Transformation & Lakshmi Agamana. Sacred flames destroy negative influences, while gold represents Surya\'s eternal vitality and wealth.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Agni Deva and Surya Bhagwan. Marks the inception of fruitful creative or financial projects.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Light a sesame oil or ghee diya at dusk near your entrance or Tulsi plant. Donate dry wheat or jaggery (gur) to a temple.';
+    }
+
+    // 6. Ancestors / Pitru
+    if (d.contains('ancestor') || d.contains('pitru') || d.contains('dead') || d.contains('father') || d.contains('mother') || d.contains('grand')) {
+      return '1. SWAPNA MEANING: Ancestral Blessings & Guidance (Pitru Ashirwad). When ancestors appear serene, they confer protection; when silent, they remind you of pious gratitude.\n\n'
+          '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Governed by Surya (Sun) and Pitru Loka. Indicates ancestral support in overcoming lineage obstacles.\n\n'
+          '3. PRESCRIBED VEDIC REMEDY: Keep a portion of your morning meal (Gau-grasa) for birds or a cow. Pour water mixed with black sesame seeds near the roots of a Peepal tree.';
+    }
+
+    // 7. General / Subconscious
+    return '1. SWAPNA MEANING: Favorable Spiritual omen (Shubh Swapna). In Brihat Samhita, this dream signifies mental detachment from trivial worries and an opening for fresh positive energy.\n\n'
+        '2. PLANETARY & SPIRITUAL SIGNIFICANCE: Influenced by the planetary transit of the Moon (Manas Karaka) and Mercury (Buddhi). Inspires mindful action.\n\n'
+        '3. PRESCRIBED VEDIC REMEDY: Light a ghee lamp in your home shrine this morning. Chant "Om Namah Shivaya" 21 times and water a sacred Tulsi plant for ongoing blessings.';
   }
 
   @override

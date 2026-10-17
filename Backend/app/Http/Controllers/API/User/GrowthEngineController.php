@@ -117,6 +117,12 @@ class GrowthEngineController extends Controller
     {
         $userId = $request->get('userId') ?? auth()->id() ?? 0;
 
+        $vault = null;
+        if ($userId > 0 && \Illuminate\Support\Facades\Schema::hasTable('user_gotra_vaults')) {
+            $vault = DB::table('user_gotra_vaults')->where('user_id', $userId)->first();
+        }
+        $savedGotra = ($vault && !empty($vault->gotra)) ? ($vault->gotra . ' Gotra') : 'Devotee Gotra';
+
         $ordersQuery = DB::table('puja_orders')
             ->leftJoin('pujas', 'puja_orders.puja_id', '=', 'pujas.id')
             ->select(
@@ -128,7 +134,9 @@ class GrowthEngineController extends Controller
                 'puja_orders.puja_order_status',
                 'puja_orders.puja_video',
                 'puja_orders.order_total_price',
+                'puja_orders.address_name',
                 'pujas.puja_title',
+                'pujas.puja_place',
                 'pujas.puja_images'
             );
 
@@ -144,10 +152,10 @@ class GrowthEngineController extends Controller
             $items[] = [
                 'id' => $order->id,
                 'pujaName' => $order->puja_name ?: $order->puja_title ?: 'Vedic Puja & Havan',
-                'templeName' => 'Kashi Vishwanath Dham, Varanasi',
+                'templeName' => !empty($order->puja_place) ? $order->puja_place : 'Kashi Vishwanath Dham, Varanasi',
                 'date' => $order->puja_start_datetime ?: date('d M Y, h:i A'),
-                'gotra' => 'Kashyap Gotra',
-                'familyMembers' => 'Devotee & Family',
+                'gotra' => $savedGotra,
+                'familyMembers' => !empty($order->address_name) ? $order->address_name : 'Devotee & Family',
                 'videoUrl' => $video,
                 'hasVideo' => !empty($order->puja_video),
                 'awbNumber' => !empty($order->tracking_number) ? $order->tracking_number : null,

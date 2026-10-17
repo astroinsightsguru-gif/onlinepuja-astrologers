@@ -48,8 +48,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     final user = context.read<AppSession>().user;
     _devoteeNameCtrl = TextEditingController(text: user?.name ?? '');
-    _gotraCtrl = TextEditingController(text: 'Kashyap');
-    _sankalpWishCtrl = TextEditingController(text: 'Health, Prosperity & Peace');
+    _gotraCtrl = TextEditingController(text: '');
+    _sankalpWishCtrl = TextEditingController(text: '');
     _whatsappCtrl = TextEditingController(text: user?.contactNo ?? '');
     _loadAddresses();
     _loadGotraVault();
@@ -153,9 +153,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             'orderAddressId': address.id,
             'addressId': address.id,
             'amount': _price,
-            'devoteeName': _devoteeNameCtrl.text.trim(),
-            'gotra': _gotraCtrl.text.trim(),
-            'sankalpWish': _sankalpWishCtrl.text.trim(),
+            'devoteeName': _devoteeNameCtrl.text.trim().isNotEmpty
+                ? _devoteeNameCtrl.text.trim()
+                : (context.read<AppSession>().user?.name ?? 'Devotee'),
+            'gotra': _gotraCtrl.text.trim().isNotEmpty
+                ? _gotraCtrl.text.trim()
+                : 'Kashyap',
+            'sankalpWish': _sankalpWishCtrl.text.trim().isNotEmpty
+                ? _sankalpWishCtrl.text.trim()
+                : 'Health, Prosperity & Peace',
             'whatsappNumber': _whatsappCtrl.text.trim(),
           },
         );
@@ -391,6 +397,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     style: TextStyle(color: fieldTextColor, fontSize: 13.5),
                                     decoration: inputDecorationTheme.copyWith(
                                       labelText: AppStrings.gotraHint,
+                                      hintText: 'e.g. Kashyap, Bharadwaj',
                                       prefixIcon: Icon(Icons.stars_outlined, size: 20, color: subText),
                                       suffixIcon: IconButton(
                                         icon: const Icon(Icons.account_tree_outlined, size: 18, color: Color(0xFFF59E0B)),
