@@ -241,6 +241,7 @@ extension OpNav on BuildContext {
   Future<void> openHistory() => pushNamed(HistoryScreen.route);
 
   Future<void> openKpCalendar() => pushNamed(KpCalendarScreen.route);
+  Future<void> openNotifications() => pushNamed(NotificationsScreen.route);
 
   Future<void> pushNamed(String route, [Map<String, dynamic>? args]) =>
       Navigator.of(this).pushNamed(route, arguments: args);

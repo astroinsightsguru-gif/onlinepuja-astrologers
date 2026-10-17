@@ -16,6 +16,7 @@ import '../panchang/choghadiya_radar_screen.dart';
 import '../puja/puja_list_screen.dart';
 import '../puja/sankalp_vault_screen.dart';
 import '../kp/kp_calendar_screen.dart';
+import '../orders/prasadam_tracker_screen.dart';
 import 'prashna_oracle_screen.dart';
 import 'swapna_shastra_screen.dart';
 
@@ -230,6 +231,14 @@ class ExploreScreen extends StatelessWidget {
                     badge: 'PUNYA',
                     gradient: const [Color(0xFF14B8A6), Color(0xFF0F766E)],
                     screen: const AnnadaanScreen(),
+                  ),
+                  _FeatureItem(
+                    title: 'Prasad Tracker',
+                    subtitle: 'Track holy temple dispatch & AWB',
+                    icon: Icons.delivery_dining_rounded,
+                    badge: 'DOORSTEP',
+                    gradient: const [Color(0xFF0284C7), Color(0xFF0369A1)],
+                    screen: const PrasadamTrackerScreen(),
                   ),
                 ],
               ),

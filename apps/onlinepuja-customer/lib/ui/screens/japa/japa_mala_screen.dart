@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:op_shared/op_shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,8 +35,11 @@ class JapaMalaScreen extends StatefulWidget {
 class _JapaMalaScreenState extends State<JapaMalaScreen> {
   int _currentCount = 0;
   int _malasCompleted = 0;
+  int _streakDays = 1;
   final int _targetMalas = 1;
   late MantraItem _selectedMantra;
+  final FlutterTts _tts = FlutterTts();
+  bool _isPlayingAudio = false;
 
   static const List<MantraItem> _mantras = [
     MantraItem(
@@ -79,16 +83,65 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
   void initState() {
     super.initState();
     _selectedMantra = _mantras.first;
+    _initTts();
     _loadSavedProgress();
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  Future<void> _initTts() async {
+    try {
+      await _tts.setLanguage("hi-IN");
+      await _tts.setSpeechRate(0.38);
+      await _tts.setPitch(0.95);
+      _tts.setCompletionHandler(() {
+        if (mounted) setState(() => _isPlayingAudio = false);
+      });
+      _tts.setErrorHandler((_) {
+        if (mounted) setState(() => _isPlayingAudio = false);
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _toggleAudioChant() async {
+    if (_isPlayingAudio) {
+      await _tts.stop();
+      if (mounted) setState(() => _isPlayingAudio = false);
+    } else {
+      if (mounted) setState(() => _isPlayingAudio = true);
+      final cleanText = _selectedMantra.sanskrit.replaceAll('॥', '').replaceAll('।', '');
+      await _tts.speak(cleanText);
+    }
   }
 
   Future<void> _loadSavedProgress() async {
     try {
       final sp = await SharedPreferences.getInstance();
       if (mounted) {
+        final now = DateTime.now();
+        final lastDateStr = sp.getString('japa_last_chant_date') ?? '';
+        int streak = sp.getInt('japa_streak_days') ?? 0;
+
+        if (lastDateStr.isNotEmpty) {
+          final lastDate = DateTime.tryParse(lastDateStr);
+          if (lastDate != null) {
+            final diff = DateTime(now.year, now.month, now.day)
+                .difference(DateTime(lastDate.year, lastDate.month, lastDate.day))
+                .inDays;
+            if (diff > 1) {
+              streak = 0; // Missed a day
+            }
+          }
+        }
+
         setState(() {
           _currentCount = sp.getInt('japa_bead_count') ?? 0;
           _malasCompleted = sp.getInt('japa_malas_completed') ?? 0;
+          _streakDays = streak;
           final savedIdx = sp.getInt('japa_last_mantra_index') ?? 0;
           if (savedIdx >= 0 && savedIdx < _mantras.length) {
             _selectedMantra = _mantras[savedIdx];
@@ -106,6 +159,34 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
       final idx = _mantras.indexOf(_selectedMantra);
       if (idx >= 0) {
         await sp.setInt('japa_last_mantra_index', idx);
+      }
+
+      final now = DateTime.now();
+      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final lastDateStr = sp.getString('japa_last_chant_date') ?? '';
+
+      if (lastDateStr != todayStr) {
+        int streak = sp.getInt('japa_streak_days') ?? 0;
+        if (lastDateStr.isNotEmpty) {
+          final lastDate = DateTime.tryParse(lastDateStr);
+          if (lastDate != null) {
+            final diff = DateTime(now.year, now.month, now.day)
+                .difference(DateTime(lastDate.year, lastDate.month, lastDate.day))
+                .inDays;
+            if (diff == 1) {
+              streak += 1;
+            } else {
+              streak = 1;
+            }
+          } else {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+        await sp.setString('japa_last_chant_date', todayStr);
+        await sp.setInt('japa_streak_days', streak);
+        if (mounted) setState(() => _streakDays = streak);
       }
     } catch (_) {}
   }
@@ -187,12 +268,17 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
                 children: [
                   const Text('🔥', style: TextStyle(fontSize: 26)),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Daily Sadhana Streak', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text('7 Days Continuous Chanting', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        const Text('Daily Sadhana Streak', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(
+                          _streakDays > 0
+                              ? '$_streakDays Day${_streakDays == 1 ? "" : "s"} Continuous Chanting'
+                              : 'Begin your daily sadhana streak today',
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
@@ -299,9 +385,21 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
                     children: [
                       const Icon(Icons.auto_awesome, color: AppTheme.brandGold, size: 18),
                       const SizedBox(width: 8),
-                      Text(
-                        _selectedMantra.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      Flexible(
+                        child: Text(
+                          _selectedMantra.title,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      IconButton(
+                        tooltip: _isPlayingAudio ? 'Stop Chanting' : 'Listen Chanting Pronunciation',
+                        icon: Icon(
+                          _isPlayingAudio ? Icons.stop_circle_rounded : Icons.volume_up_rounded,
+                          color: _isPlayingAudio ? Colors.redAccent : AppTheme.brandSaffron,
+                          size: 24,
+                        ),
+                        onPressed: _toggleAudioChant,
                       ),
                     ],
                   ),

@@ -130,6 +130,18 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const Divider(height: 1, indent: 56),
+                  _profileListTile(
+                    icon: Icons.notifications_active_outlined,
+                    title: 'Notifications & Sanctum Alerts',
+                    subtitle: 'Puja schedules, darshan alerts & consultation updates',
+                    color: const Color(0xFFF59E0B),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

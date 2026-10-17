@@ -203,6 +203,16 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                   MaterialPageRoute(builder: (_) => const OnlinePujaAiScreen()),
                 ),
               ),
+              // Notifications Bell
+              IconButton(
+                tooltip: isHi ? 'सूचनाएं' : 'Notifications',
+                icon: Icon(
+                  Icons.notifications_none_rounded,
+                  size: 20,
+                  color: isDark ? Colors.white70 : const Color(0xFF475569),
+                ),
+                onPressed: () => Navigator.of(context).pushNamed(NotificationsScreen.route),
+              ),
               // Clean Wallet pill
               GestureDetector(
                 onTap: () => Navigator.of(context)
