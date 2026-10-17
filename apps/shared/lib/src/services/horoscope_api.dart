@@ -1,4 +1,5 @@
 import '../api/api_client.dart';
+import '../l10n/app_strings.dart';
 import '../models/horoscope.dart';
 import '../models/panchang.dart';
 
@@ -34,9 +35,12 @@ class HoroscopeApi {
     int? signId,
     String type = 'today',
   }) async {
+    final langCode = LocaleManager.instance.currentLanguage.value.code;
     final decoded = await _api.post('/getDailyHoroscope', body: {
       'horoscopeSignId': ?signId,
       'horoscopeType': type,
+      'lang': langCode,
+      'language': langCode,
     });
     if (decoded is Map<String, dynamic>) {
       final vedic = decoded['vedicList'];
@@ -65,10 +69,13 @@ class HoroscopeApi {
     required double lng,
     String? placeId,
   }) async {
+    final langCode = LocaleManager.instance.currentLanguage.value.code;
     final decoded = await _api.post('/get/panchang', body: {
       'lat': lat,
       'lon': lng,
       'placeId': placeId,
+      'lang': langCode,
+      'language': langCode,
     });
     if (decoded is Map<String, dynamic>) {
       final rl = decoded['recordList'];

@@ -384,7 +384,10 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
     final scheme = Theme.of(context).colorScheme;
     final pct = _findPercentage(r);
     final totalScore = r['total_score'] ?? r['score'] ?? (pct != null ? (pct * 36 / 100).round() : null);
-    final verdict = r['verdict'] ?? (pct != null && pct >= 60 ? 'Auspicious Match' : 'Remedies Recommended');
+    final rawVerdict = r['verdict']?.toString();
+    final verdict = (rawVerdict != null && rawVerdict.isNotEmpty)
+        ? rawVerdict
+        : (pct != null && pct >= 60 ? 'अति उत्तम शुभ मिलान (Auspicious Match)' : 'दोष उपाय अनुशंसित (Remedies Recommended)');
     final breakdown = r['breakdown'] is Map<String, dynamic> ? (r['breakdown'] as Map<String, dynamic>) : null;
     final remedy = r['remedy']?.toString();
     final sections = _flattenSections(r);
@@ -412,8 +415,8 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
             ],
           ),
           child: Column(children: [
-            const Text('ASHTAKOOT GUNA MILAN',
-                style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.2)),
+            const Text('अष्टकूट गुण मिलान • ASHTAKOOT GUNA MILAN',
+                style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.0)),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -508,7 +511,7 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
                     children: [
                       const Icon(Icons.stars_rounded, color: Color(0xFFD97706), size: 20),
                       const SizedBox(width: 8),
-                      Text('8 Koota Compatibility Analysis',
+                      Text('अष्टकूट गुण मिलान विश्लेषण (8 Kootas Analysis)',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                     ],
                   ),
@@ -517,7 +520,18 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
                     Builder(builder: (context) {
                       final item = entry.value;
                       if (item is! Map) return const SizedBox.shrink();
-                      final name = item['name'] ?? entry.key;
+                      final rawName = (item['name'] ?? entry.key).toString();
+                      final (hindiLabel, significance) = switch (rawName.toLowerCase()) {
+                        'varna' || 'varna koota' => ('वर्ण (Varna)', 'कार्य एवं सामाजिक अनुकूलता'),
+                        'vashya' || 'vashya koota' => ('वश्य (Vashya)', 'पारस्परिक आकर्षण व समर्पण'),
+                        'tara' || 'tara koota' => ('तारा (Tara)', 'भाग्य, आरोग्य व दीर्घायु'),
+                        'yoni' || 'yoni koota' => ('योनि (Yoni)', 'शारीरिक एवं जैविक सामंजस्य'),
+                        'grahamaitri' || 'graha maitri' || 'maitri' => ('ग्रह मैत्री (Graha Maitri)', 'मानसिक मित्रता व स्नेह'),
+                        'gana' || 'gana koota' => ('गण (Gana)', 'स्वभाव एवं मानसिक प्रकृति'),
+                        'bhakoot' || 'bhakoot koota' || 'bhkoot' => ('भकूट (Bhakoot)', 'प्रेम, सुख एवं वंश वृद्धि'),
+                        'nadi' || 'nadi koota' => ('नाड़ी (Nadi)', 'आनुवंशिक स्वास्थ्य व संतान'),
+                        _ => (rawName, ''),
+                      };
                       final score = item['score'];
                       final max = item['max'];
                       final isGood = score != null && max != null && (score as num) >= (max as num) * 0.5;
@@ -528,9 +542,22 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
                           children: [
                             Expanded(
                               flex: 4,
-                              child: Text(
-                                name.toString(),
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    hindiLabel,
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                  ),
+                                  if (significance.isNotEmpty)
+                                    Text(
+                                      significance,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                             Container(

@@ -225,6 +225,17 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _themeSelectorTile(context, session, isDark),
                   const Divider(height: 1, indent: 56),
+                  ValueListenableBuilder<AppLanguage>(
+                    valueListenable: LocaleManager.instance.currentLanguage,
+                    builder: (context, lang, _) => _profileListTile(
+                      icon: Icons.translate_rounded,
+                      title: 'भाषा / App Language',
+                      subtitle: '${lang.label} (${lang.englishName}) • 15 Indian Languages',
+                      color: const Color(0xFFFF7A00),
+                      onTap: () => LanguagePickerSheet.show(context),
+                    ),
+                  ),
+                  const Divider(height: 1, indent: 56),
                   _profileListTile(
                     icon: Icons.headset_mic_rounded,
                     title: 'Help & 24/7 Devotee Support',

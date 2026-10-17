@@ -282,10 +282,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.checkout, style: const TextStyle(fontWeight: FontWeight.w800)),
-      ),
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: LocaleManager.instance.currentLanguage,
+      builder: (context, lang, _) {
+        final isHi = lang != AppLanguage.en;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              widget.puja != null
+                  ? (isHi ? 'वैदिक संकल्प एवं दक्षिणा' : 'Puja Booking & Sankalp')
+                  : (isHi ? 'ऑर्डर चेकआउट' : AppStrings.checkout),
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -316,12 +325,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           height: 22,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : Text(
-                          '${AppStrings.placeOrder} · $currency${_price.toStringAsFixed(0)}',
+                          widget.puja != null
+                              ? (isHi
+                                  ? 'दक्षिणा अर्पित करें एवं संकल्प लें · $currency${_price.toStringAsFixed(0)}'
+                                  : '${AppStrings.placeOrder} · $currency${_price.toStringAsFixed(0)}')
+                              : '${AppStrings.placeOrder} · $currency${_price.toStringAsFixed(0)}',
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 14.5,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
-                            letterSpacing: 0.5,
+                            letterSpacing: 0.4,
                           ),
                         ),
                 ),
@@ -534,6 +547,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ],
                 ),
+        );
+      },
     );
   }
 

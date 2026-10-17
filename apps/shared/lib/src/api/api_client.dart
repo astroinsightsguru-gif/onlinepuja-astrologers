@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../env.dart';
+import '../l10n/app_strings.dart';
 
 /// Thrown for any non-2xx API response or network failure.
 class ApiException implements Exception {
@@ -42,9 +43,12 @@ class ApiClient {
   String? Function() tokenTypeResolver = () => null;
 
   Map<String, String> headers({bool auth = true}) {
+    final langCode = LocaleManager.instance.currentLanguage.value.code;
     final h = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Accept-Language': langCode,
+      'X-App-Lang': langCode,
     };
     if (auth) {
       final token = tokenResolver();

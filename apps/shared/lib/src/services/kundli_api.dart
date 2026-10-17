@@ -1,4 +1,5 @@
 import '../api/api_client.dart';
+import '../l10n/app_strings.dart';
 import '../models/kundli.dart';
 
 /// Kundli (birth-chart) endpoints mirroring the legacy Customer-app calls:
@@ -165,6 +166,7 @@ class KundliApi {
     required String girlBirthTime,
     required String girlBirthPlace,
   }) async {
+    final langCode = LocaleManager.instance.currentLanguage.value.code;
     final decoded = await _api.post('/KundaliMatching/add', body: {
       'boyName': boyName,
       'boyBirthDate': boyBirthDate,
@@ -174,6 +176,8 @@ class KundliApi {
       'girlBirthDate': girlBirthDate,
       'girlBirthTime': girlBirthTime,
       'girlBirthPlace': girlBirthPlace,
+      'lang': langCode,
+      'language': langCode,
     });
     return _asMap(decoded);
   }
@@ -206,6 +210,8 @@ class KundliApi {
       'lat': lat,
       'lon': lng,
       'tzone': tz,
+      'lang': LocaleManager.instance.currentLanguage.value.code,
+      'language': LocaleManager.instance.currentLanguage.value.code,
     };
   }
 }
