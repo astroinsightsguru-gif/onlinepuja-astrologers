@@ -92,6 +92,8 @@ class KpService {
     // Exact Moon Sign & Nakshatra
     final moonSignIndex = (moonSidereal / 30.0).floor() % 12;
     final moonStarIndex = (moonSidereal / (360.0 / 27.0)).floor() % 27;
+    final moonSign = signs[moonSignIndex];
+    final moonStar = nakshatras[moonStarIndex];
     final moonSignLord = signLords[moonSignIndex];
     final moonStarLord = vimshottariDasha[moonStarIndex % 9]['planet'] as String;
 
@@ -107,14 +109,20 @@ class KpService {
 
     final lagnaSignIndex = (ascSidereal / 30.0).floor() % 12;
     final lagnaStarIndex = (ascSidereal / (360.0 / 27.0)).floor() % 27;
+    final lagnaSign = signs[lagnaSignIndex];
+    final lagnaStar = nakshatras[lagnaStarIndex];
     final lagnaSignLord = signLords[lagnaSignIndex];
     final lagnaStarLord = vimshottariDasha[lagnaStarIndex % 9]['planet'] as String;
 
     return KpRulingPlanets(
       dayLord: dayLord,
+      ascendantSign: lagnaSign,
       ascendantSignLord: lagnaSignLord,
+      ascendantStar: lagnaStar,
       ascendantStarLord: lagnaStarLord,
+      moonSign: moonSign,
       moonSignLord: moonSignLord,
+      moonStar: moonStar,
       moonStarLord: moonStarLord,
       calculatedAt: dateTime,
     );
@@ -219,17 +227,25 @@ class KpService {
 /// Represents an instantaneous snapshot of the 5 Ruling Planets in KP
 class KpRulingPlanets {
   final String dayLord;
+  final String ascendantSign;
   final String ascendantSignLord;
+  final String ascendantStar;
   final String ascendantStarLord;
+  final String moonSign;
   final String moonSignLord;
+  final String moonStar;
   final String moonStarLord;
   final DateTime calculatedAt;
 
   const KpRulingPlanets({
     required this.dayLord,
+    this.ascendantSign = 'Aries',
     required this.ascendantSignLord,
+    this.ascendantStar = 'Ashwini',
     required this.ascendantStarLord,
+    this.moonSign = 'Aries',
     required this.moonSignLord,
+    this.moonStar = 'Ashwini',
     required this.moonStarLord,
     required this.calculatedAt,
   });

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../../theme/customer_theme.dart';
 
+import 'package:op_shared/op_shared.dart';
+
 class ChoghadiyaRadarScreen extends StatefulWidget {
   const ChoghadiyaRadarScreen({super.key});
 
@@ -17,11 +19,14 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
   late bool _isDay;
   DateTime _now = DateTime.now();
   Timer? _timer;
+  Map<String, dynamic>? _remoteChoghadiya;
 
   @override
   void initState() {
     super.initState();
+    _now = DateTime.now();
     _isDay = _now.hour >= 6 && _now.hour < 18;
+    _loadRemoteChoghadiya();
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) {
         setState(() {
@@ -32,30 +37,84 @@ class _ChoghadiyaRadarScreenState extends State<ChoghadiyaRadarScreen> {
     });
   }
 
+  Future<void> _loadRemoteChoghadiya() async {
+    try {
+      final dateStr = DateFormat('yyyy-MM-dd').format(_now);
+      final res = await MiscApi.instance.getChoghadiya(date: dateStr);
+      if (mounted && res.isNotEmpty) {
+        setState(() {
+          _remoteChoghadiya = res;
+        });
+      }
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
   }
 
+  /// Authentic Vedic Choghadiya order for all 7 weekdays (1=Mon ... 7=Sun)
+  static const Map<int, List<String>> _dayChoghadiyaMap = {
+    1: ['Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Chal', 'Labh', 'Amrit'], // Somvar (Mon)
+    2: ['Rog', 'Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog'],   // Mangalvar (Tue)
+    3: ['Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Chal', 'Labh'],   // Budhvar (Wed)
+    4: ['Shubh', 'Rog', 'Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh'], // Guruvar (Thu)
+    5: ['Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Chal'],   // Shukravar (Fri)
+    6: ['Kaal', 'Shubh', 'Rog', 'Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal'],   // Shanivar (Sat)
+    7: ['Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg'], // Ravivar (Sun)
+  };
+
+  static const Map<int, List<String>> _nightChoghadiyaMap = {
+    1: ['Chal', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Chal'], // Mon Night
+    2: ['Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Chal', 'Rog', 'Kaal'], // Tue Night
+    3: ['Udveg', 'Shubh', 'Amrit', 'Chal', 'Rog', 'Kaal', 'Labh', 'Udveg'], // Wed Night
+    4: ['Amrit', 'Chal', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit'], // Thu Night
+    5: ['Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Chal', 'Rog'],   // Fri Night
+    6: ['Labh', 'Udveg', 'Shubh', 'Amrit', 'Chal', 'Rog', 'Kaal', 'Labh'], // Sat Night
+    7: ['Shubh', 'Amrit', 'Chal', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh'], // Sun Night
+  };
+
   List<Map<String, dynamic>> _generateChoghadiya(bool isDay) {
-    // 8 Choghadiya periods per day/night (~1.5 hours each)
-    final sunrise = DateTime(_now.year, _now.month, _now.day, 6, 12);
-    final sunset = DateTime(_now.year, _now.month, _now.day, 18, 24);
+    // 8 Choghadiya periods per day/night proportionally divided by solar day/night duration
+    DateTime sunrise = DateTime(_now.year, _now.month, _now.day, 6, 15);
+    DateTime sunset = DateTime(_now.year, _now.month, _now.day, 18, 20);
+
+    if (_remoteChoghadiya != null) {
+      final srStr = _remoteChoghadiya!['sunrise']?.toString();
+      final ssStr = _remoteChoghadiya!['sunset']?.toString();
+      if (srStr != null && srStr.contains(':')) {
+        final parts = srStr.split(':');
+        final h = int.tryParse(parts[0]) ?? 6;
+        final m = int.tryParse(parts[1].split(' ')[0]) ?? 15;
+        sunrise = DateTime(_now.year, _now.month, _now.day, h, m);
+      }
+      if (ssStr != null && ssStr.contains(':')) {
+        final parts = ssStr.split(':');
+        var h = int.tryParse(parts[0]) ?? 18;
+        if (h < 12 && ssStr.toLowerCase().contains('pm')) h += 12;
+        final m = int.tryParse(parts[1].split(' ')[0]) ?? 20;
+        sunset = DateTime(_now.year, _now.month, _now.day, h, m);
+      }
+    }
 
     final start = isDay ? sunrise : sunset;
+    final totalSpanMinutes = isDay
+        ? sunset.difference(sunrise).inMinutes
+        : (24 * 60 - sunset.difference(sunrise).inMinutes);
+    final slotMinutes = totalSpanMinutes / 8.0;
 
-    // Day Choghadiya pattern for Thursday (Guruvar):
-    // Shubh, Rog, Udveg, Chal, Labh, Amrit, Kaal, Shubh
-    final dayNames = ['Shubh', 'Rog', 'Udveg', 'Chal', 'Labh', 'Amrit', 'Kaal', 'Shubh'];
-    final nightNames = ['Amrit', 'Chal', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit'];
+    final weekday = _now.weekday; // 1 = Monday, 7 = Sunday
+    final names = isDay
+        ? (_dayChoghadiyaMap[weekday] ?? _dayChoghadiyaMap[4]!)
+        : (_nightChoghadiyaMap[weekday] ?? _nightChoghadiyaMap[4]!);
 
-    final names = isDay ? dayNames : nightNames;
     final list = <Map<String, dynamic>>[];
 
     var curStart = start;
     for (int i = 0; i < 8; i++) {
-      final curEnd = curStart.add(const Duration(minutes: 91));
+      final curEnd = start.add(Duration(minutes: (slotMinutes * (i + 1)).round()));
       final name = names[i];
 
       final isGood = ['Shubh', 'Labh', 'Amrit'].contains(name);

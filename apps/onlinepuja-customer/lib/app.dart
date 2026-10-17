@@ -13,6 +13,7 @@ import 'ui/screens/charity/annadaan_screen.dart';
 import 'ui/screens/chat/chat_session_screen.dart';
 import 'ui/screens/cosmic_ai_screen.dart';
 import 'ui/screens/darshan/live_darshan_screen.dart';
+import 'ui/screens/explore/explore_screen.dart';
 import 'ui/screens/explore/prashna_oracle_screen.dart';
 import 'ui/screens/explore/swapna_shastra_screen.dart';
 import 'ui/screens/history/history_screen.dart';
@@ -77,6 +78,7 @@ class OnlinePujaApp extends StatelessWidget {
         BlogScreen.route: (_) => const BlogScreen(),
         HistoryScreen.route: (_) => const HistoryScreen(),
         KpCalendarScreen.route: (_) => const KpCalendarScreen(),
+        ExploreScreen.route: (_) => const ExploreScreen(),
       },
       onGenerateRoute: (settings) {
         final args = settings.arguments;

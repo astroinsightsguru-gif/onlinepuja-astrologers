@@ -5,8 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../state/app_session.dart';
 
+import '../puja/puja_list_screen.dart';
+
 /// Doorstep Prasadam GPS & Spiritual Journey Tracker screen.
-class PrasadamTrackerScreen extends StatelessWidget {
+class PrasadamTrackerScreen extends StatefulWidget {
   const PrasadamTrackerScreen({
     super.key,
     this.orderId,
@@ -26,16 +28,167 @@ class PrasadamTrackerScreen extends StatelessWidget {
   final String? courierName;
   final int currentStep;
 
-  String get _displayOrderId => orderId ?? 'OP-PUJA-${DateTime.now().year}88';
-  String get _displayPujaName => pujaName ?? 'Maha Mrityunjaya Special Temple Puja';
-  String get _displayTemple => temple ?? 'Kashi Vishwanath Temple, Varanasi';
-  String get _displayTracking => trackingCode ?? 'BD-${_displayOrderId.replaceAll(RegExp(r'[^0-9]'), '')}94';
-  String get _displayCourier => courierName ?? 'BlueDart Express';
+  @override
+  State<PrasadamTrackerScreen> createState() => _PrasadamTrackerScreenState();
+}
+
+class _PrasadamTrackerScreenState extends State<PrasadamTrackerScreen> {
+  bool _loading = false;
+  String? _orderId;
+  String? _pujaName;
+  String? _temple;
+  String? _trackingCode;
+  String? _courierName;
+  int _currentStep = 3;
+  bool _hasOrder = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initOrder();
+  }
+
+  Future<void> _initOrder() async {
+    if (widget.orderId != null && widget.orderId!.isNotEmpty) {
+      setState(() {
+        _orderId = widget.orderId;
+        _pujaName = widget.pujaName ?? 'Sacred Vedic Puja';
+        _temple = widget.temple ?? 'Holy Teerth Mandir';
+        _trackingCode = widget.trackingCode;
+        _courierName = widget.courierName ?? 'Sanctum Priority Express';
+        _currentStep = widget.currentStep;
+        _hasOrder = true;
+      });
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      final decoded = await ApiClient.instance.post('/getUserPujaOrders');
+      List<dynamic> list = [];
+      if (decoded is Map<String, dynamic> && decoded['recordList'] is List) {
+        list = decoded['recordList'];
+      }
+      if (list.isNotEmpty) {
+        final latest = list.first as Map<String, dynamic>;
+        final id = latest['id']?.toString() ?? '1';
+        final name = latest['puja_title']?.toString() ?? latest['pujaName']?.toString() ?? 'Vedic Puja';
+        final temple = latest['puja_place']?.toString() ?? 'Sanctum Mandir';
+        final awb = latest['awb_number']?.toString() ?? latest['tracking_code']?.toString();
+        final courier = latest['courier_name']?.toString() ?? 'Sanctum Priority Express';
+        final status = latest['order_status']?.toString() ?? latest['puja_order_status']?.toString() ?? '';
+        int step = 2;
+        if (status.toLowerCase().contains('complete') || status.toLowerCase().contains('deliver')) {
+          step = 4;
+        } else if (status.toLowerCase().contains('transit') || status.toLowerCase().contains('dispatch')) {
+          step = 3;
+        }
+
+        if (mounted) {
+          setState(() {
+            _orderId = 'OP-PUJA-$id';
+            _pujaName = name;
+            _temple = temple;
+            _trackingCode = awb;
+            _courierName = courier;
+            _currentStep = step;
+            _hasOrder = true;
+            _loading = false;
+          });
+        }
+        return;
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _loading = false;
+        _hasOrder = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
+    if (_loading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Doorstep Prasadam Tracker')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (!_hasOrder) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Doorstep Prasadam Tracker')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFFDE68A), width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.local_shipping_outlined,
+                    size: 52,
+                    color: Color(0xFFD97706),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'No Active Prasad Deliveries',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'When you participate in holy temple pujas on OnlinePuja.live, your sanctified Prasad box and sacred raksha sutra are tracked live here from the sanctum to your home.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF64748B),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFD97706),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(PujaListScreen.route);
+                  },
+                  icon: const Icon(Icons.temple_hindu_rounded, size: 18),
+                  label: const Text(
+                    'Book a Sacred Temple Puja',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final displayOrderId = _orderId ?? 'OP-PUJA';
+    final displayPujaName = _pujaName ?? 'Vedic Puja';
+    final displayTemple = _temple ?? 'Temple Sanctum';
+    final displayTracking = _trackingCode ?? 'Tracking Pending';
+    final displayCourier = _courierName ?? 'Sanctum Priority Express';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Doorstep Prasadam Tracker'),
@@ -70,7 +223,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
                           border: Border.all(color: AppTheme.brandSaffron.withValues(alpha: 0.4)),
                         ),
                         child: Text(
-                          'Order #$_displayOrderId',
+                          'Order #$displayOrderId',
                           style: const TextStyle(color: AppTheme.brandGold, fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -85,7 +238,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _displayPujaName,
+                    displayPujaName,
                     style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
@@ -95,7 +248,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          _displayTemple,
+                          displayTemple,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: Colors.white70, fontSize: 13),
@@ -121,8 +274,8 @@ class PrasadamTrackerScreen extends StatelessWidget {
               title: 'Sankalp & Ritual Completed',
               subtitle: 'Priest completed your personalized Sankalp with Vedic chants calling your name & gotra.',
               time: 'Completed',
-              completed: currentStep >= 1,
-              isCurrent: currentStep == 1,
+              completed: _currentStep >= 1,
+              isCurrent: _currentStep == 1,
               isFirst: true,
               actionWidget: Container(
                 margin: const EdgeInsets.only(top: 8),
@@ -175,17 +328,17 @@ class PrasadamTrackerScreen extends StatelessWidget {
               title: 'Prasadam Consecrated & Blessed',
               subtitle: 'Sacred Bhasma, Rudraksha, and Holy Dry Fruits sanctified at deity altar.',
               time: 'Consecrated',
-              completed: currentStep >= 2,
-              isCurrent: currentStep == 2,
+              completed: _currentStep >= 2,
+              isCurrent: _currentStep == 2,
             ),
             _timelineStep(
               context,
               step: 3,
-              title: 'Dispatched via $_displayCourier',
-              subtitle: 'AWB Code: $_displayTracking. In transit to your local delivery hub.',
+              title: 'Dispatched via $displayCourier',
+              subtitle: 'AWB Code: $displayTracking. In transit to your local delivery hub.',
               time: 'In Transit',
-              completed: currentStep >= 3,
-              isCurrent: currentStep == 3,
+              completed: _currentStep >= 3,
+              isCurrent: _currentStep == 3,
             ),
             _timelineStep(
               context,
@@ -193,8 +346,8 @@ class PrasadamTrackerScreen extends StatelessWidget {
               title: 'Doorstep Delivery & Family Blessing',
               subtitle: 'Expected arrival in 2-3 business days. Delivery agent will call before arrival.',
               time: 'Estimated Soon',
-              completed: currentStep >= 4,
-              isCurrent: currentStep == 4,
+              completed: _currentStep >= 4,
+              isCurrent: _currentStep == 4,
               isLast: true,
             ),
 
@@ -244,7 +397,7 @@ class PrasadamTrackerScreen extends StatelessWidget {
               onPressed: () async {
                 final wa = context.read<AppSession>().flags.supportWhatsapp;
                 final phone = context.read<AppSession>().flags.supportPhone;
-                final uri = Uri.parse('https://wa.me/$wa?text=Namaste,%20I%20have%20an%20inquiry%20regarding%20my%20Prasadam%20Order%20$_displayOrderId');
+                final uri = Uri.parse('https://wa.me/$wa?text=Namaste,%20I%20have%20an%20inquiry%20regarding%20my%20Prasadam%20Order%20$displayOrderId');
                 try {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
                 } catch (_) {

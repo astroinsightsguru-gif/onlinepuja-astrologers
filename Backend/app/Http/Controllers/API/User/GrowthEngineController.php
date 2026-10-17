@@ -140,7 +140,7 @@ class GrowthEngineController extends Controller
 
         $items = [];
         foreach ($orders as $order) {
-            $video = $order->puja_video ?: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+            $video = $order->puja_video ?: null;
             $items[] = [
                 'id' => $order->id,
                 'pujaName' => $order->puja_name ?: $order->puja_title ?: 'Vedic Puja & Havan',
@@ -149,48 +149,12 @@ class GrowthEngineController extends Controller
                 'gotra' => 'Kashyap Gotra',
                 'familyMembers' => 'Devotee & Family',
                 'videoUrl' => $video,
-                'hasVideo' => !empty($order->puja_video) || true,
-                'awbNumber' => 'DEL' . ($order->id * 7391 + 100000) . 'IN',
-                'courier' => 'Delhivery Express Sanctum Priority',
+                'hasVideo' => !empty($order->puja_video),
+                'awbNumber' => !empty($order->tracking_number) ? $order->tracking_number : null,
+                'courier' => 'Sanctum Priority Express',
                 'prasadStatus' => ($order->puja_order_status === 'completed') ? 'Delivered' : 'In Transit',
                 'prasadStep' => ($order->puja_order_status === 'completed') ? 4 : 3,
                 'certificateUrl' => url('/api/sankalp/certificate/' . $order->id)
-            ];
-        }
-
-        // If no user orders yet, supply demo showcase
-        if (empty($items)) {
-            $items = [
-                [
-                    'id' => 101,
-                    'pujaName' => 'Maha Rudrabhishek & Shanti Havan',
-                    'templeName' => 'Mahakaleshwar Temple, Ujjain',
-                    'date' => 'Yesterday, 07:30 AM',
-                    'gotra' => 'Bharadwaj Gotra',
-                    'familyMembers' => 'Ramesh Sharma & Family (4 Names Chanted)',
-                    'videoUrl' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                    'hasVideo' => true,
-                    'awbNumber' => 'BD882109432IN',
-                    'courier' => 'BlueDart Sanctum Priority',
-                    'prasadStatus' => 'Out for Delivery',
-                    'prasadStep' => 3,
-                    'certificateUrl' => url('/api/sankalp/certificate/101')
-                ],
-                [
-                    'id' => 102,
-                    'pujaName' => 'Navgrah Shanti & Rahu Ketu Nivaran',
-                    'templeName' => 'Kashi Vishwanath Dham, Varanasi',
-                    'date' => '04 Oct 2026',
-                    'gotra' => 'Vashistha Gotra',
-                    'familyMembers' => 'Personal Sankalp',
-                    'videoUrl' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                    'hasVideo' => true,
-                    'awbNumber' => 'DEL773129841IN',
-                    'courier' => 'Delhivery Express',
-                    'prasadStatus' => 'Delivered',
-                    'prasadStep' => 4,
-                    'certificateUrl' => url('/api/sankalp/certificate/102')
-                ]
             ];
         }
 

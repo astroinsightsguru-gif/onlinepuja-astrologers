@@ -480,7 +480,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                           child: RadioListTile<OrderAddress>(
                             value: a,
+                            // ignore: deprecated_member_use
                             groupValue: _selected,
+                            // ignore: deprecated_member_use
                             onChanged: (v) => setState(() => _selected = v),
                             activeColor: const Color(0xFFF59E0B),
                             title: Text(a.name?.toString() ?? 'Address',

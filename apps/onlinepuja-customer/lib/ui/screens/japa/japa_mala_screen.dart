@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:op_shared/op_shared.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Represents a sacred Vedic mantra with deity and benefits.
 class MantraItem {
@@ -78,6 +79,35 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
   void initState() {
     super.initState();
     _selectedMantra = _mantras.first;
+    _loadSavedProgress();
+  }
+
+  Future<void> _loadSavedProgress() async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      if (mounted) {
+        setState(() {
+          _currentCount = sp.getInt('japa_bead_count') ?? 0;
+          _malasCompleted = sp.getInt('japa_malas_completed') ?? 0;
+          final savedIdx = sp.getInt('japa_last_mantra_index') ?? 0;
+          if (savedIdx >= 0 && savedIdx < _mantras.length) {
+            _selectedMantra = _mantras[savedIdx];
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveProgress() async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      await sp.setInt('japa_bead_count', _currentCount);
+      await sp.setInt('japa_malas_completed', _malasCompleted);
+      final idx = _mantras.indexOf(_selectedMantra);
+      if (idx >= 0) {
+        await sp.setInt('japa_last_mantra_index', idx);
+      }
+    } catch (_) {}
   }
 
   void _incrementBead() {
@@ -96,12 +126,14 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
         );
       }
     });
+    _saveProgress();
   }
 
   void _resetCounter() {
     setState(() {
       _currentCount = 0;
     });
+    _saveProgress();
   }
 
   @override
@@ -334,6 +366,7 @@ class _JapaMalaScreenState extends State<JapaMalaScreen> {
                     setState(() {
                       _selectedMantra = m;
                     });
+                    _saveProgress();
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),

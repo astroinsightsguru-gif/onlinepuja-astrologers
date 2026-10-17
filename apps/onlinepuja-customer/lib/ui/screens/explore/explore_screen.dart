@@ -23,6 +23,8 @@ import 'swapna_shastra_screen.dart';
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
 
+  static const route = '/explore';
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

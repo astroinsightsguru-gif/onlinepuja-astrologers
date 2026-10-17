@@ -20,7 +20,11 @@ import '../puja/puja_detail_screen.dart';
 import '../puja/sankalp_vault_screen.dart';
 import '../kp/kp_calendar_screen.dart';
 import '../darshan/live_darshan_screen.dart';
-import '../mall/mall_screen.dart';
+import '../charity/annadaan_screen.dart';
+import '../blog/blog_screen.dart';
+import '../explore/prashna_oracle_screen.dart';
+import '../explore/swapna_shastra_screen.dart';
+import '../profile/family_gotra_vault_screen.dart';
 
 /// Clean, Human-Centered Vedic Home Portal (Consult Tab):
 /// - Clean header with OnlinePuja.live branding, drawer, smart AI button, wallet & language toggle
@@ -706,8 +710,9 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
     );
   }
 
-  /// Clean, 4x2 Curated Vedic Sanctum Grid (Zero horizontal clutter)
+  /// Clean, 4x3 Curated Vedic Sanctum Grid reconnecting authentic spiritual tools
   Widget _curatedVedicGrid(BuildContext context, ColorScheme scheme, bool isDark) {
+    final isHi = LocaleManager.instance.currentLanguage.value != AppLanguage.en;
     final tools = [
       (AppStrings.freeKundli, Icons.auto_graph_rounded, const Color(0xFFFFEBEE), const Color(0xFFC62828), const KundliListScreen()),
       (AppStrings.kundliMatching, Icons.favorite_rounded, const Color(0xFFFCE4EC), const Color(0xFFAD1457), const KundliMatchingScreen()),
@@ -717,6 +722,10 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
       (AppStrings.cosmicAi, Icons.auto_awesome_rounded, const Color(0xFFFEF3C7), const Color(0xFFD97706), const CosmicAiScreen()),
       (AppStrings.japaMala, Icons.circle_outlined, const Color(0xFFF3E5F5), const Color(0xFF6A1B9A), const JapaMalaScreen()),
       (AppStrings.mySankalp, Icons.savings_rounded, const Color(0xFFE0F2F1), const Color(0xFF00695C), const SankalpVaultScreen()),
+      (AppStrings.annadaan, Icons.volunteer_activism_rounded, const Color(0xFFFBE9E7), const Color(0xFFD84315), const AnnadaanScreen()),
+      (AppStrings.prashnaKundli, Icons.help_outline_rounded, const Color(0xFFE0F7FA), const Color(0xFF00838F), const PrashnaOracleScreen()),
+      (isHi ? 'स्वप्न विचार' : 'Swapna Shastra', Icons.bedtime_rounded, const Color(0xFFEDE7F6), const Color(0xFF4527A0), const SwapnaShastraScreen()),
+      (isHi ? 'वैदिक लेख' : 'Vedic Blogs', Icons.menu_book_rounded, const Color(0xFFF1F8E9), const Color(0xFF558B2F), const BlogScreen()),
     ];
 
     return Padding(
@@ -1414,6 +1423,46 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HistoryScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.volunteer_activism_rounded, color: Color(0xFFD84315)),
+              title: Text(isHi ? 'अन्नदान एवं गो सेवा' : 'Digital Annadaan & Gau Seva'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AnnadaanScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.family_restroom_rounded, color: Color(0xFFB45309)),
+              title: Text(isHi ? 'परिवार गोत्र एवं कुलदेवता वॉल्ट' : 'Family Gotra & Kuldevta Vault'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const FamilyGotraVaultScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.help_outline_rounded, color: Color(0xFF00838F)),
+              title: Text(isHi ? 'प्रश्न कुंडली ओरेकल' : 'Prashna Shastra Oracle'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrashnaOracleScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bedtime_rounded, color: Color(0xFF4527A0)),
+              title: Text(isHi ? 'स्वप्न विचार (ड्रीम इंटरप्रेटर)' : 'Swapna Shastra (Dream Interpreter)'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SwapnaShastraScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.menu_book_rounded, color: Color(0xFF558B2F)),
+              title: Text(isHi ? 'वैदिक लेख एवं ब्लॉग' : 'Vedic Blogs & Articles'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BlogScreen()));
               },
             ),
             const Divider(),

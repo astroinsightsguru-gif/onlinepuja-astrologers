@@ -227,16 +227,58 @@ class _SankalpVaultScreenState extends State<SankalpVaultScreen> {
               children: [
                 _buildHeaderBanner(),
                 const SizedBox(height: 18),
-                const Text(
-                  'Your Completed & Active Pujas:',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A132F),
+                if (_sankalpItems.isEmpty) ...[
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFEF3C7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.video_collection_outlined, size: 40, color: Color(0xFFD97706)),
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'No Sankalp Videos Recorded Yet',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'When your sacred puja is performed by our Vedic priests, your personalized Sankalp video with your Name & Gotra will be sanctified and delivered here.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Color(0xFF64748B), fontSize: 12.5, height: 1.4),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                ..._sankalpItems.map((item) => _buildSankalpCard(item)),
+                ] else ...[
+                  const Text(
+                    'Your Completed & Active Pujas:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A132F),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ..._sankalpItems.map((item) => _buildSankalpCard(item)),
+                ],
                 const SizedBox(height: 20),
                 _buildBookAnotherPujaCta(),
               ],
