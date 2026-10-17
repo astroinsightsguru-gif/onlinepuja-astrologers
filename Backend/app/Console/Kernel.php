@@ -46,10 +46,22 @@ class Kernel extends ConsoleKernel
             ->name('seo_research')
             ->withoutOverlapping();
 
-        // 🧠 SELF-GROWING: AI content drafts (daily)
-        $schedule->command('content:generate --limit=2')
+        // 🧠 SELF-GROWING: AI content auto-generation & immediate live blog publishing (daily)
+        $schedule->command('content:generate --limit=2 --publish')
             ->dailyAt('05:00')
-            ->name('content_generate')
+            ->name('content_generate_publish')
+            ->withoutOverlapping();
+
+        // 🧠 SOCIAL MEDIA: Auto-dispatch approved festival & daily darshan posts (daily morning)
+        $schedule->command('social:publish --limit=5')
+            ->dailyAt('06:30')
+            ->name('social_publish')
+            ->withoutOverlapping();
+
+        // 🧠 FESTIVAL SEEDER: Weekly refresh of upcoming Hindu festivals
+        $schedule->command('brain:seed-festivals')
+            ->weeklyOn(1, '01:00')
+            ->name('brain_seed_festivals')
             ->withoutOverlapping();
 
         // 🧠 SELF-HEALING: nightly technical scan

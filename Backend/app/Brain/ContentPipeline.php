@@ -53,10 +53,20 @@ TXT;
 
         foreach ($keywords as $kw) {
             $res = $this->draftOne($kw);
+            if ($publishImmediately && $res['ok'] && !empty($res['plan_id'])) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('content:publish', ['id' => $res['plan_id']]);
+                    $res['status'] = 'published';
+                } catch (\Throwable $e) {
+                    \Log::warning("Auto-publish failed for plan #{$res['plan_id']}: " . $e->getMessage());
+                }
+            }
+
             $out['results'][] = $res + ['keyword' => $kw->phrase];
 
             if ($res['ok']) {
                 $out['drafted']++;
+                \DB::table('keywords')->where('id', $kw->id)->update(['status' => 'covered', 'updated_at' => now()]);
             } else {
                 $out['failed']++;
             }

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Http;
  */
 class KeywordResearch
 {
-    protected const SEEDS_DEFAULT = 'online puja,puja booking,book pandit online,kundli matching online,astrology consultation,havan online,e-puja';
+    protected const SEEDS_DEFAULT = 'online puja,puja booking,book pandit online,kashi vishwanath rudrabhishek online,dev deepawali varanasi deepdaan,diwali lakshmi puja booking,karwa chauth puja pandit,ganga aarti varanasi sankalp,pind daan in varanasi,griha pravesh pandit booking,vivah puja pandit,kundli matching online,astrology consultation,havan online,e-puja';
 
     protected const COMMERCIAL = ['online', 'booking', 'book', 'hire', 'price', 'cost', 'service', 'best', 'top', 'expert'];
 

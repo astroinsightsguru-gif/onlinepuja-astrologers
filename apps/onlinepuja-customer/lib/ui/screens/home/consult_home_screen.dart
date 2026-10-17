@@ -269,6 +269,7 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
                 children: [
                   _searchBar(context, scheme, isDark),
                   _heroBannerCarousel(context, scheme, isHi),
+                  _varanasiFestiveMahotsavBar(context, isDark, isHi),
                   _curatedVedicGrid(context, scheme, isDark),
                   if (_prescriptions.isNotEmpty)
                     _acharyaPrescribedRemediesSection(context, currency, isDark, isHi),
@@ -281,6 +282,167 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  /// High-Converting Varanasi Festive & Dev Deepawali Quick-Access Bar
+  Widget _varanasiFestiveMahotsavBar(BuildContext context, bool isDark, bool isHi) {
+    final festivePills = [
+      (
+        label: isHi ? '🪔 दीवाली महालक्ष्मी पूजन' : '🪔 Diwali Lakshmi Puja',
+        tag: isHi ? 'विशेष पर्व' : 'Most Popular',
+        color: const Color(0xFFB45309),
+        bg: const Color(0xFFFEF3C7),
+        onTap: () => _goToTab(2),
+      ),
+      (
+        label: isHi ? '🌊 काशी १०८ दीपदान' : '🌊 Kashi 108 Deepdaan',
+        tag: isHi ? 'देव दीपावली' : 'Dev Deepawali',
+        color: const Color(0xFF1D4ED8),
+        bg: const Color(0xFFDBEAFE),
+        onTap: () => _goToTab(2),
+      ),
+      (
+        label: isHi ? '🌕 करवा चौथ अखंड सुहाग' : '🌕 Karwa Chauth Vrat',
+        tag: isHi ? 'व्रत कथा' : 'Vrat Katha',
+        color: const Color(0xFFBE185D),
+        bg: const Color(0xFFFCE7F3),
+        onTap: () => _goToTab(2),
+      ),
+      (
+        label: isHi ? '🌾 काशी गो-सेवा एवं अन्नदान' : '🌾 Kashi Gau Seva (₹51)',
+        tag: isHi ? 'पुण्य लाभ' : 'Seva Offering',
+        color: const Color(0xFF047857),
+        bg: const Color(0xFFD1FAE5),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const AnnadaanScreen()),
+        ),
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [const Color(0xFF3B1E08), const Color(0xFF200F05)]
+                : [const Color(0xFFFFFBEB), const Color(0xFFFEF3C7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFD97706).withValues(alpha: 0.45),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD97706).withValues(alpha: isDark ? 0.2 : 0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('🪔', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    isHi ? 'काशी दीपोत्सव एवं पर्व महाकुंभ 2026' : 'Kashi Festive Mahotsav 2026',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? const Color(0xFFFCD34D) : const Color(0xFF92400E),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD97706),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    isHi ? 'सीमित तिथियां' : 'BOOK EARLY',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: festivePills.map((pill) {
+                  return GestureDetector(
+                    onTap: pill.onTap,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: pill.color.withValues(alpha: 0.35),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            pill.label,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : const Color(0xFF1F2937),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: pill.bg,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              pill.tag,
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                color: pill.color,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -557,6 +719,18 @@ class _ConsultHomeScreenState extends State<ConsultHomeScreen> {
 
   Widget _heroBannerCarousel(BuildContext context, ColorScheme scheme, bool isHi) {
     final curatedBanners = [
+      (
+        title: isHi
+            ? '🪔 काशी देव दीपावली एवं दीपोत्सव 2026'
+            : '🪔 Kashi Dev Deepawali & Diwali 2026',
+        subtitle: isHi
+            ? 'गंगा घाट पर 108 दीपदान, महालक्ष्मी पूजन एवं विशेष गो-सेवा संकल्प'
+            : '108 Deepdaan on Ganga Ghats & Maha Lakshmi Havan Sankalp',
+        cta: isHi ? 'पर्व संकल्प बुक करें ✨' : 'Book Festive Sankalp ✨',
+        icon: Icons.brightness_high_rounded,
+        gradient: const [Color(0xFF78350F), Color(0xFFD97706)],
+        onTap: () => _goToTab(2), // Puja tab (index 2)
+      ),
       (
         title: isHi ? 'प्रामाणिक ऑनलाइन पूजा एवं हवन' : 'Authentic Online Puja & Hawan',
         subtitle: isHi
