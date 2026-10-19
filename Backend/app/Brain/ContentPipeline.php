@@ -81,8 +81,15 @@ TXT;
 
         $system = self::PERSONA."\nBUSINESS CONTEXT (anchor every claim to this):\n{$profile}\n\n".
             'Output STRICT JSON: {"title":string,"slug":string,"meta_description":string(140-158 chars),'.
-            '"html":string}. "html" is ONLY the article fragment: start with an <h2>, use <h2>/<h3>/<p>/<ul>, '.
-            'natural internal anchor suggestion is NOT needed, no <html>/<body>/styles. 900-1200 words.';
+            '"html":string}. "html" is ONLY the article fragment: start with an <h2>, use <h2>/<h3>/<p>/<ul>. '.
+            'IMPORTANT: Include 2-3 natural contextual hyperlinks with clean anchor text to relevant OnlinePuja services '.
+            '(e.g. href="/puja/category/list" for "online puja booking", href="/talk-to-partner" for "online pandit booking", '.
+            'or href="/puja-details/shri-kashi-vishwanath-rudrabhishek" for Kashi Rudrabhishek). '.
+            'End the article with a high-converting Call-To-Action (CTA) box: '.
+            '<div class="puja-cta-box" style="background:linear-gradient(135deg,#78350f,#d97706);color:#fff;padding:24px;border-radius:12px;margin:30px 0;text-align:center;">'.
+            '<h3 style="color:#fff;margin-bottom:8px;">Perform Authentic Vedic Puja in Varanasi</h3>'.
+            '<p style="color:#fef3c7;margin-bottom:16px;">Book experienced Kashi Vedic Pandits with live sanctum video recording and sacred Gangajal Prasad delivered to your home.</p>'.
+            '<a href="/puja/category/list" style="background:#fff;color:#78350f;padding:10px 24px;border-radius:24px;font-weight:bold;text-decoration:none;display:inline-block;">Book Puja Online Now</a></div>. 900-1200 words.';
 
         $prompt = "Write a complete, genuinely useful article targeting the exact search phrase:\n\"{$kw->phrase}\"\n".
             "Search intent: {$kw->intent}. Include practical steps, what to expect, costs-in-principle guidance, ".

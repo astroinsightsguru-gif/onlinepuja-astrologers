@@ -70,6 +70,12 @@ class Kernel extends ConsoleKernel
             ->name('brain_seed_festivals')
             ->withoutOverlapping();
 
+        // 🧠 SOCIAL MEDIA AUTO-SCHEDULER: Queue upcoming festival wishes & booking campaigns (weekly)
+        $schedule->command('social:schedule --days=60')
+            ->weeklyOn(1, '01:30')
+            ->name('social_schedule_festivals')
+            ->withoutOverlapping();
+
         // 🧠 SELF-HEALING: nightly technical scan
         $schedule->command('seo:scan')
             ->dailyAt('03:10')

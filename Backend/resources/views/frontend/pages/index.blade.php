@@ -1,5 +1,66 @@
 @extends('frontend.layout.master')
 
+@section('title', 'Online Puja Booking & Online Pandit Booking in Varanasi | Authentic Vedic Pujas')
+@section('meta_description', 'India\'s #1 platform for online puja booking & online pandit booking for puja in Varanasi. Perform authentic Vedic rituals at Kashi Vishwanath with live video and sanctum Prasad delivery.')
+@section('meta_keywords', 'online puja booking, online pandit booking for puja, book pandit online, pandit in varanasi for puja, kashi vishwanath rudrabhishek booking, dev deepawali deepdaan, vedic puja service')
+@section('canonical_url', url('/'))
+
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ url('/') }}/#website",
+      "url": "{{ url('/') }}",
+      "name": "OnlinePuja Varanasi",
+      "description": "Online Puja Booking & Online Pandit Booking for Authentic Vedic Pujas in Varanasi",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url('/puja/category/list') }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": "{{ url('/') }}/#organization",
+      "name": "OnlinePuja",
+      "url": "{{ url('/') }}",
+      "logo": "{{ asset('build/assets/images/logo.png') }}",
+      "image": "{{ asset('build/assets/images/logo.png') }}",
+      "telephone": "+91-9999999999",
+      "priceRange": "₹500 - ₹21000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Dashashwamedh Ghat Road",
+        "addressLocality": "Varanasi",
+        "addressRegion": "Uttar Pradesh",
+        "postalCode": "221001",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 25.3109,
+        "longitude": 83.0107
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "1420"
+      }
+    }
+  ]
+}
+</script>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="{{ asset('public/frontend/css/homepage.css?v=1.1.0') }}">
 @endpush
