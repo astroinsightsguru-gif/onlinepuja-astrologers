@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /growth-os/
+Disallow: /brain/
+Disallow: /my-account/
+Disallow: /my-wallet/
+Disallow: /my-orders/
+Disallow: /checkout/
+Disallow: /payment/
+Disallow: /deleteAccount/
+
+Sitemap: https://onlinepuja.live/sitemap.xml

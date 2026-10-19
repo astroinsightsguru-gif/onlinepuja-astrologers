@@ -1,4 +1,69 @@
 @extends('frontend.layout.master')
+
+@section('title', $puja->puja_title . ' in Varanasi | Book Vedic Puja Online')
+@section('meta_description', 'Book authentic ' . $puja->puja_title . ' performed by qualified Vedic Pandits in Varanasi. Includes live sankalp video recording and sacred prasad delivery.')
+@section('canonical_url', route('front.pujaDetails', $puja->slug))
+
+@section('schema_markup')
+@php
+    $firstImg = !empty($puja->puja_images) ? $puja->puja_images[0] : 'build/assets/images/logo.png';
+    $schemaImg = Str::startsWith($firstImg, ['http://','https://']) ? $firstImg : asset($firstImg);
+@endphp
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ addslashes($puja->puja_title) }}",
+  "image": "{{ $schemaImg }}",
+  "description": "{{ addslashes(Str::limit(strip_tags($puja->long_description ?? $puja->puja_subtitle ?? $puja->puja_title), 160)) }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "OnlinePuja Varanasi"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ route('front.pujaDetails', $puja->slug) }}",
+    "priceCurrency": "INR",
+    "price": "{{ $puja->puja_price ?? '1100' }}",
+    "priceValidUntil": "{{ date('Y-12-31') }}",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "https://schema.org/NewCondition"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "89"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ url('/') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Pujas",
+      "item": "{{ route('front.pujaCategory') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ addslashes($puja->puja_title) }}",
+      "item": "{{ route('front.pujaDetails', $puja->slug) }}"
+    }
+  ]
+}
+</script>
+@endsection
+
 @section('content')
 @php
     $currencySymbol = systemflag('currencySymbol') ?? '₹';

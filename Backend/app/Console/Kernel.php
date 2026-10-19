@@ -52,6 +52,12 @@ class Kernel extends ConsoleKernel
             ->name('content_generate_publish')
             ->withoutOverlapping();
 
+        // 🗺️ SEO SITEMAP: Auto-rebuild sitemap XML for Googlebot indexation (daily morning)
+        $schedule->command('sitemap:generate')
+            ->dailyAt('05:30')
+            ->name('sitemap_generate')
+            ->withoutOverlapping();
+
         // 🧠 SOCIAL MEDIA: Auto-dispatch approved festival & daily darshan posts (daily morning)
         $schedule->command('social:publish --limit=5')
             ->dailyAt('06:30')

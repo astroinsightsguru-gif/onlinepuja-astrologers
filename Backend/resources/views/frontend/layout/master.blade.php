@@ -11,30 +11,32 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta
-        content="Ask an online {{$professionTitle}} and get instant consultation on top Astrology portal. Accurate astrology predictions and solutions by India's best {{$professionTitle}}s' team."
-        name="description" />
-    <meta property="Keywords" content="" />
+    <!-- Primary Meta Tags -->
+    <title>@hasSection('title')@yield('title') - {{ ucfirst($appname) }}@else Online Puja & Pandit Booking in Varanasi | Authentic Vedic Pujas - {{ ucfirst($appname) }}@endif</title>
+    <meta name="description" content="@yield('meta_description', 'Book authentic Vedic pujas in Varanasi (Kashi Vishwanath, Ganga Ghats) performed by experienced Vedic Pandits. Receive live sankalp video and sanctum prasad at your doorstep.')" />
+    <meta name="keywords" content="@yield('meta_keywords', 'online puja varanasi, kashi vishwanath rudrabhishek booking, pandit in varanasi, online pandit booking, dev deepawali deepdaan, vedic puja service')" />
 
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="" />
-    <meta name="twitter:description"
-        content="Ask an online {{$professionTitle}} and get instant consultation on top Astrology portal. Accurate astrology predictions and solutions by India's best {{$professionTitle}}s' team." />
-    <meta name="twitter:title" content="Online Astrology Consultation, Ask an {{ucfirst($professionTitle)}} - {{ucfirst($appname)}}" />
-    <meta name="twitter:image" content="{{ asset($logo->value) }}" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Online Astrology Consultation, Ask an {{ucfirst($professionTitle)}} - {{ucfirst($appname)}}" />
-    <meta property="og:description"
-        content="Ask an online {{$professionTitle}} and get instant consultation on top Astrology portal. Accurate astrology predictions and solutions by India's best {{$professionTitle}}s' team." />
-    <meta property="og:image" content="{{ asset($logo->value) }}" />
-    <meta property="og:url" content="{{ request()->url() }}" />
-    <meta property="og:site_name" content="{{ucfirst($appname)}}" />
-
-    <title>Online Astrology Consultation, Ask an {{ucfirst($professionTitle)}} - {{ucfirst($appname)}}</title>
+    <!-- Canonical URL -->
+    <link rel="canonical" href="@yield('canonical_url', request()->url())" />
+    <link href="{{ asset($logo->value ?? 'build/assets/images/logo.png') }}" rel="shortcut icon" type="image/x-icon" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="{{ request()->url() }}" rel="canonical"/>
-    <link href="{{asset($logo->value)}}" rel="shortcut icon" type="image/x-icon" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')" />
+    <meta property="og:title" content="@hasSection('title')@yield('title') - {{ ucfirst($appname) }}@else Online Puja & Pandit Booking in Varanasi | Authentic Vedic Pujas - {{ ucfirst($appname) }}@endif" />
+    <meta property="og:description" content="@yield('meta_description', 'Book authentic Vedic pujas in Varanasi performed by experienced Vedic Pandits. Receive live sankalp video and sanctum prasad.')" />
+    <meta property="og:image" content="@yield('og_image', asset($logo->value ?? 'build/assets/images/logo.png'))" />
+    <meta property="og:url" content="{{ request()->url() }}" />
+    <meta property="og:site_name" content="{{ ucfirst($appname) }}" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@hasSection('title')@yield('title') - {{ ucfirst($appname) }}@else Online Puja & Pandit Booking in Varanasi | Authentic Vedic Pujas - {{ ucfirst($appname) }}@endif" />
+    <meta name="twitter:description" content="@yield('meta_description', 'Book authentic Vedic pujas in Varanasi performed by experienced Vedic Pandits.')" />
+    <meta name="twitter:image" content="@yield('og_image', asset($logo->value ?? 'build/assets/images/logo.png'))" />
+
+    <!-- Dynamic Schema Markup Container -->
+    @yield('schema_markup')
 
     <link rel="preconnect" as="font"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0"

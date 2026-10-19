@@ -1,5 +1,69 @@
 @extends('frontend.layout.master')
 
+@section('title', $blog->title . ' | Vedic Insights & Puja Guide')
+@section('meta_description', Str::limit(strip_tags($blog->description), 160))
+@section('canonical_url', route('front.getBlogDetails', $blog->slug))
+@section('og_type', 'article')
+@section('og_image', Str::startsWith($blog->blogImage, ['http://','https://']) ? $blog->blogImage : asset($blog->blogImage))
+
+@section('schema_markup')
+@php
+    $bImg = Str::startsWith($blog->blogImage, ['http://','https://']) ? $blog->blogImage : asset($blog->blogImage ?? 'build/assets/images/logo.png');
+@endphp
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ addslashes($blog->title) }}",
+  "image": [
+    "{{ $bImg }}"
+  ],
+  "datePublished": "{{ date('c', strtotime($blog->created_at ?? now())) }}",
+  "dateModified": "{{ date('c', strtotime($blog->updated_at ?? now())) }}",
+  "author": [{
+      "@type": "Organization",
+      "name": "OnlinePuja Vedic Research Desk",
+      "url": "{{ url('/') }}"
+  }],
+  "publisher": {
+      "@type": "Organization",
+      "name": "OnlinePuja Varanasi",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ asset('build/assets/images/logo.png') }}"
+      }
+  },
+  "description": "{{ addslashes(Str::limit(strip_tags($blog->description), 160)) }}"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ url('/') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "{{ route('front.getBlog') }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ addslashes($blog->title) }}",
+      "item": "{{ route('front.getBlogDetails', $blog->slug) }}"
+    }
+  ]
+}
+</script>
+@endsection
+
 @section('content')
 
 <div class="container py-5 min-vh-100">
