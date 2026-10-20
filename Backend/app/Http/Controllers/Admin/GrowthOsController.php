@@ -254,7 +254,8 @@ class GrowthOsController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('pages.growth-os.social', compact('festivals', 'socialPosts'));
+        $webhookUrl = Vault::get('social_webhook_url') ?: env('SOCIAL_DISPATCH_WEBHOOK', '');
+        return view('pages.growth-os.social', compact('festivals', 'socialPosts', 'webhookUrl'));
     }
 
     /** 6. AI Engine & Model Vault */
@@ -398,6 +399,33 @@ class GrowthOsController extends Controller
                         return response()->json(['ok' => true, 'message' => 'Attached creative asset to post successfully!']);
                     }
                     return response()->json(['ok' => false, 'error' => 'Post not found'], 404);
+                                case 'save_social_webhook':
+                    $url = trim((string)$request->input('webhook_url', ''));
+                    Vault::set('social_webhook_url', $url, false);
+                    return response()->json(['ok' => true, 'message' => 'Social webhook URL saved successfully!']);
+                case 'test_social_webhook':
+                    $url = trim((string)$request->input('webhook_url', '')) ?: (Vault::get('social_webhook_url') ?: env('SOCIAL_DISPATCH_WEBHOOK'));
+                    if (empty($url)) {
+                        return response()->json(['ok' => false, 'error' => 'Please provide a valid webhook URL.'], 400);
+                    }
+                    try {
+                        $res = \Illuminate\Support\Facades\Http::timeout(10)->post($url, [
+                            'event'     => 'test_ping',
+                            'source'    => 'OnlinePuja Varanasi Growth Engine',
+                            'title'     => '?? Test Devotional Wish Ping from OnlinePuja',
+                            'text'      => 'May Lord Shiva and Maa Ganga bless your family with peace and abundance.',
+                            'channels'  => ['whatsapp', 'instagram', 'facebook', 'x'],
+                            'link'      => 'https://onlinepuja.live',
+                            'timestamp' => now()->toIso8601String(),
+                        ]);
+                        if ($res->successful()) {
+                            return response()->json(['ok' => true, 'message' => 'Webhook ping successful! Received 200 OK from server.']);
+                        } else {
+                            return response()->json(['ok' => false, 'error' => "Webhook responded with HTTP status " . $res->status()], 400);
+                        }
+                    } catch (\Throwable $e) {
+                        return response()->json(['ok' => false, 'error' => 'Connection failed: ' . $e->getMessage()], 500);
+                    }
                 default:
                     return response()->json(['ok' => false, 'message' => "Unknown action: {$action}"], 400);
             }

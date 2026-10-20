@@ -1,4 +1,4 @@
-﻿@extends('pages.growth-os.layout')
+@extends('pages.growth-os.layout')
 
 @section('growth_content')
 <div class="space-y-6">
@@ -36,11 +36,11 @@
                        class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-medium text-slate-800" 
                        placeholder="e.g. Griha Pravesh, Satyanarayan, Maha Shivratri...">
                 <div class="flex flex-wrap gap-1.5 mt-2.5">
-                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Griha Pravesh">🏡 Griha Pravesh</button>
-                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Satyanarayan Puja">🍌 Satyanarayan</button>
-                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Diwali Lakshmi Puja">🪔 Lakshmi Puja</button>
-                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Shiva Rudrabhishek">🔱 Rudrabhishek</button>
-                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Ganesha Aarti">🐘 Ganesha Aarti</button>
+                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Griha Pravesh">?? Griha Pravesh</button>
+                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Satyanarayan Puja">?? Satyanarayan</button>
+                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Diwali Lakshmi Puja">?? Lakshmi Puja</button>
+                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Shiva Rudrabhishek">?? Rudrabhishek</button>
+                    <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Ganesha Aarti">?? Ganesha Aarti</button>
                 </div>
             </div>
 
@@ -48,10 +48,10 @@
             <div class="col-span-12 lg:col-span-6">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Aesthetic Style (Anti-Cartoon Filter Active)</label>
                 <select id="creative-style" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500/20 font-medium text-slate-800">
-                    <option value="photorealistic" selected>📸 Photorealistic Vedic Photography (Hasselblad 85mm f/1.8)</option>
-                    <option value="temple_sanctum">🪔 Temple Sanctum Sanctorum (Dhoop & Glowing Brass Diyas)</option>
-                    <option value="heritage_art">🎨 Raja Ravi Varma Heritage Fine Art (Oil on Canvas)</option>
-                    <option value="video_reel">🎥 9:16 Cinematic Video Motion Reel (OmniRoute)</option>
+                    <option value="photorealistic" selected>?? Photorealistic Vedic Photography (Hasselblad 85mm f/1.8)</option>
+                    <option value="temple_sanctum">?? Temple Sanctum Sanctorum (Dhoop & Glowing Brass Diyas)</option>
+                    <option value="heritage_art">?? Raja Ravi Varma Heritage Fine Art (Oil on Canvas)</option>
+                    <option value="video_reel">?? 9:16 Cinematic Video Motion Reel (OmniRoute)</option>
                 </select>
                 <div class="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
                     <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
@@ -83,11 +83,11 @@
         {{-- Prompt Inspector Drawer --}}
         <div id="prompt-inspector" class="hidden mt-5 pt-4 border-t border-slate-100 bg-slate-50/70 p-4 rounded-xl text-xs space-y-2.5">
             <div>
-                <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">✨ Injected Vedic Realism Tokens:</span>
+                <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">? Injected Vedic Realism Tokens:</span>
                 <div id="inspector-positive" class="text-slate-600 mt-1 font-mono text-[11px] leading-relaxed bg-white p-3 rounded-lg border border-slate-200"></div>
             </div>
             <div>
-                <span class="font-bold text-rose-700 uppercase tracking-wider text-[10px]">🛡️ Active Anti-CGI Negative Filter:</span>
+                <span class="font-bold text-rose-700 uppercase tracking-wider text-[10px]">??? Active Anti-CGI Negative Filter:</span>
                 <div id="inspector-negative" class="text-rose-600 mt-1 font-mono text-[11px] leading-relaxed bg-rose-50/50 p-3 rounded-lg border border-rose-200"></div>
             </div>
         </div>
@@ -100,7 +100,7 @@
                     <video id="preview-video" src="" controls class="w-full h-full object-cover rounded-xl hidden"></video>
                     <div id="preview-loading" class="text-center text-white p-4">
                         <div class="animate-spin inline-block w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full mb-2"></div>
-                        <div class="text-xs font-medium">Generating photorealistic Vedic creative…</div>
+                        <div class="text-xs font-medium">Generating photorealistic Vedic creative�</div>
                     </div>
                 </div>
                 <div class="flex-1 space-y-3">
@@ -129,6 +129,27 @@
         </div>
     </div>
 
+    {{-- Social Dispatch Webhook & Channel Connector --}}
+    <div class="box p-5 bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+            <div>
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="radio" class="w-4 h-4 text-rose-500"></i> Social Media Dispatch Webhook
+                    @if(!empty($webhookUrl))
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Connected ?</span>
+                    @else
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Webhook Unconfigured</span>
+                    @endif
+                </h4>
+                <p class="text-xs text-slate-500 mt-0.5">Automated morning festival wishes & visual assets are dispatched here (Make.com, Zapier, Publer, or Meta Cloud API).</p>
+            </div>
+        </div>
+        <div class="mt-3 flex flex-col sm:flex-row gap-2">
+            <input type="url" id="social-webhook-input" value="{{ $webhookUrl }}" placeholder="https://hook.eu1.make.com/... or Zapier / Publer webhook URL" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500/20 font-mono text-slate-800">
+            <button type="button" id="btn-save-social-webhook" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 whitespace-nowrap transition">Save Webhook</button>
+            <button type="button" id="btn-test-social-webhook" class="px-4 py-2.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 font-bold text-xs hover:bg-amber-100 whitespace-nowrap transition">Test Ping</button>
+        </div>
+    </div>
     {{-- MAIN GRID: Calendar (Left) & Queued Posts (Right) --}}
     <div class="grid grid-cols-12 gap-6">
 
@@ -138,7 +159,7 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
                     <div>
                         <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="calendar" class="w-5 h-5 text-amber-500"></i> Hindu Festival Calendar (2026–27)
+                            <i data-lucide="calendar" class="w-5 h-5 text-amber-500"></i> Hindu Festival Calendar (2026�27)
                         </h3>
                         <div class="text-xs text-slate-500 mt-0.5">Seeded Hindu festival dates for automated puja promotions & devotional wishes.</div>
                     </div>
@@ -153,15 +174,15 @@
                         <div class="p-3.5 rounded-xl border {{ $fest->scheduled ? 'bg-emerald-50/30 border-emerald-200' : 'bg-slate-50 border-slate-200' }} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs transition hover:border-amber-300">
                             <div>
                                 <div class="font-bold text-sm text-slate-800 flex items-center gap-2">
-                                    <span>🙏</span> {{ $fest->name }}
+                                    <span>??</span> {{ $fest->name }}
                                     @if($fest->scheduled)
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Scheduled ✓</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Scheduled ?</span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Pending</span>
                                     @endif
                                 </div>
                                 <div class="text-slate-500 mt-1">
-                                    Deity: <span class="font-medium text-slate-700">{{ $fest->deity ?: 'General' }}</span> · Date: <strong class="text-slate-800">{{ \Carbon\Carbon::parse($fest->date)->format('D, d M Y') }}</strong>
+                                    Deity: <span class="font-medium text-slate-700">{{ $fest->deity ?: 'General' }}</span> � Date: <strong class="text-slate-800">{{ \Carbon\Carbon::parse($fest->date)->format('D, d M Y') }}</strong>
                                 </div>
                                 <div class="text-[11px] text-slate-400 mt-0.5">
                                     Channels: <span class="font-mono text-slate-600">{{ $fest->channels ?: '["facebook","instagram","x"]' }}</span>
@@ -346,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
             previewImg.classList.add('hidden');
             previewVid.classList.add('hidden');
             btnGenerate.disabled = true;
-            btnGenerate.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Generating ' + (isVideo ? 'Video Reel' : 'Photorealistic Image') + '…';
+            btnGenerate.innerHTML = '<span class="animate-spin inline-block mr-1">?</span> Generating ' + (isVideo ? 'Video Reel' : 'Photorealistic Image') + '�';
 
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
@@ -412,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             btnAttach.disabled = true;
-            btnAttach.textContent = 'Attaching…';
+            btnAttach.textContent = 'Attaching�';
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
@@ -438,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
         seedBtn.addEventListener('click', function() {
             var b = this;
             b.disabled = true;
-            b.innerHTML = 'Seeding…';
+            b.innerHTML = 'Seeding�';
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
@@ -464,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
         schedBtn.addEventListener('click', function() {
             var b = this;
             b.disabled = true;
-            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Writing Devotional Posts…';
+            b.innerHTML = '<span class="animate-spin inline-block mr-1">?</span> Writing Devotional Posts�';
             fetch('{{ route("brain.chat") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
@@ -480,6 +501,62 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(function(err) {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="wand" class="w-4 h-4 mr-1"></i> Auto-Schedule Upcoming Wishes';
+                if (typeof toastr !== 'undefined') toastr.error(err.message);
+            });
+        });
+    }
+    // Save & Test Social Webhook
+    var btnSaveWebhook = document.getElementById('btn-save-social-webhook');
+    var btnTestWebhook = document.getElementById('btn-test-social-webhook');
+    var webhookInput = document.getElementById('social-webhook-input');
+
+    if (btnSaveWebhook) {
+        btnSaveWebhook.addEventListener('click', function() {
+            var url = webhookInput.value.trim();
+            btnSaveWebhook.disabled = true;
+            btnSaveWebhook.textContent = 'Saving�';
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'save_social_webhook', webhook_url: url })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                btnSaveWebhook.disabled = false;
+                btnSaveWebhook.textContent = 'Save Webhook';
+                if (d.ok) {
+                    if (typeof toastr !== 'undefined') toastr.success(d.message || 'Saved!');
+                    setTimeout(function() { window.location.reload(); }, 1000);
+                } else {
+                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed');
+                }
+            });
+        });
+    }
+
+    if (btnTestWebhook) {
+        btnTestWebhook.addEventListener('click', function() {
+            var url = webhookInput.value.trim();
+            btnTestWebhook.disabled = true;
+            btnTestWebhook.textContent = 'Pinging�';
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'test_social_webhook', webhook_url: url })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                btnTestWebhook.disabled = false;
+                btnTestWebhook.textContent = 'Test Ping';
+                if (d.ok) {
+                    if (typeof toastr !== 'undefined') toastr.success(d.message || 'Ping successful!');
+                } else {
+                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Ping failed');
+                }
+            })
+            .catch(function(err) {
+                btnTestWebhook.disabled = false;
+                btnTestWebhook.textContent = 'Test Ping';
                 if (typeof toastr !== 'undefined') toastr.error(err.message);
             });
         });

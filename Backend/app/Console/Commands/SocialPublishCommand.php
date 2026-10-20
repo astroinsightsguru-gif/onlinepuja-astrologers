@@ -34,6 +34,13 @@ class SocialPublishCommand extends Command
         }
 
         $webhookUrl = Vault::get('social_webhook_url') ?: env('SOCIAL_DISPATCH_WEBHOOK');
+
+        if (empty($webhookUrl)) {
+            $this->warn('⚠ No social dispatch webhook configured in Vault (social_webhook_url) or .env (SOCIAL_DISPATCH_WEBHOOK).');
+            $this->warn('  Posts remain approved and queued so no content is lost. Configure your webhook in Growth OS -> Social.');
+            return self::SUCCESS;
+        }
+
         $dispatched = 0;
 
         foreach ($plans as $plan) {
@@ -41,49 +48,58 @@ class SocialPublishCommand extends Command
             $text = $payload['text'] ?? $plan->title;
             $hashtags = $payload['hashtags'] ?? '';
             $channels = $payload['channels'] ?? ['whatsapp', 'facebook', 'instagram', 'x'];
+            $imageUrl = $payload['image_url'] ?? null;
+            $link = $payload['link'] ?? 'https://onlinepuja.live/puja/category/list';
 
             $this->line("• Dispatching: {$plan->title} to [" . implode(', ', $channels) . "]");
 
-            $webhookSuccess = true;
-            if (!empty($webhookUrl)) {
-                try {
-                    $response = Http::timeout(15)->post($webhookUrl, [
-                        'id'        => $plan->id,
-                        'title'     => $plan->title,
-                        'text'      => $text,
-                        'hashtags'  => $hashtags,
-                        'channels'  => $channels,
-                        'source'    => 'OnlinePuja Varanasi Growth Engine',
-                        'timestamp' => now()->toIso8601String(),
-                    ]);
-                    $webhookSuccess = $response->successful();
-                } catch (\Throwable $e) {
-                    Log::warning("Social webhook dispatch error: " . $e->getMessage());
-                    $webhookSuccess = false;
-                }
+            $webhookSuccess = false;
+            try {
+                $response = Http::timeout(15)->post($webhookUrl, [
+                    'id'          => $plan->id,
+                    'title'       => $plan->title,
+                    'text'        => $text,
+                    'hashtags'    => $hashtags,
+                    'channels'    => $channels,
+                    'image_url'   => $imageUrl,
+                    'link'        => $link,
+                    'source'      => 'OnlinePuja Varanasi Growth Engine',
+                    'timestamp'   => now()->toIso8601String(),
+                ]);
+                $webhookSuccess = $response->successful();
+            } catch (\Throwable $e) {
+                Log::warning("Social webhook dispatch error for plan #{$plan->id}: " . $e->getMessage());
+                $this->error("  ✗ Dispatch failed: " . $e->getMessage());
             }
 
-            // Mark plan as published
-            DB::table('content_plans')->where('id', $plan->id)->update([
-                'status'     => 'published',
-                'posted_url' => 'social://' . implode(',', $channels),
-                'updated_at' => now(),
-            ]);
+            if ($webhookSuccess) {
+                // Mark plan as published
+                DB::table('content_plans')->where('id', $plan->id)->update([
+                    'status'     => 'published',
+                    'posted_url' => 'social://' . implode(',', $channels),
+                    'updated_at' => now(),
+                ]);
 
-            // Track in outcomes table
-            DB::table('outcomes')->insert([
-                'channel'     => 'social',
-                'entity_type' => 'festival_post',
-                'entity_id'   => $plan->id,
-                'metric'      => 'published',
-                'value'       => 1,
-                'at'          => now(),
-                'meta'        => json_encode(['channels' => $channels, 'title' => $plan->title]),
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
+                // Track in outcomes table
+                if (\Illuminate\Support\Facades\Schema::hasTable('outcomes')) {
+                    DB::table('outcomes')->insert([
+                        'channel'     => 'social',
+                        'entity_type' => 'festival_post',
+                        'entity_id'   => $plan->id,
+                        'metric'      => 'published',
+                        'value'       => 1,
+                        'at'          => now(),
+                        'meta'        => json_encode(['channels' => $channels, 'title' => $plan->title]),
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]);
+                }
 
-            $dispatched++;
+                $dispatched++;
+                $this->info("  ✓ Dispatched and confirmed.");
+            } else {
+                $this->warn("  ⚠ Webhook did not return 200 OK. Plan #{$plan->id} kept in approved queue for retry.");
+            }
         }
 
         $this->info("Successfully published {$dispatched} social media posts.");
@@ -94,8 +110,8 @@ class SocialPublishCommand extends Command
                 'task'         => 'social:publish',
                 'category'     => 'social',
                 'items_ok'     => $dispatched,
-                'items_failed' => 0,
-                'detail'       => json_encode(['dispatched' => $dispatched]),
+                'items_failed' => $plans->count() - $dispatched,
+                'detail'       => json_encode(['dispatched' => $dispatched, 'webhook' => substr($webhookUrl, 0, 30) . '...']),
                 'created_at'   => now(),
                 'updated_at'   => now(),
             ]);
