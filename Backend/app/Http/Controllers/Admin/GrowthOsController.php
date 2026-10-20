@@ -255,7 +255,9 @@ class GrowthOsController extends Controller
             ->get();
 
         $webhookUrl = Vault::get('social_webhook_url') ?: env('SOCIAL_DISPATCH_WEBHOOK', '');
-        return view('pages.growth-os.social', compact('festivals', 'socialPosts', 'webhookUrl'));
+        $pujas = DB::table('pujas')->select('id', 'puja_title', 'puja_place', 'slug', 'puja_price')->limit(30)->get();
+        $astrologers = DB::table('astrologers')->select('id', 'name', 'primarySkill')->limit(15)->get();
+        return view('pages.growth-os.social', compact('festivals', 'socialPosts', 'webhookUrl', 'pujas', 'astrologers'));
     }
 
     /** 6. AI Engine & Model Vault */
@@ -388,10 +390,16 @@ class GrowthOsController extends Controller
                 case 'attach_social_creative':
                     $postId = $request->input('post_id');
                     $imageUrl = $request->input('image_url');
+                    $videoUrl = $request->input('video_url');
                     $post = DB::table('content_plans')->where('id', $postId)->first();
                     if ($post) {
                         $p = json_decode((string)$post->payload, true) ?: [];
-                        $p['image_url'] = $imageUrl;
+                        if (!empty($videoUrl)) {
+                            $p['video_url'] = $videoUrl;
+                        }
+                        if (!empty($imageUrl)) {
+                            $p['image_url'] = $imageUrl;
+                        }
                         DB::table('content_plans')->where('id', $postId)->update([
                             'payload' => json_encode($p),
                             'updated_at' => now(),
@@ -399,6 +407,86 @@ class GrowthOsController extends Controller
                         return response()->json(['ok' => true, 'message' => 'Attached creative asset to post successfully!']);
                     }
                     return response()->json(['ok' => false, 'error' => 'Post not found'], 404);
+                case 'create_service_reel':
+                    $pujaId = $request->input('puja_id');
+                    $astroQuery = $request->input('astro_topic');
+                    $aiEngine = app(\App\services\AiEngineService::class);
+
+                    if (!empty($pujaId)) {
+                        $puja = DB::table('pujas')->where('id', $pujaId)->first();
+                        if (!$puja) return response()->json(['ok' => false, 'error' => 'Puja not found'], 404);
+
+                        $topic = $puja->puja_title . (!empty($puja->puja_place) ? " performed in {$puja->puja_place}" : " Vedic ritual");
+                        $res = $aiEngine->generateVideo($topic, null, 5);
+                        $videoUrl = $res['video_url'] ?? $res['url'] ?? null;
+
+                        $postTitle = "Reel: {$puja->puja_title}";
+                        $slug = $puja->slug ?: 'category/list';
+                        $caption = "Book verified Vedic pandits for {$puja->puja_title} with personal sankalp. Receive sanctified prasad from Varanasi directly at your doorstep! 🙏✨";
+                        $cleanTag = preg_replace('/[^A-Za-z0-9]/', '', $puja->puja_title);
+                        $hashtags = "#{$cleanTag} #OnlinePuja #PujaAtHome #VedicPandit #VaranasiDarshan #HinduRituals";
+                        $link = "https://onlinepuja.live/puja/{$slug}";
+
+                        $planId = DB::table('content_plans')->insertGetId([
+                            'title'      => $postTitle,
+                            'pillar'     => 'puja_promo',
+                            'channel'    => 'social',
+                            'status'     => 'approved',
+                            'payload'    => json_encode([
+                                'text'       => $caption,
+                                'hashtags'   => $hashtags,
+                                'channels'   => ['instagram', 'facebook', 'youtube', 'whatsapp'],
+                                'video_url'  => $videoUrl,
+                                'image_url'  => $res['url'] ?? null,
+                                'link'       => $link,
+                            ]),
+                            'due_at'     => now()->addHours(2)->toDateTimeString(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        return response()->json([
+                            'ok'        => true,
+                            'message'   => "Reel queued for {$puja->puja_title}!",
+                            'post_id'   => $planId,
+                            'video_url' => $videoUrl,
+                        ]);
+                    } elseif (!empty($astroQuery)) {
+                        $res = $aiEngine->generateVideo($astroQuery, null, 5);
+                        $videoUrl = $res['video_url'] ?? $res['url'] ?? null;
+
+                        $postTitle = "Astrology Reel: {$astroQuery}";
+                        $caption = "Planetary insights & Vedic remedies for {$astroQuery}. Talk to verified Vedic Astrologers on OnlinePuja.live for Kundli & dosha consultation! 🌟🕉️";
+                        $hashtags = "#VedicAstrology #KundliAnalysis #OnlinePuja #RashifalToday #JyotishRemedies #AstrologyReels";
+                        $link = "https://onlinepuja.live/astrologer/list";
+
+                        $planId = DB::table('content_plans')->insertGetId([
+                            'title'      => $postTitle,
+                            'pillar'     => 'astrology_reel',
+                            'channel'    => 'social',
+                            'status'     => 'approved',
+                            'payload'    => json_encode([
+                                'text'       => $caption,
+                                'hashtags'   => $hashtags,
+                                'channels'   => ['instagram', 'facebook', 'youtube', 'whatsapp'],
+                                'video_url'  => $videoUrl,
+                                'image_url'  => $res['url'] ?? null,
+                                'link'       => $link,
+                            ]),
+                            'due_at'     => now()->addHours(3)->toDateTimeString(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        return response()->json([
+                            'ok'        => true,
+                            'message'   => "Astrology reel queued for {$astroQuery}!",
+                            'post_id'   => $planId,
+                            'video_url' => $videoUrl,
+                        ]);
+                    }
+
+                    return response()->json(['ok' => false, 'error' => 'Please select a Puja or Astrology topic'], 400);
                                 case 'save_social_webhook':
                     $url = trim((string)$request->input('webhook_url', ''));
                     Vault::set('social_webhook_url', $url, false);

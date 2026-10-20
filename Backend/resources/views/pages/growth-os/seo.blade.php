@@ -49,8 +49,8 @@
                     <button id="btn-scan-seo" class="btn btn-sm btn-outline-secondary text-xs py-1.5 px-3">
                         <i data-lucide="scan" class="w-3.5 h-3.5 mr-1"></i> Scan Sitemap
                     </button>
-                    <button id="btn-fix-godmode" class="btn btn-sm btn-primary bg-gradient-to-r from-amber-500 to-rose-600 border-0 text-white font-medium text-xs py-1.5 px-3">
-                        <i data-lucide="wand" class="w-3.5 h-3.5 mr-1"></i> Run AI Auto-Fix (God Mode)
+                    <button id="btn-fix-godmode" class="btn btn-sm bg-slate-900 hover:bg-slate-800 border-0 text-white font-semibold text-xs py-1.5 px-3.5 rounded-lg shadow-2xs flex items-center gap-1.5">
+                        <i data-lucide="wand" class="w-3.5 h-3.5 text-amber-400"></i> Run AI Auto-Fix (God Mode)
                     </button>
                 </div>
             </div>

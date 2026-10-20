@@ -43,7 +43,7 @@
                     {{ $socialPosts->count() }} <span class="text-xs font-normal text-slate-400">Posts Ready</span>
                 </div>
             </div>
-            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
                 <i data-lucide="send" class="w-4 h-4"></i>
             </div>
         </div>
@@ -69,9 +69,9 @@
                 <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <i data-lucide="radio" class="w-3.5 h-3.5 text-rose-500"></i> Social Media Dispatch Webhook URL
                 </h4>
-                <p class="text-xs text-slate-500 mt-0.5">Dispatches daily festival posts to your Make.com, Zapier, Publer, or Meta Graph API webhook.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Dispatches daily festival posts & reels to your Make.com, Zapier, Publer, or Meta Graph API webhook.</p>
             </div>
-            <span class="text-[11px] text-slate-400 font-mono">Payload: id, title, text, hashtags, channels, image_url, link</span>
+            <span class="text-[11px] text-slate-400 font-mono">Payload: id, title, text, hashtags, channels, media_type, image_url, video_url, link</span>
         </div>
         <div class="mt-3 flex flex-col sm:flex-row gap-2">
             <input type="url" id="social-webhook-input" value="{{ $webhookUrl }}" placeholder="https://hook.eu1.make.com/... or Zapier / Meta webhook URL" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/10 font-mono text-slate-800">
@@ -87,12 +87,12 @@
                 <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> Festival Calendar & Queue
             </button>
             <button type="button" id="tab-btn-studio" class="section-tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-slate-400"></i> OmniRoute AI Creative Studio
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-slate-400"></i> OmniRoute AI Creative Studio (Reels & Images)
             </button>
         </div>
         <div class="flex items-center gap-2">
-            <button id="btn-schedule-festivals" class="btn btn-sm text-xs py-1.5 px-3 bg-gradient-to-r from-amber-500 to-rose-600 text-white font-semibold rounded-lg shadow-2xs border-0 flex items-center gap-1.5">
-                <i data-lucide="wand" class="w-3.5 h-3.5"></i> Auto-Schedule Wishes
+            <button id="btn-schedule-festivals" class="btn btn-sm text-xs py-1.5 px-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg shadow-2xs border-0 flex items-center gap-1.5">
+                <i data-lucide="wand" class="w-3.5 h-3.5 text-amber-400"></i> Auto-Schedule Wishes
             </button>
         </div>
     </div>
@@ -162,10 +162,10 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-2xs">
                     <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
                         <div>
-                            <h4 class="text-sm font-bold text-slate-900">Queued Devotional Posts</h4>
+                            <h4 class="text-sm font-bold text-slate-900">Queued Devotional Posts & Reels</h4>
                             <p class="text-xs text-slate-500 mt-0.5">Scheduled for morning webhook dispatch.</p>
                         </div>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">{{ $socialPosts->count() }}</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">{{ $socialPosts->count() }}</span>
                     </div>
 
                     <div class="space-y-3 mt-3.5 max-h-[580px] overflow-y-auto pr-1 text-xs">
@@ -176,10 +176,15 @@
                             <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80 space-y-2.5">
                                 <div class="font-bold text-slate-900 flex justify-between items-center text-xs">
                                     <span>{{ $post->title }}</span>
-                                    <span class="text-[9px] text-purple-700 font-bold uppercase tracking-wider bg-purple-100 px-2 py-0.5 rounded-full">{{ $post->status }}</span>
+                                    <span class="text-[9px] text-slate-800 font-bold uppercase tracking-wider bg-slate-200 px-2 py-0.5 rounded-full">{{ $post->status }}</span>
                                 </div>
 
-                                @if(!empty($p['image_url']))
+                                @if(!empty($p['video_url']))
+                                    <div class="w-full h-36 rounded-lg overflow-hidden border border-slate-200 relative group bg-black">
+                                        <video src="{{ $p['video_url'] }}" controls class="w-full h-full object-cover"></video>
+                                        <span class="absolute top-1 left-1 bg-amber-500 text-slate-950 font-bold text-[9px] px-1.5 py-0.5 rounded">9:16 Video Reel</span>
+                                    </div>
+                                @elseif(!empty($p['image_url']))
                                     <div class="w-full h-32 rounded-lg overflow-hidden border border-slate-200 relative group">
                                         <img src="{{ $p['image_url'] }}" alt="Attached Creative" class="w-full h-full object-cover">
                                         <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded">Vedic Visual Attached</span>
@@ -193,8 +198,15 @@
                                 @endif
 
                                 @if($p && !empty($p['hashtags']))
-                                    <div class="text-amber-700 font-medium text-[10px]">
+                                    <div class="text-slate-600 font-medium text-[10px]">
                                         {{ $p['hashtags'] }}
+                                    </div>
+                                @endif
+
+                                @if($p && !empty($p['link']))
+                                    <div class="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
+                                        <i data-lucide="link" class="w-3 h-3 text-slate-400"></i>
+                                        <a href="{{ $p['link'] }}" target="_blank" class="hover:underline text-slate-700 truncate">{{ $p['link'] }}</a>
                                     </div>
                                 @endif
 
@@ -214,7 +226,7 @@
         </div>
     </div>
 
-    {{-- TAB PANE 2: OmniRoute AI Creative Studio (Focused, Decluttered Workspace) --}}
+    {{-- TAB PANE 2: OmniRoute AI Creative Studio (Reels & High Quality Visuals) --}}
     <div id="pane-studio" class="section-pane hidden">
         <div class="bg-white p-6 rounded-2xl border border-slate-200/70 shadow-2xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-slate-100 gap-3">
@@ -225,9 +237,9 @@
                     <div>
                         <h3 class="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
                             OmniRoute AI Creative Studio
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">Vedic Engine v2</span>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase tracking-wider">Vedic Engine v2</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Generate photorealistic Vedic ceremony photography (Flux) and cinematic motion video reels (Wan 2.1).</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Generate 9:16 high-quality cinematic reels and photorealistic visuals directly linked to your Puja Booking and Astrology services.</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -237,90 +249,121 @@
                 </div>
             </div>
 
-            {{-- Clean, Roomy Studio Grid --}}
-            <div class="grid grid-cols-12 gap-5 mt-5">
+            {{-- 3-Way Mode Switcher --}}
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select Campaign Source</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button type="button" id="btn-mode-puja-catalog" class="preset-mode-btn active px-3.5 py-2.5 rounded-xl text-xs font-bold border border-slate-900 bg-slate-900 text-white transition flex items-center justify-center gap-2 shadow-2xs">
+                        <i data-lucide="book-open" class="w-4 h-4 text-amber-400"></i> Puja Service Catalog
+                    </button>
+                    <button type="button" id="btn-mode-rashi" class="preset-mode-btn px-3.5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i> Daily Rashifal & Astrology
+                    </button>
+                    <button type="button" id="btn-mode-custom" class="preset-mode-btn px-3.5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4 text-slate-500"></i> Custom Prompt
+                    </button>
+                </div>
+            </div>
+
+            {{-- Studio Form Grid --}}
+            <div class="grid grid-cols-12 gap-5 mt-4">
                 {{-- Left Side: Parameters --}}
                 <div class="col-span-12 lg:col-span-7 space-y-4">
-                    {{-- Quick Mode Selector --}}
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Preset Category</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" id="btn-mode-puja" class="preset-mode-btn active px-3 py-2 rounded-xl text-xs font-semibold border border-slate-900 bg-slate-900 text-white transition flex items-center justify-center gap-1.5">
-                                <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i> Sacred Puja / Ceremony
-                            </button>
-                            <button type="button" id="btn-mode-rashi" class="preset-mode-btn px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
-                                <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i> Daily Rashifal Reel
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- Topic Input & Presets --}}
-                    <div id="wrapper-puja-presets">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Puja / Festival / Ceremony Subject</label>
-                        <input type="text" id="creative-topic" value="Griha Pravesh" 
-                               class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/10 transition font-medium text-slate-800" 
-                               placeholder="e.g. Griha Pravesh, Satyanarayan, Maha Shivratri...">
-                        <div class="flex flex-wrap gap-1.5 mt-2">
-                            <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Griha Pravesh">Griha Pravesh</button>
-                            <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Satyanarayan Puja">Satyanarayan</button>
-                            <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Diwali Lakshmi Puja">Lakshmi Puja</button>
-                            <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Shiva Rudrabhishek">Rudrabhishek</button>
-                            <button type="button" class="quick-topic-btn px-2.5 py-1 rounded-lg text-[11px] bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" data-topic="Lord Ganesha Aarti">Ganesha Aarti</button>
-                        </div>
-                    </div>
-
-                    {{-- Rashifal Zodiac Selector (Hidden until clicked) --}}
-                    <div id="wrapper-rashi-presets" class="hidden">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Select Zodiac Sign (Rashifal)</label>
-                        <select id="select-rashi" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white text-slate-800 font-medium">
-                            <option value="Aries (Mesh) Daily Rashifal">♈ Mesh (Aries)</option>
-                            <option value="Taurus (Vrishabh) Daily Rashifal">♉ Vrishabh (Taurus)</option>
-                            <option value="Gemini (Mithun) Daily Rashifal">♊ Mithun (Gemini)</option>
-                            <option value="Cancer (Kark) Daily Rashifal">♋ Kark (Cancer)</option>
-                            <option value="Leo (Singh) Daily Rashifal">♌ Singh (Leo)</option>
-                            <option value="Virgo (Kanya) Daily Rashifal">♍ Kanya (Virgo)</option>
-                            <option value="Libra (Tula) Daily Rashifal">♎ Tula (Libra)</option>
-                            <option value="Scorpio (Vrishchik) Daily Rashifal">♏ Vrishchik (Scorpio)</option>
-                            <option value="Sagittarius (Dhanu) Daily Rashifal">♐ Dhanu (Sagittarius)</option>
-                            <option value="Capricorn (Makar) Daily Rashifal">♑ Makar (Capricorn)</option>
-                            <option value="Aquarius (Kumbh) Daily Rashifal">♒ Kumbh (Aquarius)</option>
-                            <option value="Pisces (Meen) Daily Rashifal">♓ Meen (Pisces)</option>
+                    
+                    {{-- 1. Puja Catalog Mode --}}
+                    <div id="wrapper-puja-catalog" class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Select Puja Service to Promote</label>
+                        <select id="select-active-puja" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white text-slate-800 font-medium">
+                            <option value="">Choose an active Puja from your catalog...</option>
+                            @foreach($pujas as $pj)
+                                <option value="{{ $pj->id }}" data-title="{{ $pj->puja_title }}" data-place="{{ $pj->puja_place }}" data-slug="{{ $pj->slug }}">
+                                    {{ $pj->puja_title }} ({{ $pj->puja_place ?: 'Online' }}) — ₹{{ number_format($pj->puja_price) }}
+                                </option>
+                            @endforeach
                         </select>
+                        <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
+                            <div class="font-bold flex items-center gap-1.5">
+                                <i data-lucide="video" class="w-4 h-4 text-amber-600"></i> 1-Tap Puja Reel Automation
+                            </div>
+                            <p class="text-[11px] text-amber-800 leading-relaxed">
+                                OmniRoute generates a 9:16 vertical motion reel, drafts the Hindi Sankalp promotion, includes your verified pandit booking link (<span class="font-mono text-amber-950 font-semibold">https://onlinepuja.live/puja/...</span>), and queues it for dispatch to Instagram & Facebook Reels.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- 2. Daily Rashifal Mode --}}
+                    <div id="wrapper-rashi-presets" class="hidden space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Select Zodiac Sign (Astrology Reel)</label>
+                        <select id="select-rashi" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white text-slate-800 font-medium">
+                            <option value="Aries (Mesh) Daily Rashifal & Career Forecast">♈ Mesh (Aries) — Daily Rashifal & Remedies</option>
+                            <option value="Taurus (Vrishabh) Daily Rashifal & Wealth Forecast">♉ Vrishabh (Taurus) — Daily Rashifal & Remedies</option>
+                            <option value="Gemini (Mithun) Daily Rashifal & Relationships">♊ Mithun (Gemini) — Daily Rashifal & Remedies</option>
+                            <option value="Cancer (Kark) Daily Rashifal & Health">♋ Kark (Cancer) — Daily Rashifal & Remedies</option>
+                            <option value="Leo (Singh) Daily Rashifal & Success">♌ Singh (Leo) — Daily Rashifal & Remedies</option>
+                            <option value="Virgo (Kanya) Daily Rashifal & Studies">♍ Kanya (Virgo) — Daily Rashifal & Remedies</option>
+                            <option value="Libra (Tula) Daily Rashifal & Harmony">♎ Tula (Libra) — Daily Rashifal & Remedies</option>
+                            <option value="Scorpio (Vrishchik) Daily Rashifal & Protection">♏ Vrishchik (Scorpio) — Daily Rashifal & Remedies</option>
+                            <option value="Sagittarius (Dhanu) Daily Rashifal & Luck">♐ Dhanu (Sagittarius) — Daily Rashifal & Remedies</option>
+                            <option value="Capricorn (Makar) Daily Rashifal & Shani Remedy">♑ Makar (Capricorn) — Daily Rashifal & Remedies</option>
+                            <option value="Aquarius (Kumbh) Daily Rashifal & Innovation">♒ Kumbh (Aquarius) — Daily Rashifal & Remedies</option>
+                            <option value="Pisces (Meen) Daily Rashifal & Spirituality">♓ Meen (Pisces) — Daily Rashifal & Remedies</option>
+                        </select>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-slate-900">
+                                <i data-lucide="compass" class="w-4 h-4 text-indigo-500"></i> Astrologer Consultation Link Attached
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Generates mystical Sanskrit Kundli motion video and links devotees directly to consult verified Vedic astrologers (<span class="font-mono text-slate-800 font-semibold">https://onlinepuja.live/astrologer/list</span>).
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- 3. Custom Topic Mode --}}
+                    <div id="wrapper-custom-topic" class="hidden space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Custom Topic / Ceremony Subject</label>
+                        <input type="text" id="creative-topic" value="Kashi Vishwanath Rudrabhishek in Varanasi" 
+                               class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/10 font-medium text-slate-800" 
+                               placeholder="e.g. Mahamrityunjaya Japa, Griha Pravesh, Kashi Vishwanath...">
                     </div>
 
                     {{-- Style & Aspect Ratio Controls --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Visual Aesthetic Style</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Aesthetic Style</label>
                             <select id="creative-style" class="w-full text-xs rounded-xl border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white text-slate-800 font-medium">
-                                <option value="photorealistic" selected>Photorealistic Vedic Photography (85mm f/1.8)</option>
+                                <option value="video_reel" selected>9:16 Cinematic Video Motion Reel (OmniRoute)</option>
+                                <option value="photorealistic">Photorealistic Vedic Photography (Hasselblad 85mm f/1.8)</option>
                                 <option value="temple_sanctum">Temple Sanctum Sanctorum (Glowing Brass Diyas)</option>
                                 <option value="heritage_art">Raja Ravi Varma Heritage Fine Art (Oil on Canvas)</option>
-                                <option value="video_reel">9:16 Cinematic Video Motion Reel (OmniRoute)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Aspect Ratio</label>
                             <select id="creative-ratio" class="w-full text-xs rounded-xl border-slate-200 px-3 py-2 bg-slate-50 focus:bg-white text-slate-800 font-medium">
-                                <option value="1:1" selected>1:1 Square (Instagram / Facebook Post)</option>
+                                <option value="9:16" selected>9:16 Vertical (Reels / Shorts / Stories)</option>
+                                <option value="1:1">1:1 Square (Instagram / Facebook Post)</option>
                                 <option value="4:5">4:5 Portrait (Social Feed Optimal)</option>
-                                <option value="9:16">9:16 Vertical (Reels / Stories)</option>
                                 <option value="16:9">16:9 Landscape (Blog / Banner)</option>
                             </select>
                         </div>
                     </div>
 
-                    {{-- Action Buttons --}}
-                    <div class="flex items-center gap-3 pt-2">
+                    {{-- Primary Execution Actions --}}
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
                         <button id="btn-generate-creative" class="btn btn-sm flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl shadow-2xs border-0 flex items-center justify-center gap-2 text-xs transition">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> <span id="generate-btn-text">Generate Photorealistic Vedic Image (Flux)</span>
+                            <i data-lucide="video" class="w-4 h-4 text-amber-400"></i> <span id="generate-btn-text">Generate Cinematic Video Reel (9:16)</span>
                         </button>
-                        <button id="btn-preview-prompt" class="btn btn-sm btn-outline-secondary text-xs py-2.5 px-3.5 rounded-xl text-slate-700 hover:bg-slate-50 bg-white border-slate-200 whitespace-nowrap">
-                            <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500 mr-1"></i> Inspect Tokens
+                        <button id="btn-auto-queue-reel" class="btn btn-sm bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-2xs border-0 flex items-center justify-center gap-1.5 text-xs transition whitespace-nowrap">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i> 1-Tap Queue & Dispatch Reel
                         </button>
                     </div>
 
-                    {{-- Prompt Inspector Drawer --}}
+                    {{-- Inspect Prompt Drawer --}}
+                    <div class="flex justify-end">
+                        <button id="btn-preview-prompt" type="button" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Inspect Injected Vedic Prompt Tokens
+                        </button>
+                    </div>
                     <div id="prompt-inspector" class="hidden pt-3 border-t border-slate-100 bg-slate-50/70 p-3.5 rounded-xl text-xs space-y-2">
                         <div>
                             <span class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Injected Vedic Realism Tokens:</span>
@@ -335,14 +378,14 @@
 
                 {{-- Right Side: Live Creative Preview & Attachment --}}
                 <div class="col-span-12 lg:col-span-5">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex flex-col items-center justify-center min-h-[340px] text-center">
-                        <div id="creative-preview-empty" class="text-slate-400 text-xs py-12">
-                            <i data-lucide="image" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
-                            Select a subject and click Generate to produce photorealistic visual assets.
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex flex-col items-center justify-center min-h-[380px] text-center">
+                        <div id="creative-preview-empty" class="text-slate-400 text-xs py-14">
+                            <i data-lucide="film" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                            Select a Puja or Rashifal service above to preview and dispatch cinematic reels.
                         </div>
 
                         <div id="creative-preview-card" class="hidden w-full space-y-3">
-                            <div class="w-full h-64 rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center shadow-inner relative group">
+                            <div class="w-full h-72 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center shadow-inner relative group">
                                 <img id="preview-image" src="" alt="AI Generated Asset" class="w-full h-full object-cover rounded-xl hidden">
                                 <video id="preview-video" src="" controls class="w-full h-full object-cover rounded-xl hidden"></video>
                                 <div id="preview-loading" class="text-center text-white p-4">
@@ -353,15 +396,15 @@
                             <div class="text-left text-xs text-slate-700 font-medium leading-relaxed bg-white p-3 rounded-xl border border-slate-200" id="preview-caption"></div>
                             <div class="flex items-center gap-2 pt-1">
                                 <select id="select-attach-post" class="text-xs rounded-xl border-slate-200 px-3 py-2 bg-white text-slate-700 flex-1">
-                                    <option value="">Select Queued Post to Attach Visual...</option>
+                                    <option value="">Select Queued Post to Attach Media...</option>
                                     @foreach($socialPosts as $post)
                                         <option value="{{ $post->id }}">{{ $post->title }} ({{ $post->status }})</option>
                                     @endforeach
                                 </select>
-                                <button id="btn-attach-to-post" class="btn btn-sm bg-amber-500 hover:bg-amber-600 border-0 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 whitespace-nowrap">
-                                    <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> Attach
+                                <button id="btn-attach-to-post" class="btn btn-sm bg-slate-900 hover:bg-slate-800 border-0 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 whitespace-nowrap">
+                                    <i data-lucide="paperclip" class="w-3.5 h-3.5 text-amber-400"></i> Attach
                                 </button>
-                                <a id="btn-download-creative" href="#" target="_blank" download="vedic-creative.png" class="btn btn-sm btn-outline-secondary text-xs p-2 rounded-xl bg-white border-slate-200">
+                                <a id="btn-download-creative" href="#" target="_blank" download="vedic-creative.mp4" class="btn btn-sm btn-outline-secondary text-xs p-2 rounded-xl bg-white border-slate-200">
                                     <i data-lucide="download" class="w-3.5 h-3.5 text-slate-600"></i>
                                 </a>
                             </div>
@@ -404,42 +447,63 @@ document.addEventListener('DOMContentLoaded', function() {
         tabBtnStudio.addEventListener('click', function() { switchSectionTab('studio'); });
     }
 
-    // 2. Preset Mode Switcher inside Creative Studio
-    var btnModePuja = document.getElementById('btn-mode-puja');
+    // 2. 3-Way Mode Switcher: Puja Catalog / Daily Rashifal / Custom
+    var btnModePuja = document.getElementById('btn-mode-puja-catalog');
     var btnModeRashi = document.getElementById('btn-mode-rashi');
-    var wrapPuja = document.getElementById('wrapper-puja-presets');
+    var btnModeCustom = document.getElementById('btn-mode-custom');
+    var wrapPuja = document.getElementById('wrapper-puja-catalog');
     var wrapRashi = document.getElementById('wrapper-rashi-presets');
-    var topicInput = document.getElementById('creative-topic');
+    var wrapCustom = document.getElementById('wrapper-custom-topic');
+    var currentCampaignMode = 'puja';
+
+    var selectPuja = document.getElementById('select-active-puja');
     var selectRashi = document.getElementById('select-rashi');
+    var topicInput = document.getElementById('creative-topic');
 
-    if (btnModePuja && btnModeRashi) {
-        btnModePuja.addEventListener('click', function() {
+    function setCampaignMode(mode) {
+        currentCampaignMode = mode;
+        [btnModePuja, btnModeRashi, btnModeCustom].forEach(function(b) {
+            b.classList.remove('bg-slate-900', 'text-white', 'border-slate-900', 'active');
+            b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        });
+        [wrapPuja, wrapRashi, wrapCustom].forEach(function(w) { w.classList.add('hidden'); });
+
+        if (mode === 'puja') {
+            btnModePuja.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'active');
             wrapPuja.classList.remove('hidden');
-            wrapRashi.classList.add('hidden');
-            btnModePuja.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
-            btnModePuja.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
-            btnModeRashi.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
-            btnModeRashi.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
-            updatePromptPreview();
-        });
-
-        btnModeRashi.addEventListener('click', function() {
+            if (selectPuja && selectPuja.selectedIndex > 0) {
+                topicInput.value = selectPuja.options[selectPuja.selectedIndex].getAttribute('data-title');
+            }
+        } else if (mode === 'rashi') {
+            btnModeRashi.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'active');
             wrapRashi.classList.remove('hidden');
-            wrapPuja.classList.add('hidden');
-            btnModeRashi.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
-            btnModeRashi.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
-            btnModePuja.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
-            btnModePuja.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
-            topicInput.value = selectRashi.value;
+            if (selectRashi) topicInput.value = selectRashi.value;
+        } else {
+            btnModeCustom.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'active');
+            wrapCustom.classList.remove('hidden');
+        }
+        updatePromptPreview();
+    }
+
+    if (btnModePuja) btnModePuja.addEventListener('click', function() { setCampaignMode('puja'); });
+    if (btnModeRashi) btnModeRashi.addEventListener('click', function() { setCampaignMode('rashi'); });
+    if (btnModeCustom) btnModeCustom.addEventListener('click', function() { setCampaignMode('custom'); });
+
+    if (selectPuja) {
+        selectPuja.addEventListener('change', function() {
+            if (this.selectedIndex > 0) {
+                var opt = this.options[this.selectedIndex];
+                topicInput.value = opt.getAttribute('data-title') + ' in ' + (opt.getAttribute('data-place') || 'Varanasi');
+                updatePromptPreview();
+            }
+        });
+    }
+
+    if (selectRashi) {
+        selectRashi.addEventListener('change', function() {
+            topicInput.value = this.value;
             updatePromptPreview();
         });
-
-        if (selectRashi) {
-            selectRashi.addEventListener('change', function() {
-                topicInput.value = this.value;
-                updatePromptPreview();
-            });
-        }
     }
 
     // 3. Webhook Drawer Toggle
@@ -473,19 +537,12 @@ document.addEventListener('DOMContentLoaded', function() {
         syncBtnLabel();
     }
 
-    // Quick topic pills
-    document.querySelectorAll('.quick-topic-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            topicInput.value = this.getAttribute('data-topic');
-            updatePromptPreview();
-        });
-    });
-
     // Festival row quick button -> Switch to Studio & Pre-fill
     document.querySelectorAll('.btn-create-for-fest').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var name = this.getAttribute('data-name');
             var deity = this.getAttribute('data-deity');
+            setCampaignMode('custom');
             topicInput.value = deity ? (name + ' (' + deity + ')') : name;
             switchSectionTab('studio');
             updatePromptPreview();
@@ -497,18 +554,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnInspect = document.getElementById('btn-preview-prompt');
     if (btnInspect) {
         btnInspect.addEventListener('click', function() {
-            if (promptInspector.classList.contains('hidden')) {
-                promptInspector.classList.remove('hidden');
+            promptInspector.classList.toggle('hidden');
+            if (!promptInspector.classList.contains('hidden')) {
                 updatePromptPreview();
-            } else {
-                promptInspector.classList.add('hidden');
             }
         });
     }
 
     function updatePromptPreview() {
         if (!topicInput || !styleSelect || !ratioSelect) return;
-        var topic = topicInput.value.trim() || 'Griha Pravesh';
+        var topic = topicInput.value.trim() || 'Kashi Vishwanath Rudrabhishek';
         var style = styleSelect.value;
         var ratio = ratioSelect.value;
         fetch('{{ route("growth-os.action") }}', {
@@ -527,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Generate Visual via OmniRoute
+    // 5. Generate Visual / Video Reel via OmniRoute
     var btnGenerate = document.getElementById('btn-generate-creative');
     var previewEmpty = document.getElementById('creative-preview-empty');
     var previewCard = document.getElementById('creative-preview-card');
@@ -537,10 +592,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var previewCaption = document.getElementById('preview-caption');
     var btnDownload = document.getElementById('btn-download-creative');
     var lastGeneratedUrl = null;
+    var lastGeneratedType = 'image';
 
     if (btnGenerate) {
         btnGenerate.addEventListener('click', function() {
-            var topic = topicInput.value.trim() || 'Griha Pravesh';
+            var topic = topicInput.value.trim() || 'Kashi Vishwanath Rudrabhishek in Varanasi';
             var style = styleSelect.value;
             var ratio = ratioSelect.value;
             var isVideo = (style === 'video_reel');
@@ -568,24 +624,27 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(d) {
                 btnGenerate.disabled = false;
                 syncBtnLabel();
-                btnGenerate.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4 mr-1 text-amber-400"></i> ' + (isVideo ? 'Generate Cinematic Video Reel' : 'Generate Photorealistic Vedic Image (Flux)');
                 previewLoading.classList.add('hidden');
 
                 if (d.ok && d.data) {
                     var data = d.data;
                     previewCaption.textContent = data.prompt || topic;
-                    if (data.url) {
+                    if (data.video_url || (isVideo && data.url)) {
+                        lastGeneratedUrl = data.video_url || data.url;
+                        lastGeneratedType = 'video';
+                        previewVid.src = lastGeneratedUrl;
+                        previewVid.classList.remove('hidden');
+                        btnDownload.href = lastGeneratedUrl;
+                        btnDownload.download = 'vedic-reel.mp4';
+                        if (typeof toastr !== 'undefined') toastr.success('Devotional reel motion generated!');
+                    } else if (data.url) {
                         lastGeneratedUrl = data.url;
+                        lastGeneratedType = 'image';
                         previewImg.src = data.url;
                         previewImg.classList.remove('hidden');
                         btnDownload.href = data.url;
+                        btnDownload.download = 'vedic-image.png';
                         if (typeof toastr !== 'undefined') toastr.success('Photorealistic Vedic creative generated successfully!');
-                    } else if (data.video_url) {
-                        lastGeneratedUrl = data.video_url;
-                        previewVid.src = data.video_url;
-                        previewVid.classList.remove('hidden');
-                        btnDownload.href = data.video_url;
-                        if (typeof toastr !== 'undefined') toastr.success('Devotional reel motion generated!');
                     }
                 } else {
                     var err = (d.data && d.data.message) || d.error || 'Generation failed';
@@ -595,14 +654,57 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(function(err) {
                 btnGenerate.disabled = false;
                 syncBtnLabel();
-                btnGenerate.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4 mr-1 text-amber-400"></i> ' + (isVideo ? 'Generate Cinematic Video Reel' : 'Generate Photorealistic Vedic Image (Flux)');
                 previewLoading.classList.add('hidden');
                 if (typeof toastr !== 'undefined') toastr.error(err.message);
             });
         });
     }
 
-    // Attach to Post
+    // 6. 1-Tap Auto Queue & Dispatch Reel for Selected Service
+    var btnAutoQueueReel = document.getElementById('btn-auto-queue-reel');
+    if (btnAutoQueueReel) {
+        btnAutoQueueReel.addEventListener('click', function() {
+            var pujaId = (currentCampaignMode === 'puja' && selectPuja) ? selectPuja.value : null;
+            var astroTopic = (currentCampaignMode === 'rashi' && selectRashi) ? selectRashi.value : null;
+
+            if (currentCampaignMode === 'puja' && !pujaId) {
+                alert('Please select a Puja from your catalogue dropdown first');
+                return;
+            }
+
+            var b = this;
+            b.disabled = true;
+            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Generating & Queuing Reel…';
+
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({
+                    action: 'create_service_reel',
+                    puja_id: pujaId,
+                    astro_topic: astroTopic || topicInput.value.trim()
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                b.disabled = false;
+                b.innerHTML = '<i data-lucide="send" class="w-3.5 h-3.5"></i> 1-Tap Queue & Dispatch Reel';
+                if (d.ok) {
+                    if (typeof toastr !== 'undefined') toastr.success(d.message || 'Reel queued successfully!');
+                    setTimeout(function() { window.location.reload(); }, 1200);
+                } else {
+                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed to queue reel');
+                }
+            })
+            .catch(function(err) {
+                b.disabled = false;
+                b.innerHTML = '<i data-lucide="send" class="w-3.5 h-3.5"></i> 1-Tap Queue & Dispatch Reel';
+                if (typeof toastr !== 'undefined') toastr.error(err.message);
+            });
+        });
+    }
+
+    // 7. Attach to Post (with media type awareness)
     var btnAttach = document.getElementById('btn-attach-to-post');
     if (btnAttach) {
         btnAttach.addEventListener('click', function() {
@@ -618,15 +720,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             btnAttach.disabled = true;
             btnAttach.textContent = 'Attaching…';
+            var payload = {
+                action: 'attach_social_creative',
+                post_id: postId
+            };
+            if (lastGeneratedType === 'video') {
+                payload.video_url = lastGeneratedUrl;
+            } else {
+                payload.image_url = lastGeneratedUrl;
+            }
+
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ action: 'attach_social_creative', post_id: postId, image_url: lastGeneratedUrl })
+                body: JSON.stringify(payload)
             })
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 btnAttach.disabled = false;
-                btnAttach.innerHTML = '<i data-lucide="paperclip" class="w-3.5 h-3.5 mr-1"></i> Attach';
+                btnAttach.innerHTML = '<i data-lucide="paperclip" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Attach';
                 if (d.ok) {
                     if (typeof toastr !== 'undefined') toastr.success(d.message || 'Attached!');
                     setTimeout(function() { window.location.reload(); }, 1000);
@@ -637,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Seed Festivals
+    // 8. Seed Festivals
     var seedBtn = document.getElementById('btn-seed-festivals');
     if (seedBtn) {
         seedBtn.addEventListener('click', function() {
@@ -663,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auto Schedule Festivals
+    // 9. Auto Schedule Festivals
     var schedBtn = document.getElementById('btn-schedule-festivals');
     if (schedBtn) {
         schedBtn.addEventListener('click', function() {
@@ -678,19 +790,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 b.disabled = false;
-                b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1"></i> Auto-Schedule Wishes';
+                b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Auto-Schedule Wishes';
                 if (typeof toastr !== 'undefined') toastr.success(d.reply || 'Wishes queued!');
                 setTimeout(function() { window.location.reload(); }, 1200);
             })
             .catch(function(err) {
                 b.disabled = false;
-                b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1"></i> Auto-Schedule Wishes';
+                b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Auto-Schedule Wishes';
                 if (typeof toastr !== 'undefined') toastr.error(err.message);
             });
         });
     }
 
-    // Save & Test Social Webhook
+    // 10. Save & Test Social Webhook
     var btnSaveWebhook = document.getElementById('btn-save-social-webhook');
     var btnTestWebhook = document.getElementById('btn-test-social-webhook');
     var webhookInput = document.getElementById('social-webhook-input');

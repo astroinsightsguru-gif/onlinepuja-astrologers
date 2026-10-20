@@ -119,7 +119,7 @@
                         <option value="informational">Informational (Vidhi / Meaning)</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-sm btn-primary w-full bg-gradient-to-r from-amber-500 to-rose-600 border-0 text-white font-medium">
+                <button type="submit" class="btn btn-sm w-full bg-slate-900 hover:bg-slate-800 border-0 text-white font-semibold py-2 rounded-lg shadow-2xs">
                     + Add Keyword to Pipeline
                 </button>
             </form>

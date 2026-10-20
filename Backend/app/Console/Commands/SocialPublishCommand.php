@@ -49,19 +49,23 @@ class SocialPublishCommand extends Command
             $hashtags = $payload['hashtags'] ?? '';
             $channels = $payload['channels'] ?? ['whatsapp', 'facebook', 'instagram', 'x'];
             $imageUrl = $payload['image_url'] ?? null;
+            $videoUrl = $payload['video_url'] ?? null;
+            $mediaType = !empty($videoUrl) ? 'video' : (!empty($imageUrl) ? 'image' : 'text');
             $link = $payload['link'] ?? 'https://onlinepuja.live/puja/category/list';
 
-            $this->line("• Dispatching: {$plan->title} to [" . implode(', ', $channels) . "]");
+            $this->line("• Dispatching: {$plan->title} to [" . implode(', ', $channels) . "] ({$mediaType})");
 
             $webhookSuccess = false;
             try {
-                $response = Http::timeout(15)->post($webhookUrl, [
+                $response = Http::timeout(20)->post($webhookUrl, [
                     'id'          => $plan->id,
                     'title'       => $plan->title,
                     'text'        => $text,
                     'hashtags'    => $hashtags,
                     'channels'    => $channels,
+                    'media_type'  => $mediaType,
                     'image_url'   => $imageUrl,
+                    'video_url'   => $videoUrl,
                     'link'        => $link,
                     'source'      => 'OnlinePuja Varanasi Growth Engine',
                     'timestamp'   => now()->toIso8601String(),

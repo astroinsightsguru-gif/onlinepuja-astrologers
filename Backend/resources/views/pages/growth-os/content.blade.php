@@ -11,8 +11,8 @@
                 AI keyword $\rightarrow$ draft generation $\rightarrow$ Critic linting (blacklist, H2 structure, keyword density) $\rightarrow$ 1-click auto-publishing.
             </div>
         </div>
-        <button id="btn-pipeline-generate" class="btn btn-sm btn-primary bg-gradient-to-r from-amber-500 to-rose-600 border-0 text-white font-medium text-xs py-1.5 px-3">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1"></i> Generate AI Content Draft
+        <button id="btn-pipeline-generate" class="btn btn-sm bg-slate-900 hover:bg-slate-800 border-0 text-white font-semibold text-xs py-1.5 px-3.5 rounded-lg shadow-2xs flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Generate AI Content Draft
         </button>
     </div>
 
@@ -148,8 +148,10 @@
 {{-- ARTICLE PREVIEW MODAL --}}
 <div id="article-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4" style="display:none;">
     <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-        <div class="p-4 bg-gradient-to-r from-amber-500 to-rose-600 text-white flex justify-between items-center">
-            <h4 id="modal-title" class="font-bold text-sm">Article Preview</h4>
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <h4 id="modal-title" class="font-bold text-sm flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Article Preview
+            </h4>
             <button id="modal-close" class="text-white hover:opacity-80 text-lg cursor-pointer">✕</button>
         </div>
         <div class="p-6 overflow-y-auto flex-1 space-y-4 text-xs">
