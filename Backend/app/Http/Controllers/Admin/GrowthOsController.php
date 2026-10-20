@@ -169,11 +169,53 @@ class GrowthOsController extends Controller
     /** 3. Content Pipeline Kanban */
     public function contentPipeline()
     {
-        $ideas = DB::table('content_plans')->where('status', 'idea')->orderByDesc('id')->limit(20)->get();
-        $drafted = DB::table('content_plans')->where('status', 'drafted')->orderByDesc('id')->limit(20)->get();
-        $criticFailed = DB::table('content_plans')->where('status', 'critic_failed')->orderByDesc('id')->limit(20)->get();
-        $approved = DB::table('content_plans')->where('status', 'approved')->orderByDesc('id')->limit(20)->get();
-        $published = DB::table('content_plans')->where('status', 'published')->orderByDesc('id')->limit(20)->get();
+        // 1. Purge accidental supply alert entries from editorial content pipeline
+        DB::table('content_plans')->where('pillar', 'supply')->delete();
+
+        // 2. If no editorial ideas exist, auto-seed from top researched business keywords
+        $ideaCount = DB::table('content_plans')
+            ->where('status', 'idea')
+            ->whereNotIn('pillar', ['supply', 'festival'])
+            ->count();
+
+        if ($ideaCount === 0) {
+            $defaultTopics = [
+                ['title' => 'Complete Guide to Online Puja Booking in Varanasi (Kashi)', 'pillar' => 'puja_booking'],
+                ['title' => 'How to Book Verified Vedic Pandits for Griha Pravesh Puja at Home', 'pillar' => 'pandit_booking'],
+                ['title' => 'Shri Kashi Vishwanath Rudrabhishek: Vidhi, Benefits & Sacred Sankalp', 'pillar' => 'varanasi_puja'],
+                ['title' => 'Satyanarayan Katha Puja at Home: Samagri List, Muhurat & Vidhi', 'pillar' => 'puja_vidhi'],
+                ['title' => 'Maha Mrityunjaya Japa: Significance, Benefits & Online Pandit Booking', 'pillar' => 'vedic_mantra'],
+                ['title' => 'Kaal Sarp Dosh Nivaran Puja in Varanasi: Remedies & Temple Vidhi', 'pillar' => 'dosh_remedies'],
+                ['title' => 'Navagraha Shanti Puja at Home: How to Pacify Planetary Doshas', 'pillar' => 'astrology_puja'],
+                ['title' => 'Online Pandit Booking for Havan & Yagya: What Devotees Must Know', 'pillar' => 'havan_services'],
+            ];
+
+            foreach ($defaultTopics as $dt) {
+                if (!DB::table('content_plans')->where('title', $dt['title'])->exists()) {
+                    DB::table('content_plans')->insert([
+                        'title'      => $dt['title'],
+                        'pillar'     => $dt['pillar'],
+                        'channel'    => 'web',
+                        'status'     => 'idea',
+                        'payload'    => json_encode(['source' => 'seo_core_seed']),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        $base = DB::table('content_plans')
+            ->where(function($q) {
+                $q->where('channel', 'web')->orWhereNull('channel');
+            })
+            ->whereNotIn('pillar', ['supply', 'festival']);
+
+        $ideas = (clone $base)->where('status', 'idea')->orderByDesc('id')->limit(25)->get();
+        $drafted = (clone $base)->where('status', 'drafted')->orderByDesc('id')->limit(25)->get();
+        $criticFailed = (clone $base)->where('status', 'critic_failed')->orderByDesc('id')->limit(25)->get();
+        $approved = (clone $base)->where('status', 'approved')->orderByDesc('id')->limit(25)->get();
+        $published = (clone $base)->where('status', 'published')->orderByDesc('id')->limit(25)->get();
 
         return view('pages.growth-os.content', compact('ideas', 'drafted', 'criticFailed', 'approved', 'published'));
     }
