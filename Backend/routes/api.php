@@ -577,3 +577,16 @@ Route::post('user/puja-orders', [\App\Http\Controllers\API\User\GrowthEngineCont
 Route::post('getUserPujaOrders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserPujaOrders']);
 Route::post('user/mall-orders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserOrders'])->name('api.user.mall_orders');
 Route::post('getUserOrders', [\App\Http\Controllers\API\User\GrowthEngineController::class, 'getUserOrders']);
+
+
+// 📱 OnlinePuja Manager Pocket Control Center Endpoints
+Route::prefix('manager')->group(function () {
+    Route::get('radar', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'getLiveRadar']);
+    Route::post('radar', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'getLiveRadar']);
+    Route::get('banners', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'getBanners']);
+    Route::post('banners', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'saveBanner']);
+    Route::get('sankalps', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'getPendingSankalps']);
+    Route::post('sankalp/fulfill', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'fulfillSankalp']);
+    Route::post('growth/run-action', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'triggerGrowthAction']);
+    Route::post('growth/broadcast', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'broadcastPush']);
+});
