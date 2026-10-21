@@ -152,11 +152,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="scan" class="w-3.5 h-3.5 mr-1"></i> Scan Sitemap';
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'Scan complete');
+                    if (window.showGrowthNotification) window.showGrowthNotification('success', d.output || 'Scan complete');
+                    else if (typeof toastr !== 'undefined') toastr.success(d.output || 'Scan complete');
+                    else alert(d.output || 'Scan complete');
                     setTimeout(function() { window.location.reload(); }, 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Scan failed');
+                    if (window.showGrowthNotification) window.showGrowthNotification('error', d.error || 'Scan failed');
+                    else if (typeof toastr !== 'undefined') toastr.error(d.error || 'Scan failed');
+                    else alert('Error: ' + (d.error || 'Scan failed'));
                 }
+            })
+            .catch(function(err) {
+                b.disabled = false;
+                b.innerHTML = '<i data-lucide="scan" class="w-3.5 h-3.5 mr-1"></i> Scan Sitemap';
+                if (window.showGrowthNotification) window.showGrowthNotification('error', err.message);
+                else alert('Scan error: ' + err.message);
             });
         });
     }
@@ -166,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fixBtn.addEventListener('click', function() {
             var b = this;
             b.disabled = true;
-            b.innerHTML = 'Applying AI Fixes…';
+            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Applying AI Fixes…';
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
@@ -177,11 +187,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1"></i> Run AI Auto-Fix (God Mode)';
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'God Mode fixes applied!');
+                    if (window.showGrowthNotification) window.showGrowthNotification('success', d.output || 'God Mode fixes applied!');
+                    else if (typeof toastr !== 'undefined') toastr.success(d.output || 'God Mode fixes applied!');
+                    else alert(d.output || 'God Mode fixes applied!');
                     setTimeout(function() { window.location.reload(); }, 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Fix failed');
+                    if (window.showGrowthNotification) window.showGrowthNotification('error', d.error || 'Fix failed');
+                    else if (typeof toastr !== 'undefined') toastr.error(d.error || 'Fix failed');
+                    else alert('Error: ' + (d.error || 'Fix failed'));
                 }
+            })
+            .catch(function(err) {
+                b.disabled = false;
+                b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1"></i> Run AI Auto-Fix (God Mode)';
+                if (window.showGrowthNotification) window.showGrowthNotification('error', err.message);
+                else alert('Fix error: ' + err.message);
             });
         });
     }

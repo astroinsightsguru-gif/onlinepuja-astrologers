@@ -1,6 +1,13 @@
 @extends('pages.growth-os.layout')
 
 @section('growth_content')
+@php
+    $webhookUrl = $webhookUrl ?? \App\Brain\Vault::get('social_webhook_url') ?? env('SOCIAL_DISPATCH_WEBHOOK', '');
+    $festivals = $festivals ?? (\Illuminate\Support\Facades\Schema::hasTable('hindu_festivals') ? \Illuminate\Support\Facades\DB::table('hindu_festivals')->orderBy('date', 'ASC')->get() : collect());
+    $socialPosts = $socialPosts ?? \Illuminate\Support\Facades\DB::table('content_plans')->where('channel', 'social')->orderByDesc('id')->get();
+    $pujas = $pujas ?? (\Illuminate\Support\Facades\Schema::hasTable('pujas') ? \Illuminate\Support\Facades\DB::table('pujas')->select('id', 'puja_title', 'puja_price', 'puja_place', 'slug')->where('puja_status', 1)->orderBy('id', 'DESC')->limit(100)->get() : collect());
+    $astrologers = $astrologers ?? (\Illuminate\Support\Facades\Schema::hasTable('astrologers') ? \Illuminate\Support\Facades\DB::table('astrologers')->select('id', 'name', 'primarySkill')->where('isDelete', 0)->limit(30)->get() : collect());
+@endphp
 <div class="space-y-5">
 
     {{-- TOP: Metric KPI Strip (Clean, Compact, High-Signal) --}}
@@ -88,6 +95,9 @@
             </button>
             <button type="button" id="tab-btn-studio" class="section-tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80">
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-slate-400"></i> OmniRoute AI Creative Studio (Reels & Images)
+            </button>
+            <button type="button" id="tab-btn-automation" class="section-tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80">
+                <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400"></i> Marketing Automation (WhatsApp · Brevo · z-Agents)
             </button>
         </div>
         <div class="flex items-center gap-2">
@@ -308,6 +318,17 @@
                             <option value="Aquarius (Kumbh) Daily Rashifal & Innovation">♒ Kumbh (Aquarius) — Daily Rashifal & Remedies</option>
                             <option value="Pisces (Meen) Daily Rashifal & Spirituality">♓ Meen (Pisces) — Daily Rashifal & Remedies</option>
                         </select>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Feature Verified Astrologer</label>
+                            <select id="select-astrologer" class="w-full text-xs rounded-xl border-slate-200 px-3.5 py-2.5 bg-slate-50 focus:bg-white text-slate-800 font-medium">
+                                <option value="">Top Verified Astrologer (Auto)</option>
+                                @foreach($astrologers as $astro)
+                                    <option value="{{ $astro->id }}" data-name="{{ $astro->name }}" data-skill="{{ $astro->primarySkill }}">
+                                        {{ $astro->name }} ({{ $astro->primarySkill ?: 'Vedic Jyotish' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
                             <div class="font-bold flex items-center gap-1.5 text-slate-900">
                                 <i data-lucide="compass" class="w-4 h-4 text-indigo-500"></i> Astrologer Consultation Link Attached
@@ -387,7 +408,7 @@
                         <div id="creative-preview-card" class="hidden w-full space-y-3">
                             <div class="w-full h-72 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center shadow-inner relative group">
                                 <img id="preview-image" src="" alt="AI Generated Asset" class="w-full h-full object-cover rounded-xl hidden">
-                                <video id="preview-video" src="" controls class="w-full h-full object-cover rounded-xl hidden"></video>
+                                <video id="preview-video" src="" controls autoplay loop muted playsinline class="w-full h-full object-cover rounded-xl hidden"></video>
                                 <div id="preview-loading" class="text-center text-white p-4">
                                     <div class="animate-spin inline-block w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full mb-2"></div>
                                     <div class="text-xs font-medium">Generating photorealistic Vedic creative…</div>
@@ -414,38 +435,240 @@
             </div>
         </div>
     </div>
+
+    {{-- TAB PANE 3: Omnichannel Marketing Automation (WhatsApp, Brevo Email, z-Agents) --}}
+    <div id="pane-automation" class="section-pane hidden">
+        <div class="grid grid-cols-12 gap-5">
+
+            {{-- 1. WhatsApp Evolution API Card --}}
+            <div class="col-span-12 lg:col-span-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                    💬
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Evolution WhatsApp</h4>
+                                    <span class="text-[11px] text-slate-500 font-mono">wa.vmstudio.digital</span>
+                                </div>
+                            </div>
+                            <span id="badge-wa-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                Checking…
+                            </span>
+                        </div>
+
+                        <div class="mt-4 space-y-2.5 text-xs text-slate-600">
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Instance</span>
+                                <span class="font-mono font-bold text-slate-800">onlinepuja</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Connected Number</span>
+                                <span class="font-mono font-medium text-slate-800">+91 70071 58014</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Media Support</span>
+                                <span class="font-medium text-emerald-700">1080×1920 MP4 Reels & Posters</span>
+                            </div>
+                        </div>
+
+                        {{-- WhatsApp Quick Test Box --}}
+                        <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                            <label class="block text-[11px] font-bold text-slate-700">Send Test WhatsApp Message</label>
+                            <input type="text" id="input-test-wa-mobile" placeholder="10-digit Mobile (e.g. 7007158014)" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 bg-white">
+                            <button type="button" id="btn-send-test-wa" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="send" class="w-3.5 h-3.5"></i> Send Test WhatsApp
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <button type="button" id="btn-open-wa-qr" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-2xs">
+                            <i data-lucide="qr-code" class="w-4 h-4 text-amber-400"></i> Scan WhatsApp QR Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. Brevo Email Automation Card --}}
+            <div class="col-span-12 lg:col-span-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                                    ✉️
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Brevo Email Marketing</h4>
+                                    <span class="text-[11px] text-slate-500 font-mono">api.brevo.com (v3)</span>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                Vault API Key Ready
+                            </span>
+                        </div>
+
+                        <div class="mt-4 space-y-2.5 text-xs text-slate-600">
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Sender Email</span>
+                                <span class="font-mono font-medium text-slate-800">no-reply@onlinepuja.live</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Sender Name</span>
+                                <span class="font-medium text-slate-800">Onlinepuja Live</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-50">
+                                <span class="text-slate-400">Subscriber List</span>
+                                <span class="font-mono font-bold text-slate-800">List #2 (Synced)</span>
+                            </div>
+                        </div>
+
+                        {{-- IP Whitelist Warning Box --}}
+                        <div class="mt-3 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed">
+                            <strong class="font-bold flex items-center gap-1 text-amber-800">
+                                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Brevo IP Security Rule
+                            </strong>
+                            Add VPS IP to Brevo <a href="https://app.brevo.com/security/authorised_ips" target="_blank" class="underline font-bold text-amber-950">Authorized IPs</a>:
+                            <code class="font-mono block mt-1 bg-white px-1.5 py-0.5 rounded border border-amber-200 text-slate-800">200.234.41.231</code>
+                            <code class="font-mono block mt-0.5 bg-white px-1.5 py-0.5 rounded border border-amber-200 text-slate-800">2a02:4780:63:d5d3::1</code>
+                        </div>
+
+                        {{-- Test Email Form --}}
+                        <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                            <label class="block text-[11px] font-bold text-slate-700">Send Test Devotional Email</label>
+                            <input type="email" id="input-test-brevo-email" placeholder="devotee@example.com" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 bg-white">
+                            <button type="button" id="btn-send-test-email" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="mail" class="w-3.5 h-3.5"></i> Send Test HTML Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3. Android z-Agents App Card --}}
+            <div class="col-span-12 lg:col-span-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                                    🤖
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">z-Agents Mobile Companion</h4>
+                                    <span class="text-[11px] text-slate-500 font-mono">vmai-plugins/z-agents</span>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                Android Node
+                            </span>
+                        </div>
+
+                        <div class="mt-4 space-y-3 text-xs text-slate-600">
+                            <p class="leading-relaxed">
+                                Install <strong class="text-slate-800">z-Agents</strong> on your Android device (with Jio/Airtel SIM) to transform it into an autonomous local execution agent.
+                            </p>
+                            <div class="space-y-1.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span><strong>$0 Cost SMS Gateway:</strong> Sends verification codes directly via SIM SMS.</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    <span><strong>WhatsApp Fallback:</strong> Dispatches alerts if web sessions disconnect.</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    <span><strong>Pandit Calls:</strong> Triggers outbound consultation call bridges.</span>
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 mt-3">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agent Webhook Listener Endpoint</div>
+                                <code class="font-mono text-[11px] text-slate-700 block mt-1 break-all bg-white p-2 rounded border border-slate-200">https://onlinepuja.live/api/v1/agent/dispatch</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <a href="https://github.com/vmai-plugins/z-agents" target="_blank" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 border border-slate-200">
+                            <i data-lucide="github" class="w-4 h-4"></i> View z-Agents GitHub Repository
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- WHATSAPP QR CODE MODAL --}}
+    <div id="modal-wa-qr" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span class="text-emerald-500">💬</span> Connect WhatsApp
+                </h3>
+                <button type="button" id="btn-close-wa-qr" class="text-slate-400 hover:text-slate-700 text-lg font-bold leading-none">&times;</button>
+            </div>
+            <p class="text-xs text-slate-500 text-left leading-relaxed">
+                Open WhatsApp on your business phone (+91 70071 58014), go to <strong>Linked Devices &gt; Link a Device</strong>, and scan the QR code below:
+            </p>
+            <div id="wa-qr-container" class="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center min-h-[220px]">
+                <span class="animate-spin text-2xl">⏳</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" id="btn-refresh-wa-qr" class="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                    🔄 Refresh QR
+                </button>
+                <button type="button" id="btn-done-wa-qr" class="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Tab Switching between Schedule and Creative Studio
+    // 1. Tab Switching between Schedule, Creative Studio, and Marketing Automation
     var tabBtnSchedule = document.getElementById('tab-btn-schedule');
     var tabBtnStudio = document.getElementById('tab-btn-studio');
+    var tabBtnAutomation = document.getElementById('tab-btn-automation');
     var paneSchedule = document.getElementById('pane-schedule');
     var paneStudio = document.getElementById('pane-studio');
+    var paneAutomation = document.getElementById('pane-automation');
 
     function switchSectionTab(tab) {
-        if (tab === 'studio') {
+        // Reset all tabs
+        [paneSchedule, paneStudio, paneAutomation].forEach(function(p) { if(p) p.classList.add('hidden'); });
+        [tabBtnSchedule, tabBtnStudio, tabBtnAutomation].forEach(function(b) {
+            if(b) {
+                b.classList.remove('bg-slate-900', 'text-white');
+                b.classList.add('bg-white', 'text-slate-600');
+            }
+        });
+
+        if (tab === 'studio' && paneStudio && tabBtnStudio) {
             paneStudio.classList.remove('hidden');
-            paneSchedule.classList.add('hidden');
             tabBtnStudio.classList.add('bg-slate-900', 'text-white');
             tabBtnStudio.classList.remove('bg-white', 'text-slate-600');
-            tabBtnSchedule.classList.remove('bg-slate-900', 'text-white');
-            tabBtnSchedule.classList.add('bg-white', 'text-slate-600');
-        } else {
+        } else if (tab === 'automation' && paneAutomation && tabBtnAutomation) {
+            paneAutomation.classList.remove('hidden');
+            tabBtnAutomation.classList.add('bg-slate-900', 'text-white');
+            tabBtnAutomation.classList.remove('bg-white', 'text-slate-600');
+        } else if (paneSchedule && tabBtnSchedule) {
             paneSchedule.classList.remove('hidden');
-            paneStudio.classList.add('hidden');
             tabBtnSchedule.classList.add('bg-slate-900', 'text-white');
             tabBtnSchedule.classList.remove('bg-white', 'text-slate-600');
-            tabBtnStudio.classList.remove('bg-slate-900', 'text-white');
-            tabBtnStudio.classList.add('bg-white', 'text-slate-600');
         }
     }
 
-    if (tabBtnSchedule && tabBtnStudio) {
-        tabBtnSchedule.addEventListener('click', function() { switchSectionTab('schedule'); });
-        tabBtnStudio.addEventListener('click', function() { switchSectionTab('studio'); });
-    }
+    if (tabBtnSchedule) tabBtnSchedule.addEventListener('click', function() { switchSectionTab('schedule'); });
+    if (tabBtnStudio) tabBtnStudio.addEventListener('click', function() { switchSectionTab('studio'); });
+    if (tabBtnAutomation) tabBtnAutomation.addEventListener('click', function() { switchSectionTab('automation'); });
 
     // 2. 3-Way Mode Switcher: Puja Catalog / Daily Rashifal / Custom
     var btnModePuja = document.getElementById('btn-mode-puja-catalog');
@@ -766,11 +989,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> Refresh';
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'Festivals refreshed');
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('success', d.message || d.output || 'Festivals refreshed successfully!');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.success(d.output || 'Festivals refreshed');
+                    } else {
+                        alert(d.message || 'Festivals refreshed!');
+                    }
                     setTimeout(function() { window.location.reload(); }, 1000);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed');
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('error', d.error || 'Failed');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.error(d.error || 'Failed');
+                    } else {
+                        alert('Error: ' + (d.error || 'Failed'));
+                    }
                 }
+            })
+            .catch(function(err) {
+                b.disabled = false;
+                b.innerHTML = '<i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i> Refresh';
+                if (window.showGrowthNotification) window.showGrowthNotification('error', err.message);
             });
         });
     }
@@ -781,23 +1021,45 @@ document.addEventListener('DOMContentLoaded', function() {
         schedBtn.addEventListener('click', function() {
             var b = this;
             b.disabled = true;
-            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Writing Devotional Posts…';
-            fetch('{{ route("brain.chat") }}', {
+            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Scheduling Wishes…';
+            fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ message: 'schedule upcoming hindu festival wishes this month' })
+                body: JSON.stringify({ action: 'schedule_festivals' })
             })
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Auto-Schedule Wishes';
-                if (typeof toastr !== 'undefined') toastr.success(d.reply || 'Wishes queued!');
-                setTimeout(function() { window.location.reload(); }, 1200);
+                if (d.ok) {
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('success', d.message || 'Festival wishes queued successfully!');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.success(d.message || 'Wishes queued!');
+                    } else {
+                        alert(d.message || 'Wishes queued!');
+                    }
+                    setTimeout(function() { window.location.reload(); }, 1200);
+                } else {
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('error', d.error || 'Scheduling failed');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.error(d.error || 'Scheduling failed');
+                    } else {
+                        alert('Error: ' + (d.error || 'Failed'));
+                    }
+                }
             })
             .catch(function(err) {
                 b.disabled = false;
                 b.innerHTML = '<i data-lucide="wand" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Auto-Schedule Wishes';
-                if (typeof toastr !== 'undefined') toastr.error(err.message);
+                if (window.showGrowthNotification) {
+                    window.showGrowthNotification('error', err.message);
+                } else if (typeof toastr !== 'undefined') {
+                    toastr.error(err.message);
+                } else {
+                    alert('Error: ' + err.message);
+                }
             });
         });
     }
@@ -855,6 +1117,136 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnTestWebhook.disabled = false;
                 btnTestWebhook.textContent = 'Test Ping';
                 if (typeof toastr !== 'undefined') toastr.error(err.message);
+            });
+        });
+    }
+
+    // 8. Omnichannel Marketing Handlers (WhatsApp QR, Test WA, Test Brevo)
+    var modalWaQr = document.getElementById('modal-wa-qr');
+    var btnOpenWaQr = document.getElementById('btn-open-wa-qr');
+    var btnCloseWaQr = document.getElementById('btn-close-wa-qr');
+    var btnDoneWaQr = document.getElementById('btn-done-wa-qr');
+    var btnRefreshWaQr = document.getElementById('btn-refresh-wa-qr');
+    var qrContainer = document.getElementById('wa-qr-container');
+
+    function loadWaQr() {
+        if (!qrContainer) return;
+        qrContainer.innerHTML = '<div class="py-8"><span class="animate-spin inline-block text-2xl">⏳</span><p class="text-xs text-slate-400 mt-2">Generating WhatsApp QR code…</p></div>';
+        fetch('{{ route("growth-os.action") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ action: 'get_wa_qr' })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.ok && d.base64) {
+                qrContainer.innerHTML = '<img src="' + d.base64 + '" class="w-56 h-56 mx-auto rounded-xl shadow-xs border border-slate-200" alt="WhatsApp QR Code" /><p class="text-[11px] text-emerald-700 font-bold mt-2">Scan in WhatsApp &gt; Linked Devices</p>';
+            } else {
+                qrContainer.innerHTML = '<div class="p-4 text-xs text-rose-600 bg-rose-50 rounded-xl">Unable to generate QR code.<br>' + (d.error || 'Please ensure wa.vmstudio.digital is reachable.') + '</div>';
+            }
+        })
+        .catch(function(e) {
+            qrContainer.innerHTML = '<div class="p-4 text-xs text-rose-600 bg-rose-50 rounded-xl">Network error loading QR: ' + e.message + '</div>';
+        });
+    }
+
+    if (btnOpenWaQr) {
+        btnOpenWaQr.addEventListener('click', function() {
+            if (modalWaQr) modalWaQr.classList.remove('hidden');
+            loadWaQr();
+        });
+    }
+    if (btnCloseWaQr) {
+        btnCloseWaQr.addEventListener('click', function() {
+            if (modalWaQr) modalWaQr.classList.add('hidden');
+        });
+    }
+    if (btnDoneWaQr) {
+        btnDoneWaQr.addEventListener('click', function() {
+            if (modalWaQr) modalWaQr.classList.add('hidden');
+            window.location.reload();
+        });
+    }
+    if (btnRefreshWaQr) {
+        btnRefreshWaQr.addEventListener('click', function() {
+            loadWaQr();
+        });
+    }
+
+    // Test WhatsApp Message Dispatch
+    var btnTestWa = document.getElementById('btn-send-test-wa');
+    if (btnTestWa) {
+        btnTestWa.addEventListener('click', function() {
+            var mobile = document.getElementById('input-test-wa-mobile').value.trim();
+            if (!mobile) {
+                window.showGrowthNotification('warning', 'Please enter a 10-digit mobile number.');
+                return;
+            }
+            var btn = this;
+            var origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin inline-block">⏳</span> Sending…';
+
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'test_whatsapp', mobile: mobile })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                if (d.ok) {
+                    window.showGrowthNotification('success', 'Test WhatsApp message sent successfully!');
+                } else {
+                    window.showGrowthNotification('error', d.error || 'WhatsApp delivery failed. Check QR connection.');
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                window.showGrowthNotification('error', err.message || 'WhatsApp network error');
+            });
+        });
+    }
+
+    // Test Brevo Email Dispatch
+    var btnTestEmail = document.getElementById('btn-send-test-email');
+    if (btnTestEmail) {
+        btnTestEmail.addEventListener('click', function() {
+            var email = document.getElementById('input-test-brevo-email').value.trim();
+            if (!email) {
+                window.showGrowthNotification('warning', 'Please enter a valid email address.');
+                return;
+            }
+            var btn = this;
+            var origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin inline-block">⏳</span> Sending…';
+
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ action: 'test_brevo', email: email })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                if (d.ok) {
+                    window.showGrowthNotification('success', 'Test devotional email sent via Brevo!');
+                } else {
+                    window.showGrowthNotification('error', d.error || 'Brevo dispatch rejected. Did you whitelist the VPS IP?');
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                window.showGrowthNotification('error', err.message || 'Brevo network error');
             });
         });
     }

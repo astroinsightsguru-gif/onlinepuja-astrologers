@@ -46,34 +46,28 @@ class Kernel extends ConsoleKernel
             ->name('seo_research')
             ->withoutOverlapping();
 
-        // 🧠 SELF-GROWING: AI content auto-generation & immediate live blog publishing (daily)
-        $schedule->command('content:generate --limit=2 --publish')
+        // 🧠 SELF-GROWING: AI content drafts (daily)
+        $schedule->command('content:generate --limit=2')
             ->dailyAt('05:00')
-            ->name('content_generate_publish')
+            ->name('content_generate')
             ->withoutOverlapping();
 
-        // 🗺️ SEO SITEMAP: Auto-rebuild sitemap XML for Googlebot indexation (daily morning)
-        $schedule->command('sitemap:generate')
-            ->dailyAt('05:30')
-            ->name('sitemap_generate')
+        // 🚀 AUTONOMOUS BLOG PUBLISHING: Publish approved/drafted articles to live blogs table with images & SEO sitemaps
+        $schedule->command('content:publish --auto --limit=2')
+            ->dailyAt('07:00')
+            ->name('content_publish_auto')
             ->withoutOverlapping();
 
-        // 🧠 SOCIAL MEDIA: Auto-dispatch approved festival & daily darshan posts (daily morning)
-        $schedule->command('social:publish --limit=5')
+        // 💰 REVENUE & SALES: Recover Abandoned Puja Bookings via Respectful WhatsApp Sequence (T+15m / T+2h)
+        $schedule->command('puja:recover-abandoned')
+            ->everyFifteenMinutes()
+            ->name('puja_recover_abandoned')
+            ->withoutOverlapping();
+
+        // 🪔 HINDU FESTIVAL CAMPAIGN RADAR: Multi-Channel Orchestration for Upcoming Indian Festivals (Daily 06:30 AM)
+        $schedule->command('festivals:campaign-radar --channels=whatsapp,email,push')
             ->dailyAt('06:30')
-            ->name('social_publish')
-            ->withoutOverlapping();
-
-        // 🧠 FESTIVAL SEEDER: Weekly refresh of upcoming Hindu festivals
-        $schedule->command('brain:seed-festivals')
-            ->weeklyOn(1, '01:00')
-            ->name('brain_seed_festivals')
-            ->withoutOverlapping();
-
-        // 🧠 SOCIAL MEDIA AUTO-SCHEDULER: Queue upcoming festival wishes & booking campaigns (weekly)
-        $schedule->command('social:schedule --days=60')
-            ->weeklyOn(1, '01:30')
-            ->name('social_schedule_festivals')
+            ->name('festivals_campaign_radar')
             ->withoutOverlapping();
 
         // 🧠 SELF-HEALING: nightly technical scan
@@ -145,12 +139,6 @@ class Kernel extends ConsoleKernel
             ->name('reset_astro_free_paid')
             ->withoutOverlapping();
 
-        $schedule
-            ->command('payment:status-update')
-            ->everyMinute()
-            ->name('payment_status_update')
-            ->withoutOverlapping();
-
          // COMMAND: Refund Expired Scheduled Call Appointments (Daily)
         $schedule->command('appointments:refund-expired')
             ->daily()
@@ -163,6 +151,36 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // ⚡ AUTOPILOT ENGINE: Run 5 Self-Driving Loops (Every 15 Minutes)
+        $schedule->command('autopilot:run --loop=all')
+            ->everyFifteenMinutes()
+            ->name('autopilot_run_all')
+            ->withoutOverlapping();
+
+        // 📱 SOCIAL MEDIA: Multi-Channel Publishing Queue (Every 15 Minutes)
+        $schedule->command('social:publish')
+            ->everyFifteenMinutes()
+            ->name('social_publish_queue')
+            ->withoutOverlapping();
+
+        // 🌺 SOCIAL CONTENT FANOUT: Turn approved plans into queued posts (Daily 01:00 AM)
+        $schedule->command('social:plan')
+            ->dailyAt('01:00')
+            ->name('social_plan_fanout')
+            ->withoutOverlapping();
+
+        // 🧘 ASTROLOGER CO-BRANDING: Generate Transit Insights for Platform Astrologers (Daily 06:00 AM)
+        $schedule->command('social:plan-astrologers')
+            ->dailyAt('06:00')
+            ->name('social_plan_astrologers')
+            ->withoutOverlapping();
+
+        // 🌐 PROGRAMMATIC SEO: Generate XML Sitemaps & Ping Google/Bing (Daily 02:00 AM)
+        $schedule->command('sitemap:generate --ping')
+            ->dailyAt('02:00')
+            ->name('sitemap_generate')
+            ->withoutOverlapping();
     }
 
     /**

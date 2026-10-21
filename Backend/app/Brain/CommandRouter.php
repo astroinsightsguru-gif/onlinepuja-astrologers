@@ -220,7 +220,7 @@ TXT;
         return ['keywords_added' => $addedCount, 'clusters' => $byIntent->count(), 'cluster_plans_created' => $plans];
     }
 
-    protected function actScheduleFestivals(array $params): array
+    public function actScheduleFestivals(array $params = []): array
     {
         Artisan::call('brain:seed-festivals');
 

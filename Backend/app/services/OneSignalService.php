@@ -35,7 +35,6 @@ public function sendNotification(array $userIds, array $notification)
     // Base payload
     $payload = [
         'app_id' => $this->appId,
-        'include_player_ids' => $userIds, // Array of OneSignal player IDs
         'data' => [
             'title' => $notification['title'] ?? '',
             'description' => $notification['body']['description'] ?? '',
@@ -52,6 +51,12 @@ public function sendNotification(array $userIds, array $notification)
         'ios_sound' => $isCustom && !$isSilent ? 'app_sound.wav' : null, // Sound only for non-silent notifications
     ];
 
+    if (!empty($userIds)) {
+        $payload['include_player_ids'] = $userIds;
+    } else {
+        $payload['included_segments'] = ['Total Subscriptions', 'Active Users'];
+    }
+
     if ($isSilent) {
 
         // Remove parameters that conflict with silent notifications
@@ -67,8 +72,8 @@ public function sendNotification(array $userIds, array $notification)
         ];
     }
 
-    // Include `android_channel_id` only if not silent
-    if ($isCustom && !$isSilent) {
+    // Include `android_channel_id` only if non-empty and not silent
+    if ($isCustom && !$isSilent && !empty($this->androidId)) {
         $payload['android_channel_id'] = $this->androidId;
     }
 

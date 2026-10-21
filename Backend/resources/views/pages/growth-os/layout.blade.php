@@ -77,60 +77,77 @@
 </div>
 
 {{-- Action Execution Modal / Toast --}}
+<div id="growth-os-notification-area" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm"></div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function executeAction(actionName, btn) {
-        var originalHtml = btn.innerHTML;
+window.showGrowthNotification = function(type, message) {
+    if (typeof toastr !== 'undefined' && toastr[type]) {
+        toastr[type](message);
+        return;
+    }
+    // High-visibility fallback banner
+    var container = document.getElementById('growth-os-notification-area');
+    if (!container) return;
+    var el = document.createElement('div');
+    el.className = 'pointer-events-auto p-3.5 rounded-xl text-xs font-semibold shadow-lg transition-all transform duration-300 translate-y-2 border ' + 
+        (type === 'success' ? 'bg-emerald-950 text-emerald-100 border-emerald-500/50' : 'bg-rose-950 text-rose-100 border-rose-500/50');
+    el.innerHTML = '<div class="flex items-center gap-2"><span>' + (type === 'success' ? '✓' : '⚠️') + '</span><span>' + (message || '') + '</span></div>';
+    container.appendChild(el);
+    setTimeout(function() {
+        el.style.opacity = '0';
+        setTimeout(function() { el.remove(); }, 300);
+    }, 4000);
+};
+
+window.executeAction = function(actionName, btn, extraPayload) {
+    var originalHtml = btn ? btn.innerHTML : '';
+    if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Running…';
-
-        fetch('{{ route("growth-os.action") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ action: actionName })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
-            if (data.ok) {
-                if (typeof toastr !== 'undefined') {
-                    toastr.success(data.output || 'Action executed successfully!');
-                } else {
-                    alert('Success: ' + (data.output || 'Completed'));
-                }
-                setTimeout(function() { window.location.reload(); }, 1200);
-            } else {
-                if (typeof toastr !== 'undefined') {
-                    toastr.error(data.error || 'Action failed');
-                } else {
-                    alert('Error: ' + (data.error || 'Failed'));
-                }
-            }
-        })
-        .catch(function(err) {
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
-            if (typeof toastr !== 'undefined') {
-                toastr.error(err.message);
-            } else {
-                alert('Request failed: ' + err.message);
-            }
-        });
     }
 
+    var payload = Object.assign({ action: actionName }, extraPayload || {});
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+        if (data.ok) {
+            window.showGrowthNotification('success', data.message || data.output || 'Action executed successfully!');
+            setTimeout(function() { window.location.reload(); }, 1200);
+        } else {
+            window.showGrowthNotification('error', data.error || 'Action failed');
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+        window.showGrowthNotification('error', 'Request failed: ' + err.message);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function() {
     var scanBtn = document.getElementById('btn-quick-scan');
     if (scanBtn) {
-        scanBtn.addEventListener('click', function() { executeAction('seo_scan', this); });
+        scanBtn.addEventListener('click', function() { window.executeAction('seo_scan', this); });
     }
 
     var genBtn = document.getElementById('btn-quick-generate');
     if (genBtn) {
-        genBtn.addEventListener('click', function() { executeAction('generate_content', this); });
+        genBtn.addEventListener('click', function() { window.executeAction('generate_content', this); });
     }
 });
 </script>

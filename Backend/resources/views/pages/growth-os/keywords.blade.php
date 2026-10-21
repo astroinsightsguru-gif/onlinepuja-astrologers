@@ -157,12 +157,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(d) {
                 btn.disabled = false;
                 btn.innerHTML = '<i data-lucide="compass" class="w-3.5 h-3.5 mr-1"></i> Trigger Tri-Source Research';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'Keywords added!');
+                    window.showGrowthNotification('success', d.output || 'Keywords added!');
                     setTimeout(function() { window.location.reload(); }, 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed');
+                    window.showGrowthNotification('error', d.error || 'Failed');
                 }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="compass" class="w-3.5 h-3.5 mr-1"></i> Trigger Tri-Source Research';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                window.showGrowthNotification('error', err.message || 'Keyword research failed');
             });
         });
     }
@@ -183,11 +190,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 b.disabled = false;
                 b.innerHTML = '✍️ Draft';
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success('Article drafted! Check Content Pipeline.');
+                    window.showGrowthNotification('success', 'Article drafted! Check Content Pipeline.');
                     setTimeout(function() { window.location.href = '{{ route("growth-os.content") }}'; }, 1000);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed');
+                    window.showGrowthNotification('error', d.error || 'Failed');
                 }
+            })
+            .catch(function(err) {
+                b.disabled = false;
+                b.innerHTML = '✍️ Draft';
+                window.showGrowthNotification('error', err.message || 'Draft failed');
             });
         });
     });

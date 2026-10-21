@@ -1,243 +1,875 @@
-﻿@extends('pages.growth-os.layout')
+@extends('pages.growth-os.layout')
 
 @section('growth_content')
-<div class="grid grid-cols-12 gap-6">
+@php
+    $creds = $creds ?? \App\Brain\Vault::aiCredentials();
+    $omniTextModels = $omniTextModels ?? (\Illuminate\Support\Facades\Schema::hasTable('ai_models') ? \Illuminate\Support\Facades\DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'text')->orderBy('label')->get() : collect());
+    $omniImageModels = $omniImageModels ?? (\Illuminate\Support\Facades\Schema::hasTable('ai_models') ? \Illuminate\Support\Facades\DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'image')->orderBy('label')->get() : collect());
+    $omniVideoModels = $omniVideoModels ?? (\Illuminate\Support\Facades\Schema::hasTable('ai_models') ? \Illuminate\Support\Facades\DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'video')->orderBy('label')->get() : collect());
+    $omniTotal = $omniTotal ?? (\Illuminate\Support\Facades\Schema::hasTable('ai_models') ? \Illuminate\Support\Facades\DB::table('ai_models')->where('provider', 'omniroute')->count() : 0);
+    $lastSyncedAt = $lastSyncedAt ?? null;
+    $totalModelsCount = $totalModelsCount ?? (\Illuminate\Support\Facades\Schema::hasTable('ai_models') ? \Illuminate\Support\Facades\DB::table('ai_models')->count() : 0);
+@endphp
 
-    {{-- Clean & Optimized AI Provider Failover Pipeline Strip (OpenAI Removed, OmniRoute Default) --}}
-    <div class="col-span-12">
-        <div class="box p-5 bg-white rounded-xl shadow-xs border border-slate-200/80">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between pb-3.5 border-b border-slate-100 gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
-                        <i data-lucide="workflow" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                            AI Failover Pipeline
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                                OmniRoute Primary
-                            </span>
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">
-                            Automated failover: OmniRoute routes multi-modal requests by default, cascading seamlessly to Gemini, OpenRouter, and Pollinations.
-                        </p>
-                    </div>
+<style>
+/* ========================================================
+   AI ENGINE COCKPIT — HIGH CONTRAST & ZERO-CLUTTER STYLES
+   ======================================================== */
+.ai-scope {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+}
+
+/* Card Containers */
+.ai-box {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 4px -2px rgba(15, 23, 42, 0.02) !important;
+    padding: 22px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Hero Top Banner */
+.ai-hero-card {
+    background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e293b 100%) !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 18px !important;
+    padding: 22px 24px !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.25) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+}
+@media (min-width: 768px) {
+    .ai-hero-card {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+}
+
+/* Primary Action Buttons */
+.ai-btn-gold {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #020617 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+}
+.ai-btn-gold:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45) !important;
+    transform: translateY(-1px) !important;
+    color: #020617 !important;
+}
+
+.ai-btn-dark {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    border: 1px solid #1e293b !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18) !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+}
+.ai-btn-dark:hover {
+    background: #1e293b !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.28) !important;
+    transform: translateY(-1px) !important;
+    color: #ffffff !important;
+}
+
+/* Engine Test Buttons */
+.ai-btn-test {
+    width: 100% !important;
+    padding: 9px 14px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.ai-btn-test-blue {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1.5px solid #bfdbfe !important;
+}
+.ai-btn-test-blue:hover {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: #93c5fd !important;
+}
+.ai-btn-test-amber {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border: 1.5px solid #fde68a !important;
+}
+.ai-btn-test-amber:hover {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fcd34d !important;
+}
+.ai-btn-test-rose {
+    background: #fff1f2 !important;
+    color: #be123c !important;
+    border: 1.5px solid #fecdd3 !important;
+}
+.ai-btn-test-rose:hover {
+    background: #ffe4e6 !important;
+    color: #9f1239 !important;
+    border-color: #fda4af !important;
+}
+
+/* Cascade Row Items */
+.ai-cascade-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 8px 12px !important;
+    border-radius: 9px !important;
+    margin-bottom: 7px !important;
+    font-size: 12px !important;
+    transition: all 0.15s ease !important;
+}
+.ai-cascade-primary-text {
+    background: #ecfdf5 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+.ai-cascade-primary-image {
+    background: #fffbeb !important;
+    border: 1px solid #fde68a !important;
+}
+.ai-cascade-primary-video {
+    background: #fff1f2 !important;
+    border: 1px solid #fecdd3 !important;
+}
+.ai-cascade-fallback {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+.ai-cascade-fallback:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Step Number Badges */
+.ai-step-badge {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    flex-shrink: 0 !important;
+}
+
+/* Badges */
+.ai-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 8px !important;
+    border-radius: 20px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+/* Form Inputs and Selects */
+.ai-input, .ai-select {
+    width: 100% !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    padding: 9px 12px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    outline: none !important;
+    transition: all 0.15s ease !important;
+}
+.ai-input:focus, .ai-select:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Lab Mode Pills */
+.ai-lab-tab {
+    padding: 7px 16px !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    border: 1px solid transparent !important;
+    transition: all 0.15s ease !important;
+    background: transparent !important;
+    color: #475569 !important;
+}
+.ai-lab-tab.active {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18) !important;
+}
+.ai-lab-tab:not(.active):hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Quick Suggestion Chips */
+.ai-chip {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 5px 10px !important;
+    border-radius: 7px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.ai-chip:hover {
+    background: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
+}
+</style>
+
+<div class="ai-scope">
+
+    {{-- TOP: OmniRoute Live Model Sync & Gateway Control Strip --}}
+    <div class="ai-hero-card">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <span style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; flex-shrink: 0;">
+                ⚡
+            </span>
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin: 0;">OmniRoute AI Gateway</h3>
+                    <span class="ai-pill" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35);">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399; display: inline-block;"></span> Primary Router Active
+                    </span>
+                    <span class="ai-pill" style="background: #1e293b; color: #cbd5e1; border: 1px solid #334155; font-family: monospace;">
+                        ai.vmstudio.digital
+                    </span>
                 </div>
-                <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/60 text-xs">
-                    <i data-lucide="shield-alert" class="w-4 h-4 text-emerald-600"></i>
-                    <span class="font-medium text-slate-700">Circuit Breaker:</span>
-                    <span class="text-slate-500 font-mono text-[11px]">3 fails &rarr; 10m bench</span>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 4px; margin-bottom: 0; line-height: 1.4;">
+                    <span>Primary Router for <strong style="color: #ffffff;">Free Text</strong>, <strong style="color: #fde68a;">Photorealistic Images</strong> & <strong style="color: #fecdd3;">9:16 Video Reels</strong>.</span>
+                    <span style="margin: 0 4px; color: #475569;">·</span>
+                    <span>Synced: <strong style="color: #f8fafc;" id="sync-last-time">{{ $lastSyncedAt ? \Carbon\Carbon::parse($lastSyncedAt)->diffForHumans() : 'Live Synced' }}</strong></span>
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px; justify-content: flex-end;">
+            <div style="text-align: right;">
+                <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: block; font-weight: 700;">Synced Catalogue</span>
+                <span style="font-size: 16px; font-weight: 800; color: #fbbf24; font-family: monospace;" id="sync-total-badge">{{ number_format($omniTotal) }}</span>
+                <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Models</span>
+            </div>
+            <button type="button" id="btn-sync-live-models" class="ai-btn-gold">
+                <i data-lucide="refresh-cw" id="sync-btn-icon" style="color: #020617;"></i>
+                <span id="sync-btn-text">Sync Live Models</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- SECTION 1: The Three Multi-Modal AI Engines (Text, Image, Video) with Cascades --}}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; margin-top: 20px;">
+
+        {{-- 1. TEXT AI ENGINE --}}
+        <div class="ai-box" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">
+                            💬
+                        </span>
+                        <div>
+                            <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">Text AI Engine</h3>
+                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Jyotish, Kundli, Puja Guides, Blogs</p>
+                        </div>
+                    </div>
+                    <span class="ai-pill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                        100% Free Tier
+                    </span>
+                </div>
+
+                {{-- Cascade Ladder --}}
+                <div style="margin: 14px 0;">
+                    <div class="ai-cascade-item ai-cascade-primary-text">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="ai-step-badge" style="background: #059669;">1</span>
+                                <strong style="color: #0f172a; font-size: 12px;">OmniRoute Gateway</strong>
+                            </div>
+                            <div style="margin-top: 4px; font-size: 11px; color: #065f46; padding-left: 28px;">
+                                Synced: <span id="omni-text-count-badge" style="font-weight: 800; font-family: monospace;">{{ $omniTextModels->count() }} Models</span>
+                            </div>
+                        </div>
+                        <span class="ai-pill" style="background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;">Primary</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">2</span>
+                            <span style="font-weight: 600; color: #334155;">Google Gemini</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">1.5 / 2.0 Flash</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">3</span>
+                            <span style="font-weight: 600; color: #334155;">OpenRouter</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">DeepSeek R1 :free</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">4</span>
+                            <span style="font-weight: 600; color: #334155;">Pollinations Text</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b;">Unlimited Keyless</span>
+                    </div>
                 </div>
             </div>
 
-            {{-- 4-Step Clean Flow Pipeline (OpenAI Removed) --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-                @php
-                    $steps = [
-                        'omniroute'   => ['step' => 1, 'badge' => 'Default Router', 'desc' => 'Multi-modal (Text, Flux, Video)'],
-                        'gemini'      => ['step' => 2, 'badge' => 'Tier 1 Fallback', 'desc' => 'Google Gemini 1.5 / 2.0 Flash'],
-                        'openrouter'  => ['step' => 3, 'badge' => 'Tier 2 Fallback', 'desc' => 'DeepSeek V3, Claude, Llama 3.3'],
-                        'pollinations'=> ['step' => 4, 'badge' => 'Zero-Config Safety', 'desc' => 'Keyless Free Fallback'],
-                    ];
-                @endphp
+            <button type="button" class="ai-btn-test ai-btn-test-blue select-test-engine" data-engine="text">
+                <i data-lucide="play"></i> Test Text Engine
+            </button>
+        </div>
 
-                @foreach($providers as $slug => $p)
-                    @php
-                        $meta = $steps[$slug] ?? ['step' => '•', 'badge' => 'Fallback', 'desc' => $p['type']];
-                        $isReady = !empty($p['configured']);
-                    @endphp
-                    <div class="relative p-3.5 rounded-xl border transition-all duration-200 {{ $isReady ? 'bg-white border-emerald-300/80 shadow-xs hover:border-emerald-400' : 'bg-slate-50/70 border-slate-200/80 opacity-90' }}">
-                        <div class="flex items-center justify-between gap-1 mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold {{ $isReady ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700' }}">
-                                    {{ $meta['step'] }}
-                                </span>
-                                <span class="font-bold text-slate-800 text-xs truncate">{{ $p['name'] }}</span>
-                            </div>
-                            @if($isReady)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span> Active
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800">
-                                    Needs Key
-                                </span>
-                            @endif
-                        </div>
-
-                        <div class="text-[11px] text-slate-600 font-medium truncate mb-1">
-                            {{ $meta['badge'] }}
-                        </div>
-                        <div class="text-[10px] text-slate-400 truncate">
-                            {{ $meta['desc'] }}
+        {{-- 2. IMAGE AI ENGINE --}}
+        <div class="ai-box" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="width: 36px; height: 36px; border-radius: 10px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">
+                            📸
+                        </span>
+                        <div>
+                            <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">Image AI Engine</h3>
+                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Photorealistic Vedic Art & Pujas</p>
                         </div>
                     </div>
-                @endforeach
+                    <span class="ai-pill" style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a;">
+                        FLUX.1 Ultra
+                    </span>
+                </div>
+
+                {{-- Cascade Ladder --}}
+                <div style="margin: 14px 0;">
+                    <div class="ai-cascade-item ai-cascade-primary-image">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="ai-step-badge" style="background: #d97706;">1</span>
+                                <strong style="color: #0f172a; font-size: 12px;">OmniRoute Gateway</strong>
+                            </div>
+                            <div style="margin-top: 4px; font-size: 11px; color: #92400e; padding-left: 28px;">
+                                Synced: <span id="omni-image-count-badge" style="font-weight: 800; font-family: monospace;">{{ $omniImageModels->count() }} Models</span>
+                            </div>
+                        </div>
+                        <span class="ai-pill" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">Primary</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">2</span>
+                            <span style="font-weight: 600; color: #334155;">Pollinations AI</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">Flux Free Tier</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">3</span>
+                            <span style="font-weight: 600; color: #334155;">Cloudflare Workers AI</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">@cf/flux-1-schnell</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">4</span>
+                            <span style="font-weight: 600; color: #334155;">Hugging Face API</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b;">FLUX Serverless</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="ai-btn-test ai-btn-test-amber select-test-engine" data-engine="image">
+                <i data-lucide="sparkles"></i> Test Image Engine
+            </button>
+        </div>
+
+        {{-- 3. VIDEO AI ENGINE --}}
+        <div class="ai-box" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="width: 36px; height: 36px; border-radius: 10px; background: #fff1f2; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">
+                            🎥
+                        </span>
+                        <div>
+                            <h3 style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">Video AI Engine</h3>
+                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">9:16 Reels & Temple Motion</p>
+                        </div>
+                    </div>
+                    <span class="ai-pill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                        Zero-Failure Active
+                    </span>
+                </div>
+
+                {{-- Cascade Ladder --}}
+                <div style="margin: 14px 0;">
+                    <div class="ai-cascade-item ai-cascade-primary-video">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="ai-step-badge" style="background: #e11d48;">1</span>
+                                <strong style="color: #0f172a; font-size: 12px;">OmniRoute Video</strong>
+                            </div>
+                            <div style="margin-top: 4px; font-size: 11px; color: #9f1239; padding-left: 28px;">
+                                Synced: <span id="omni-video-count-badge" style="font-weight: 800; font-family: monospace;">{{ $omniVideoModels->count() }} Models</span>
+                            </div>
+                        </div>
+                        <span class="ai-pill" style="background: #ffe4e6; color: #9f1239; border: 1px solid #fda4af;">Primary</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">2</span>
+                            <span style="font-weight: 600; color: #334155;">Hugging Face Video</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">Wan2.1-T2V Free</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">3</span>
+                            <span style="font-weight: 600; color: #334155;">Pollinations Motion</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b;">Keyless Motion</span>
+                    </div>
+
+                    <div class="ai-cascade-item ai-cascade-fallback">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ai-step-badge" style="background: #64748b;">4</span>
+                            <span style="font-weight: 600; color: #334155;">Cinematic Reel Engine</span>
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-family: monospace;">2.5D Ken-Burns</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="ai-btn-test ai-btn-test-rose select-test-engine" data-engine="video">
+                <i data-lucide="video"></i> Test Video Engine
+            </button>
+        </div>
+    </div>
+
+    {{-- SECTION 2: Unified Interactive Synthesis & Live Fallback Lab --}}
+    <div class="ai-box" style="margin-top: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 32px; height: 32px; border-radius: 8px; background: #0f172a; color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold;">
+                        ⚡
+                    </span>
+                    <div>
+                        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">Multi-Modal Live Synthesis & Fallback Lab</h3>
+                        <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0;">Test text reasoning, photorealistic Flux imagery, and video reels with live cascade telemetry.</p>
+                    </div>
+                </div>
+
+                {{-- Mode Switcher Pills --}}
+                <div style="display: flex; align-items: center; background: #f1f5f9; padding: 4px; border-radius: 10px; gap: 4px;">
+                    <button type="button" id="tab-mode-text" class="ai-lab-tab active mode-tab-btn" data-mode="text">
+                        💬 Text Chat
+                    </button>
+                    <button type="button" id="tab-mode-image" class="ai-lab-tab mode-tab-btn" data-mode="image">
+                        📸 Flux Image
+                    </button>
+                    <button type="button" id="tab-mode-video" class="ai-lab-tab mode-tab-btn" data-mode="video">
+                        🎥 Video Reel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 18px;">
+            {{-- Left: Prompt Input & Quick Topic Chips --}}
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+                        Vedic Ceremony / Prompt to Synthesize
+                    </label>
+                    <input type="text" id="multi-test-prompt" value="Maha Shivratri sacred Rudrabhishek with glowing brass diyas and bilva leaves" 
+                           class="ai-input" 
+                           placeholder="Enter topic or prompt…">
+                </div>
+
+                {{-- Quick Suggestion Pills --}}
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 5px;">
+                        Quick Inspiration Topics:
+                    </label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <button type="button" class="ai-chip quick-lab-pill" data-val="Maha Shivratri sacred Rudrabhishek with glowing brass diyas and bilva leaves">🔱 Rudrabhishek</button>
+                        <button type="button" class="ai-chip quick-lab-pill" data-val="Kashi Vishwanath Sandhya Aarti with multi-tiered brass deepams and incense dhoop">🪔 Kashi Aarti</button>
+                        <button type="button" class="ai-chip quick-lab-pill" data-val="Satyanarayan Katha with banana leaves, fresh marigold flowers, and panchamrit offerings">🍌 Satyanarayan</button>
+                        <button type="button" class="ai-chip quick-lab-pill" data-val="Explain the spiritual significance and planetary remedies of reciting Hanuman Chalisa daily">📖 Astrology Advice</button>
+                    </div>
+                </div>
+
+                <div style="padding-top: 6px;">
+                    <button type="button" id="btn-run-synthesis" class="ai-btn-dark" style="font-size: 13px; padding: 11px 22px;">
+                        <i data-lucide="zap" style="color: #fbbf24;"></i> Synthesize Now
+                    </button>
+                </div>
+            </div>
+
+            {{-- Right: Live Output Viewport & Telemetry Badge --}}
+            <div>
+                <div style="position: relative; height: 260px; border-radius: 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden;">
+                    {{-- Status / Telemetry Strip --}}
+                    <div id="telemetry-badge" class="hidden" style="position: absolute; top: 10px; right: 10px; z-index: 10; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: monospace; font-weight: 700; background: #ffffff; border: 1px solid #cbd5e1; color: #065f46; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                        <span id="telemetry-provider">OmniRoute</span> · <span id="telemetry-ms">180ms</span>
+                    </div>
+
+                    {{-- Idle Placeholder --}}
+                    <div id="lab-placeholder" style="color: #64748b;">
+                        <span style="font-size: 28px; display: block; margin-bottom: 6px;">✨</span>
+                        <div style="font-size: 13px; font-weight: 700; color: #1e293b;">Synthesis Lab Idle</div>
+                        <div style="font-size: 11px; color: #94a3b8; max-width: 260px; margin-top: 4px;">Select Text, Flux Image, or Video Reel on the left and click Synthesize.</div>
+                    </div>
+
+                    {{-- Loading State --}}
+                    <div id="lab-loading" class="hidden" style="color: #1e293b; text-align: center;">
+                        <div style="width: 32px; height: 32px; border: 3px solid #f59e0b; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px auto;"></div>
+                        <div style="font-size: 13px; font-weight: 700;">Synthesizing with active fallback chain…</div>
+                        <div style="font-size: 11px; color: #64748b; margin-top: 3px;">Querying OmniRoute primary router first</div>
+                    </div>
+
+                    {{-- Result: Image --}}
+                    <img id="lab-img-result" src="" alt="AI Output" class="hidden" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;">
+
+                    {{-- Result: Video --}}
+                    <video id="lab-video-result" src="" controls autoplay loop muted playsinline class="hidden" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px;"></video>
+
+                    {{-- Result: Text --}}
+                    <div id="lab-text-result" class="hidden" style="width: 100%; height: 100%; text-align: left; overflow-y: auto; font-size: 12.5px; color: #0f172a; line-height: 1.6; background: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: sans-serif;"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- Left: Vault Credentials (Without OpenAI) --}}
-    <div class="col-span-12 lg:col-span-5">
-        <form method="POST" action="{{ route('growth-os.ai.vault') }}" class="box p-5 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-4">
-            @csrf
+    {{-- SECTION 3: Live Model Pickers & AI Vault Settings --}}
+    <form method="POST" action="{{ route('growth-os.ai.vault') }}" class="ai-box">
+        @csrf
 
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <i data-lucide="key" class="w-4 h-4 text-amber-500"></i> AI Vault Credentials
-                </h4>
-                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium">AES-256 Encrypted</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="settings-2" style="color: #f59e0b;"></i>
+                <h4 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">OmniRoute Live Model Configuration & Fallbacks</h4>
             </div>
+            <span class="ai-pill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                AES-256 Encrypted Vault
+            </span>
+        </div>
 
-            {{-- OmniRoute URL --}}
-            <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">OmniRoute Gateway URL (Default)</label>
-                <div class="relative">
-                    <input type="text" name="omniroute_url" value="{{ $creds['omniroute_url'] ?? 'https://ai.vmstudio.digital' }}" class="w-full text-xs rounded-lg border-slate-200 pl-3 pr-8 py-2 font-mono bg-slate-50 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition" placeholder="https://ai.vmstudio.digital">
-                    <button type="button" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 copy-btn" data-copy="{{ $creds['omniroute_url'] ?? '' }}" title="Copy URL">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                    </button>
-                </div>
+        {{-- Dynamic Model Selection for OmniRoute (Text, Image, Video) --}}
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Default OmniRoute Model Selectors
+                </span>
+                <span style="font-size: 11px; color: #64748b;">
+                    Live synced from <span style="font-family: monospace; color: #0f172a; font-weight: 700;">ai.vmstudio.digital</span>
+                </span>
             </div>
-
-            {{-- OmniRoute Key --}}
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="text-xs font-semibold text-slate-700">OmniRoute API Key</label>
-                    <button type="button" class="text-[10px] text-primary hover:underline toggle-secret-btn" data-target="omniroute_key">Show</button>
-                </div>
-                <input type="password" id="omniroute_key" name="omniroute_key" value="{{ $creds['omniroute_key'] ?? '' }}" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 font-mono bg-slate-50 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition" placeholder="sk-omni-...">
-            </div>
-
-            {{-- Gemini Key --}}
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="text-xs font-semibold text-slate-700">Google Gemini API Key (Tier 1 Fallback)</label>
-                    <button type="button" class="text-[10px] text-primary hover:underline toggle-secret-btn" data-target="gemini_key">Show</button>
-                </div>
-                <input type="password" id="gemini_key" name="gemini_key" value="{{ $creds['gemini_key'] ?? '' }}" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 font-mono bg-slate-50 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition" placeholder="AIzaSy...">
-            </div>
-
-            {{-- OpenRouter Key --}}
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="text-xs font-semibold text-slate-700">OpenRouter API Key (Tier 2 Fallback)</label>
-                    <button type="button" class="text-[10px] text-primary hover:underline toggle-secret-btn" data-target="openrouter_key">Show</button>
-                </div>
-                <input type="password" id="openrouter_key" name="openrouter_key" value="{{ $creds['openrouter_key'] ?? '' }}" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 font-mono bg-slate-50 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition" placeholder="sk-or-v1-...">
-            </div>
-
-            {{-- Failover Text Chain Order --}}
-            <div class="pt-2 border-t border-slate-100">
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Failover Text Chain Order</label>
-                <input type="text" name="ai_text_chain" value="{{ $creds['ai_text_chain'] ?? 'omniroute,gemini,openrouter,pollinations' }}" class="w-full text-xs rounded-lg border-slate-200 px-3 py-2 font-mono bg-slate-50 focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary transition">
-                <div class="text-[10px] text-slate-400 mt-1">Default: <code class="font-mono text-slate-600">omniroute,gemini,openrouter,pollinations</code></div>
-            </div>
-
-            <div class="pt-2">
-                <button type="submit" class="btn btn-sm btn-primary w-full text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5 shadow-xs font-medium">
-                    <i data-lucide="save" class="w-4 h-4"></i> Save AI Vault Settings
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- Right: OmniRoute Model Routing Studio (Clean Dropdown Selectors — Replaces 4137-Row Clutter Table) --}}
-    <div class="col-span-12 lg:col-span-7">
-        <form method="POST" action="{{ route('growth-os.ai.vault') }}" class="box p-5 bg-white rounded-xl shadow-xs border border-slate-200/80 space-y-5">
-            @csrf
-
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px;">
+                {{-- Text Model --}}
                 <div>
-                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="cpu" class="w-4 h-4 text-emerald-600"></i> OmniRoute Model Routing Studio
-                    </h4>
-                    <div class="text-xs text-slate-400 mt-0.5">Select active models for text astrology, spiritual image generation, and video reels.</div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" id="btn-sync-models-now" class="btn btn-sm btn-outline-secondary text-xs py-1.5 px-3 rounded-lg flex items-center gap-1.5 bg-white hover:bg-slate-50">
-                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-primary"></i> Sync Catalog
-                    </button>
-                </div>
-            </div>
-
-            {{-- 1. Default Text / Astrology Model Dropdown --}}
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="message-square" class="w-4 h-4 text-blue-500"></i> Default Text & Astrologer Model
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">
+                        Default Text Model <span style="color: #64748b; font-weight: normal;">({{ $omniTextModels->count() }} synced)</span>
                     </label>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-800">OmniRoute Chat</span>
-                </div>
-                <select name="model_omniroute" class="w-full text-xs rounded-lg border-slate-300 px-3 py-2 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-primary">
-                    @php $currTextModel = $creds['model_omniroute'] ?? 'auto/pro-chat'; @endphp
-                    @foreach($textModels as $mId => $mLabel)
-                        <option value="{{ $mId }}" {{ $currTextModel === $mId ? 'selected' : '' }}>
-                            {{ $mLabel }} ({{ $mId }})
+                    <select name="model_omniroute" class="ai-select">
+                        <option value="auto/best-fast" {{ ($creds['model_omniroute'] ?? '') == 'auto/best-fast' ? 'selected' : '' }}>
+                            ⭐ auto/best-fast (Fast Multi-Model Router)
                         </option>
-                    @endforeach
-                </select>
-                <div class="text-[11px] text-slate-500">Powers Master Astrologer AI, Kundli interpretation, and Growth OS content drafting.</div>
-            </div>
+                        <option value="auto/best-chat" {{ ($creds['model_omniroute'] ?? '') == 'auto/best-chat' ? 'selected' : '' }}>
+                            ⭐ auto/best-chat (Best Quality Chat Router)
+                        </option>
+                        @foreach($omniTextModels as $m)
+                            <option value="{{ $m->model_id }}" {{ ($creds['model_omniroute'] ?? '') == $m->model_id ? 'selected' : '' }}>
+                                {{ $m->label ?: $m->model_id }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            {{-- 2. Default Spiritual Image Model Dropdown --}}
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="image" class="w-4 h-4 text-amber-500"></i> Default Spiritual Image Model
+                {{-- Image Model --}}
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">
+                        Default Image Model <span style="color: #64748b; font-weight: normal;">({{ $omniImageModels->count() }} synced)</span>
                     </label>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-800">Photorealistic Vedic</span>
-                </div>
-                <select name="model_omniroute_image" class="w-full text-xs rounded-lg border-slate-300 px-3 py-2 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-primary">
-                    @php $currImgModel = $creds['model_omniroute_image'] ?? 'flux'; @endphp
-                    @foreach($imageModels as $mId => $mLabel)
-                        <option value="{{ $mId }}" {{ $currImgModel === $mId ? 'selected' : '' }}>
-                            {{ $mLabel }}
+                    <select name="model_omniroute_image" class="ai-select">
+                        <option value="nvidia/black-forest-labs/flux.1-dev" {{ ($creds['model_omniroute_image'] ?? '') == 'nvidia/black-forest-labs/flux.1-dev' ? 'selected' : '' }}>
+                            ⭐ nvidia/black-forest-labs/flux.1-dev (NVIDIA Photorealistic FLUX.1)
                         </option>
-                    @endforeach
-                </select>
-                <div class="text-[11px] text-slate-500">Generates puja ceremony banners, deity wallpapers, and festival cards. Direct keyless Flux fallback active.</div>
-            </div>
+                        @foreach($omniImageModels as $m)
+                            <option value="{{ $m->model_id }}" {{ ($creds['model_omniroute_image'] ?? '') == $m->model_id ? 'selected' : '' }}>
+                                {{ $m->label ?: $m->model_id }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            {{-- 3. Default Video Reel Model Dropdown --}}
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <i data-lucide="video" class="w-4 h-4 text-rose-500"></i> Default Video Reel Model
+                {{-- Video Model --}}
+                <div>
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 5px;">
+                        Default Video Model <span style="color: #64748b; font-weight: normal;">({{ $omniVideoModels->count() }} synced)</span>
                     </label>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-rose-100 text-rose-800">9:16 Vertical Motion</span>
-                </div>
-                <select name="model_omniroute_video" class="w-full text-xs rounded-lg border-slate-300 px-3 py-2 bg-white text-slate-800 font-medium focus:ring-1 focus:ring-primary">
-                    @php $currVidModel = $creds['model_omniroute_video'] ?? 'fal-ai/xai/grok-imagine-video/text-to-video'; @endphp
-                    @foreach($videoModels as $mId => $mLabel)
-                        <option value="{{ $mId }}" {{ $currVidModel === $mId ? 'selected' : '' }}>
-                            {{ $mLabel }}
+                    <select name="model_omniroute_video" class="ai-select">
+                        <option value="fal-ai/xai/grok-imagine-video/text-to-video" {{ ($creds['model_omniroute_video'] ?? '') == 'fal-ai/xai/grok-imagine-video/text-to-video' ? 'selected' : '' }}>
+                            ⭐ grok-imagine-video (Fal.ai High Motion)
                         </option>
-                    @endforeach
-                </select>
-                <div class="text-[11px] text-slate-500">Generates 5-10s video reels for Instagram & Facebook (flickering diya, incense, sacred temple atmosphere).</div>
+                        @foreach($omniVideoModels as $m)
+                            <option value="{{ $m->model_id }}" {{ ($creds['model_omniroute_video'] ?? '') == $m->model_id ? 'selected' : '' }}>
+                                {{ $m->label ?: $m->model_id }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
+        </div>
 
-            {{-- Gateway Status Card --}}
-            <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <div>
-                        <div class="font-bold text-slate-800">OmniRoute Gateway Online</div>
-                        <div class="text-slate-500 text-[11px]">Endpoint: <code class="font-mono text-emerald-800">{{ $creds['omniroute_url'] ?? 'https://ai.vmstudio.digital' }}</code> · {{ $totalModelsCount ?? 4137 }} Total Upstream Models Available</div>
+        {{-- Credentials Grid --}}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
+
+            {{-- 1. OmniRoute Gateway --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <span>⚡</span> OmniRoute Gateway
+                    </span>
+                    <span class="ai-pill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">Primary Router</span>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Gateway Host URL</label>
+                    <input type="text" name="omniroute_url" value="{{ $creds['omniroute_url'] ?? 'https://ai.vmstudio.digital' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">OmniRoute API Key</label>
+                        <button type="button" class="toggle-secret-btn" data-target="omniroute_key" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
                     </div>
+                    <input type="password" id="omniroute_key" name="omniroute_key" value="{{ $creds['omniroute_key'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="sk-omni-…">
                 </div>
-                <button type="submit" class="btn btn-sm btn-primary bg-emerald-600 hover:bg-emerald-700 border-0 text-white text-xs px-4 py-2 rounded-lg font-medium whitespace-nowrap shadow-xs">
-                    <i data-lucide="check" class="w-3.5 h-3.5 mr-1"></i> Save Model Preferences
-                </button>
             </div>
-        </form>
-    </div>
+
+            {{-- 2. Google Gemini & OpenRouter --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <span>💬</span> Free Text Fallbacks
+                    </span>
+                    <span class="ai-pill" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;">Text Chain</span>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">Google Gemini Key (15 RPM Free)</label>
+                        <button type="button" class="toggle-secret-btn" data-target="gemini_key" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="gemini_key" name="gemini_key" value="{{ $creds['gemini_key'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="AIzaSy…">
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">OpenRouter API Key (Free Models)</label>
+                        <button type="button" class="toggle-secret-btn" data-target="openrouter_key" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="openrouter_key" name="openrouter_key" value="{{ $creds['openrouter_key'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="sk-or-v1-…">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">OpenRouter Fallback Model</label>
+                    <input type="text" name="model_openrouter" value="{{ $creds['model_openrouter'] ?? 'deepseek/deepseek-r1:free' }}" class="ai-input" style="font-family: monospace;" placeholder="deepseek/deepseek-r1:free">
+                </div>
+            </div>
+
+            {{-- 3. Cloudflare & Hugging Face --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <span>📸</span> Free Image / Video APIs
+                    </span>
+                    <span class="ai-pill" style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a;">Visual Chain</span>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Cloudflare Account ID (Workers AI)</label>
+                    <input type="text" name="cloudflare_account_id" value="{{ $creds['cloudflare_account_id'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="e.g. 7c1e5…">
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">Cloudflare Workers AI Token</label>
+                        <button type="button" class="toggle-secret-btn" data-target="cloudflare_api_token" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="cloudflare_api_token" name="cloudflare_api_token" value="{{ $creds['cloudflare_api_token'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="Cloudflare API Token">
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">Hugging Face Token (Free Serverless)</label>
+                        <button type="button" class="toggle-secret-btn" data-target="huggingface_token" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="huggingface_token" name="huggingface_token" value="{{ $creds['huggingface_token'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="hf_…">
+                </div>
+            </div>
+        </div>
+
+        {{-- Fallback Chain Order Configuration --}}
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <span style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">
+                Ordered Fallback Cascade Sequences
+            </span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Text Cascade Chain (Default: OmniRoute)</label>
+                    <input type="text" name="ai_text_chain" value="{{ $creds['ai_text_chain'] ?? 'omniroute,gemini,openrouter,pollinations' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Image Cascade Chain (Default: OmniRoute)</label>
+                    <input type="text" name="ai_image_chain" value="{{ $creds['ai_image_chain'] ?? 'omniroute,pollinations,cloudflare,huggingface' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Video Cascade Chain (Default: OmniRoute)</label>
+                    <input type="text" name="ai_video_chain" value="{{ $creds['ai_video_chain'] ?? 'omniroute,huggingface,pollinations,cinematic_reel' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+            </div>
+        </div>
+
+        <div style="padding-top: 4px;">
+            <button type="submit" class="ai-btn-dark" style="font-size: 13px; padding: 12px 26px;">
+                <i data-lucide="check" style="color: #fbbf24;"></i> Save AI Vault Credentials & Fallbacks
+            </button>
+        </div>
+    </form>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Secret toggle buttons
+(function() {
+    function initAi() {
+    // 0. Ensure Lucide icons are converted
+    function refreshIcons() {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    }
+    refreshIcons();
+
+    // 1. Live Model Sync from OmniRoute (ai.vmstudio.digital)
+    var btnSync = document.getElementById('btn-sync-live-models');
+    var syncIcon = document.getElementById('sync-btn-icon');
+    var syncText = document.getElementById('sync-btn-text');
+    var totalBadge = document.getElementById('sync-total-badge');
+    var lastTime = document.getElementById('sync-last-time');
+    var textCountBadge = document.getElementById('omni-text-count-badge');
+    var imageCountBadge = document.getElementById('omni-image-count-badge');
+    var videoCountBadge = document.getElementById('omni-video-count-badge');
+
+    if (btnSync) {
+        btnSync.addEventListener('click', function() {
+            btnSync.disabled = true;
+            syncText.textContent = 'Syncing from ai.vmstudio.digital…';
+            if (syncIcon) syncIcon.style.animation = 'spin 1s linear infinite';
+
+            fetch('{{ route("growth-os.action") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ action: 'sync_models' })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                btnSync.disabled = false;
+                syncText.textContent = 'Sync Live Models';
+                if (syncIcon) syncIcon.style.animation = '';
+
+                if (res.ok) {
+                    if (res.counts) {
+                        if (totalBadge) totalBadge.textContent = Number(res.counts.total).toLocaleString();
+                        if (lastTime) lastTime.textContent = res.counts.last_synced || 'Just now';
+                        if (textCountBadge) textCountBadge.textContent = res.counts.text + ' Models';
+                        if (imageCountBadge) imageCountBadge.textContent = res.counts.image + ' Models';
+                        if (videoCountBadge) videoCountBadge.textContent = res.counts.video + ' Models';
+                    }
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('success', res.message || 'Models synced from OmniRoute successfully!');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.success(res.message || 'Models synced from OmniRoute successfully!');
+                    } else {
+                        alert(res.message || 'Models synced successfully!');
+                    }
+                    refreshIcons();
+                    setTimeout(function() { window.location.reload(); }, 1500);
+                } else {
+                    if (window.showGrowthNotification) {
+                        window.showGrowthNotification('error', res.error || 'Sync failed');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.error(res.error || 'Sync failed');
+                    } else {
+                        alert('Sync failed: ' + (res.error || 'Unknown error'));
+                    }
+                }
+            })
+            .catch(function(err) {
+                btnSync.disabled = false;
+                syncText.textContent = 'Sync Live Models';
+                if (syncIcon) syncIcon.style.animation = '';
+                if (window.showGrowthNotification) {
+                    window.showGrowthNotification('error', 'Sync request failed: ' + err.message);
+                } else if (typeof toastr !== 'undefined') {
+                    toastr.error(err.message);
+                } else {
+                    alert('Sync error: ' + err.message);
+                }
+            });
+        });
+    }
+
+    // 2. Show/Hide Secrets
     document.querySelectorAll('.toggle-secret-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var targetId = this.getAttribute('data-target');
@@ -253,47 +885,141 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Copy URL button
-    document.querySelectorAll('.copy-btn').forEach(function(btn) {
+    // 3. Mode Switcher in Lab
+    var currentMode = 'text';
+    var modeButtons = document.querySelectorAll('.mode-tab-btn');
+    modeButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
-            var text = this.getAttribute('data-copy');
-            if (text && navigator.clipboard) {
-                navigator.clipboard.writeText(text);
-                if (typeof toastr !== 'undefined') toastr.success('Copied to clipboard');
+            modeButtons.forEach(function(b) {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            currentMode = this.getAttribute('data-mode');
+        });
+    });
+
+    // 4. Select Engine from Top Cards
+    document.querySelectorAll('.select-test-engine').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var eng = this.getAttribute('data-engine');
+            var targetBtn = document.getElementById('tab-mode-' + eng);
+            if (targetBtn) targetBtn.click();
+            var promptBox = document.getElementById('multi-test-prompt');
+            if (promptBox) {
+                promptBox.focus();
+                promptBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     });
 
-    // Sync Models Action
-    var syncBtn = document.getElementById('btn-sync-models-now');
-    if (syncBtn) {
-        syncBtn.addEventListener('click', function() {
-            var b = this;
-            b.disabled = true;
-            b.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> Syncing…';
+    // 5. Quick Suggestion Chips
+    document.querySelectorAll('.quick-lab-pill').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('multi-test-prompt').value = this.getAttribute('data-val');
+        });
+    });
+
+    // 6. Live Synthesis Action
+    var runBtn = document.getElementById('btn-run-synthesis');
+    var promptInp = document.getElementById('multi-test-prompt');
+    var placeholder = document.getElementById('lab-placeholder');
+    var loading = document.getElementById('lab-loading');
+    var imgResult = document.getElementById('lab-img-result');
+    var videoResult = document.getElementById('lab-video-result');
+    var textResult = document.getElementById('lab-text-result');
+    var telemetryBadge = document.getElementById('telemetry-badge');
+    var telemetryProvider = document.getElementById('telemetry-provider');
+    var telemetryMs = document.getElementById('telemetry-ms');
+
+    function resetOutput() {
+        if (placeholder) placeholder.classList.add('hidden');
+        if (imgResult) imgResult.classList.add('hidden');
+        if (videoResult) videoResult.classList.add('hidden');
+        if (textResult) textResult.classList.add('hidden');
+        if (telemetryBadge) telemetryBadge.classList.add('hidden');
+        if (loading) loading.classList.remove('hidden');
+    }
+
+    if (runBtn) {
+        runBtn.addEventListener('click', function() {
+            var p = promptInp.value.trim();
+            if (!p) return;
+            resetOutput();
+
             fetch('{{ route("growth-os.action") }}', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-Requested-With': 'XMLHttpRequest' },
-                body: JSON.stringify({ action: 'sync_models' })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    action: 'test_ai_engine',
+                    engine: currentMode,
+                    prompt: p
+                })
             })
             .then(function(r) { return r.json(); })
-            .then(function(d) {
-                b.disabled = false;
-                b.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1"></i> Sync Catalog';
-                if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'Models synced successfully!');
-                    setTimeout(function() { window.location.reload(); }, 1200);
+            .then(function(res) {
+                loading.classList.add('hidden');
+                var d = res.data || {};
+                var hasContent = (currentMode === 'text' && d.text) || 
+                                 (currentMode === 'image' && (d.url || d.binary)) || 
+                                 (currentMode === 'video' && (d.video_url || d.url));
+
+                if (res.ok && hasContent) {
+                    // Show telemetry
+                    if (d.provider) {
+                        telemetryProvider.textContent = d.provider;
+                        telemetryMs.textContent = (d.time_ms || 120) + 'ms';
+                        telemetryBadge.classList.remove('hidden');
+                    }
+
+                    if (currentMode === 'text') {
+                        textResult.innerHTML = escapeHtml(d.text || '').replace(/\n/g, '<br>');
+                        textResult.classList.remove('hidden');
+                    } else if (currentMode === 'image') {
+                        imgResult.src = d.url;
+                        imgResult.classList.remove('hidden');
+                    } else if (currentMode === 'video') {
+                        var vUrl = d.video_url || d.url;
+                        if (vUrl && (vUrl.includes('.mp4') || vUrl.includes('video'))) {
+                            videoResult.src = vUrl;
+                            videoResult.classList.remove('hidden');
+                        } else if (vUrl) {
+                            imgResult.src = vUrl;
+                            imgResult.classList.remove('hidden');
+                        }
+                    }
+                    refreshIcons();
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Failed');
+                    if (placeholder) placeholder.classList.remove('hidden');
+                    var errMsg = res.error || (d && d.error) || 'Failed to synthesize output. All fallback tiers exhausted.';
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(errMsg);
+                    } else {
+                        alert('Synthesis Error: ' + errMsg);
+                    }
                 }
             })
             .catch(function(err) {
-                b.disabled = false;
-                b.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1"></i> Sync Catalog';
+                loading.classList.add('hidden');
+                if (placeholder) placeholder.classList.remove('hidden');
                 if (typeof toastr !== 'undefined') toastr.error(err.message);
             });
         });
     }
-});
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    }
+
+    if (document.readyState !== 'loading') {
+        initAi();
+    } else {
+        document.addEventListener('DOMContentLoaded', initAi);
+    }
+})();
 </script>
 @endsection

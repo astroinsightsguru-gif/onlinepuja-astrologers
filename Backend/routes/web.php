@@ -115,6 +115,12 @@ Route::middleware(['auth'])->prefix('growth-os')->group(function () {
     Route::post('save-vault', [GrowthOsController::class, 'saveVault'])->name('growth-os.ai.vault');
     Route::post('action', [GrowthOsController::class, 'runAction'])->name('growth-os.action');
 });
+
+// Admin URL alias for growth-os (so /admin/growth-os/* redirects seamlessly to /growth-os/*)
+Route::middleware(['auth'])->prefix('admin/growth-os')->group(function () {
+    Route::get('/', function () { return redirect()->route('growth-os.dashboard'); });
+    Route::get('{any}', function ($any) { return redirect('/growth-os/' . $any); })->where('any', '.*');
+});
 Route::get('dark-mode-switcher', [DarkModeController::class, 'switch'])->name('dark-mode-switcher');
 Route::get('generate-daily-horscope', [HoroscopeController::class, 'generateDailyHorscope'])->name('generate-daily-horscope');
 Route::get('generate-weekly-horscope', [HoroscopeController::class, 'generateWeeklyHorscope'])->name('generate-weekly-horscope');
@@ -278,12 +284,7 @@ Route::group(['middleware' => ['web']], function () use ($professionTitle) {
         Route::get('edit/{id}', [DashboardController::class, 'editAstrologer']);
         Route::post('edit', [DashboardController::class, 'editAstrologerApi']);
 
-Route::post('register', [Frontend\Astrologer\AuthController::class, 'register']);
-
-Route::post('register', [Frontend\Astrologer\AuthController::class, 'register']);
-        Route::post('register', 'Frontend\\Astrologer\\AuthController@register'])->name('astrologer.register');
-        Route::post('register', 'Frontend\\Astrologer\\AuthController@register'])->name('astrologer.register');
-        Route::post('register', 'Frontend\\Astrologer\\AuthController@register'])->name('astrologer.register');
+        Route::post('register', [Frontend\Astrologer\AuthController::class, 'register'])->name('astrologer.register');
         Route::get('error-page-page', 'errorPage')->name('error-page');
         Route::get('update-profile-page', 'updateProfile')->name('update-profile');
         Route::get('change-password-page', 'changePassword')->name('change-password');

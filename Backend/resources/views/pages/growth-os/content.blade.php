@@ -257,17 +257,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(d) {
                 b.disabled = false;
                 b.innerHTML = originalHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.output || 'Draft created successfully!');
+                    window.showGrowthNotification('success', d.output || 'Draft created successfully!');
                     setTimeout(function() { window.location.reload(); }, 1200);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Draft generation failed');
+                    window.showGrowthNotification('error', d.error || 'Draft generation failed');
                 }
             })
             .catch(function(err) {
                 b.disabled = false;
                 b.innerHTML = originalHtml;
-                if (typeof toastr !== 'undefined') toastr.error(err.message);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                window.showGrowthNotification('error', err.message || 'Draft generation network error');
             });
         });
     }
@@ -278,8 +280,11 @@ document.addEventListener('DOMContentLoaded', function() {
             var id = this.getAttribute('data-id');
             var status = this.getAttribute('data-status');
             var card = this.closest('.bg-white');
+            var origHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '…';
 
-            fetch('/growth-os/content/' + id + '/status', {
+            fetch('{{ url("growth-os/content") }}/' + id + '/status', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -291,11 +296,18 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 if (d.ok) {
-                    if (typeof toastr !== 'undefined') toastr.success(d.message || 'Updated status');
+                    window.showGrowthNotification('success', d.message || 'Updated status');
                     setTimeout(function() { window.location.reload(); }, 800);
                 } else {
-                    if (typeof toastr !== 'undefined') toastr.error(d.error || 'Update failed');
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                    window.showGrowthNotification('error', d.error || 'Update failed');
                 }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                window.showGrowthNotification('error', err.message || 'Status update network error');
             });
         });
     });

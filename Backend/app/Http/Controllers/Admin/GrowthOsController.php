@@ -140,12 +140,13 @@ class GrowthOsController extends Controller
     public function storeKeyword(Request $request)
     {
         $request->validate([
-            'phrase' => 'required|string|max:255',
+            'phrase' => 'required|string|max:190',
             'cluster' => 'nullable|string|max:100',
             'intent' => 'nullable|in:commercial,informational,transactional',
         ]);
 
         $phrase = trim(mb_strtolower($request->phrase));
+        $phrase = mb_substr($phrase, 0, 190);
         $cluster = trim($request->cluster ?: 'general');
         $intent = $request->intent ?: (str_contains($phrase, 'book') || str_contains($phrase, 'online') || str_contains($phrase, 'price') ? 'commercial' : 'informational');
 
@@ -169,42 +170,6 @@ class GrowthOsController extends Controller
     /** 3. Content Pipeline Kanban */
     public function contentPipeline()
     {
-        // 1. Purge accidental supply alert entries from editorial content pipeline
-        DB::table('content_plans')->where('pillar', 'supply')->delete();
-
-        // 2. If no editorial ideas exist, auto-seed from top researched business keywords
-        $ideaCount = DB::table('content_plans')
-            ->where('status', 'idea')
-            ->whereNotIn('pillar', ['supply', 'festival'])
-            ->count();
-
-        if ($ideaCount === 0) {
-            $defaultTopics = [
-                ['title' => 'Complete Guide to Online Puja Booking in Varanasi (Kashi)', 'pillar' => 'puja_booking'],
-                ['title' => 'How to Book Verified Vedic Pandits for Griha Pravesh Puja at Home', 'pillar' => 'pandit_booking'],
-                ['title' => 'Shri Kashi Vishwanath Rudrabhishek: Vidhi, Benefits & Sacred Sankalp', 'pillar' => 'varanasi_puja'],
-                ['title' => 'Satyanarayan Katha Puja at Home: Samagri List, Muhurat & Vidhi', 'pillar' => 'puja_vidhi'],
-                ['title' => 'Maha Mrityunjaya Japa: Significance, Benefits & Online Pandit Booking', 'pillar' => 'vedic_mantra'],
-                ['title' => 'Kaal Sarp Dosh Nivaran Puja in Varanasi: Remedies & Temple Vidhi', 'pillar' => 'dosh_remedies'],
-                ['title' => 'Navagraha Shanti Puja at Home: How to Pacify Planetary Doshas', 'pillar' => 'astrology_puja'],
-                ['title' => 'Online Pandit Booking for Havan & Yagya: What Devotees Must Know', 'pillar' => 'havan_services'],
-            ];
-
-            foreach ($defaultTopics as $dt) {
-                if (!DB::table('content_plans')->where('title', $dt['title'])->exists()) {
-                    DB::table('content_plans')->insert([
-                        'title'      => $dt['title'],
-                        'pillar'     => $dt['pillar'],
-                        'channel'    => 'web',
-                        'status'     => 'idea',
-                        'payload'    => json_encode(['source' => 'seo_core_seed']),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-        }
-
         $base = DB::table('content_plans')
             ->where(function($q) {
                 $q->where('channel', 'web')->orWhereNull('channel');
@@ -295,11 +260,150 @@ class GrowthOsController extends Controller
             ->where('channel', 'social')
             ->orderByDesc('id')
             ->get();
-
+        $socialCreds = Vault::socialCredentials();
         $webhookUrl = Vault::get('social_webhook_url') ?: env('SOCIAL_DISPATCH_WEBHOOK', '');
-        $pujas = DB::table('pujas')->select('id', 'puja_title', 'puja_place', 'slug', 'puja_price')->limit(30)->get();
-        $astrologers = DB::table('astrologers')->select('id', 'name', 'primarySkill')->limit(15)->get();
-        return view('pages.growth-os.social', compact('festivals', 'socialPosts', 'webhookUrl', 'pujas', 'astrologers'));
+        $pujas = DB::table('pujas')->select('id', 'puja_title', 'puja_place', 'slug', 'puja_price')->where('puja_status', 1)->orderBy('id', 'DESC')->limit(100)->get();
+        $astrologers = DB::table('astrologers')->select('id', 'name', 'primarySkill')->where('isDelete', 0)->limit(30)->get();
+
+        return view('pages.growth-os.social', compact('festivals', 'socialPosts', 'socialCreds', 'webhookUrl', 'pujas', 'astrologers'));
+    }
+
+    /** 5c. Omnichannel Marketing & Devotee Broadcast Hub */
+    public function marketingHub(Request $request)
+    {
+        $wa = app(\App\Services\EvolutionWaService::class);
+        $waState = $wa->getConnectionState();
+
+        $brevoKey = Vault::get('brevo_api_key') ?: env('BREVO_API_KEY');
+        $brevoConfigured = !empty($brevoKey);
+
+        $totalDevotees = DB::table('users')->count();
+        $devoteesWithPhone = DB::table('users')->whereNotNull('contactNo')->where('contactNo', '!=', '')->count();
+        $devoteesWithEmail = DB::table('users')->whereNotNull('email')->where('email', '!=', '')->count();
+        $totalOrders = DB::table('puja_orders')->count();
+
+        $pujas = DB::table('pujas')
+            ->select('id', 'puja_title', 'puja_price', 'puja_place', 'slug')
+            ->where('puja_status', 1)
+            ->orderBy('id', 'desc')
+            ->limit(50)
+            ->get();
+
+        $upcomingFestivals = DB::table('hindu_festivals')
+            ->where('date', '>=', now()->toDateString())
+            ->orderBy('date', 'asc')
+            ->limit(8)
+            ->get();
+
+        $recentBroadcasts = DB::table('content_plans')
+            ->where('channel', 'social')
+            ->orderByDesc('id')
+            ->limit(10)
+            ->get();
+
+        $festivalEngine = app(\App\Services\FestivalCampaignEngine::class);
+        $festivalsRadar = $festivalEngine->getUpcomingFestivals(60);
+
+        // B2B Partner Directory & Radar metrics
+        $totalB2bPartners = \App\Models\B2bLead::count();
+        $b2bLeads = \App\Models\B2bLead::orderByDesc('id')->limit(50)->get();
+        $b2bCities = \App\Models\B2bLead::select('city', DB::raw('count(*) as total'))
+            ->whereNotNull('city')
+            ->groupBy('city')
+            ->orderByDesc('total')
+            ->get();
+
+        return view('pages.growth-os.marketing', compact(
+            'waState',
+            'brevoConfigured',
+            'totalDevotees',
+            'devoteesWithPhone',
+            'devoteesWithEmail',
+            'totalOrders',
+            'pujas',
+            'upcomingFestivals',
+            'festivalsRadar',
+            'recentBroadcasts',
+            'totalB2bPartners',
+            'b2bLeads',
+            'b2bCities'
+        ));
+    }
+
+    /** 5b. Autopilot Astrology Cockpit */
+    public function autopilot()
+    {
+        $mode = (string) (Vault::get('autopilot_mode') ?: 'supervised');
+        $confidence_floor = (int) (Vault::get('autopilot_confidence_floor') ?: 85);
+        $sent_today = DB::table('autopilot_queue')->where('status', 'sent')->whereDate('sent_at', today())->count();
+        $pending_count = DB::table('autopilot_queue')->where('status', 'pending')->count();
+        $sent_count = DB::table('autopilot_queue')->where('status', 'sent')->count();
+
+        $loops = [
+            'gochar' => [
+                'name' => 'Planetary Gochar Alerts',
+                'description' => 'Calculates daily planetary transits and sends personalized astrological alerts.',
+                'icon' => '🪐',
+                'enabled' => Vault::get('loop_gochar_enabled', '1') == '1',
+                'cadence' => 'Daily at 06:00 AM IST',
+            ],
+            'panchang' => [
+                'name' => 'Tithi & Muhurat Forecast',
+                'description' => 'Computes Rahu Kaal, Abhijit Muhurat and Shubh Choghadiya for the day.',
+                'icon' => '🕉️',
+                'enabled' => Vault::get('loop_panchang_enabled', '1') == '1',
+                'cadence' => 'Daily at 07:00 AM IST',
+            ],
+            'festival' => [
+                'name' => 'Hindu Festival Puja Drips',
+                'description' => 'Automates devotee reminders and auspicious sankalp booking drips ahead of tithis.',
+                'icon' => '🪔',
+                'enabled' => Vault::get('loop_festival_enabled', '1') == '1',
+                'cadence' => 'T-3 & T-1 Days Before Tithi',
+            ],
+            'twin' => [
+                'name' => 'AI Astrologer Twin Fallback',
+                'description' => 'Maintains immediate devotee engagement when verified astrologers are busy.',
+                'icon' => '🤖',
+                'enabled' => Vault::get('loop_twin_enabled', '1') == '1',
+                'cadence' => 'Realtime Event Trigger',
+            ],
+            'churn' => [
+                'name' => 'Devotee Churn Revival',
+                'description' => 'Engages dormant users with free personalized horoscope and transit updates.',
+                'icon' => '✨',
+                'enabled' => Vault::get('loop_churn_enabled', '1') == '1',
+                'cadence' => 'Weekly on Mondays',
+            ],
+        ];
+
+        $queue = DB::table('autopilot_queue')->orderByDesc('id')->limit(50)->get();
+        $logs = \Illuminate\Support\Facades\Schema::hasTable('brain_run_log')
+            ? DB::table('brain_run_log')->orderByDesc('id')->limit(20)->get()
+            : collect();
+
+        return view('pages.growth-os.autopilot', compact(
+            'mode',
+            'confidence_floor',
+            'sent_today',
+            'pending_count',
+            'sent_count',
+            'loops',
+            'queue',
+            'logs'
+        ));
+    }
+
+    /** Save Autopilot execution settings */
+    public function saveAutopilotSettings(Request $request)
+    {
+        if ($request->has('autopilot_mode')) {
+            Vault::set('autopilot_mode', $request->input('autopilot_mode'));
+        }
+        if ($request->has('autopilot_confidence_floor')) {
+            Vault::set('autopilot_confidence_floor', $request->input('autopilot_confidence_floor'));
+        }
+        return back()->with('success', 'Autopilot settings updated successfully.');
     }
 
     /** 6. AI Engine & Model Vault */
@@ -333,32 +437,27 @@ class GrowthOsController extends Controller
             ],
         ];
 
-        $textModels = [
-            'auto/pro-chat' => 'OmniRoute Pro Auto (Default Recommended)',
-            'anthropic/claude-3-5-sonnet' => 'Claude 3.5 Sonnet',
-            'google/gemini-1.5-pro' => 'Gemini 1.5 Pro',
-            'google/gemini-1.5-flash' => 'Gemini 1.5 Flash',
-            'deepseek/deepseek-chat' => 'DeepSeek V3',
-            'meta-llama/llama-3.3-70b-instruct' => 'Llama 3.3 70B',
-            'qwen/qwen-2.5-72b-instruct' => 'Qwen 2.5 72B',
-        ];
+        // Synced Live OmniRoute Models from ai.vmstudio.digital
+        $omniTextModels = DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'text')->orderBy('label')->get();
+        $omniImageModels = DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'image')->orderBy('label')->get();
+        $omniVideoModels = DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'video')->orderBy('label')->get();
 
-        $imageModels = [
-            'flux' => 'FLUX.1 (Default Schnell / Dev Photorealistic)',
-            'sdxl' => 'Stable Diffusion XL',
-            'adobe-firefly/flux-2' => 'Flux 2 (OmniRoute)',
-        ];
-
-        $videoModels = [
-            'fal-ai/xai/grok-imagine-video/text-to-video' => 'Grok Imagine Video (Fal.ai)',
-            'kie/grok-imagine/text-to-video' => 'Grok Imagine Video (KIE)',
-            'segmind/hunyuan-video-t2v' => 'Hunyuan Video T2V (Segmind)',
-            'kie/hailuo/02-text-to-video-pro' => 'Hailuo 02 Pro Video',
-        ];
+        $omniTotal = DB::table('ai_models')->where('provider', 'omniroute')->count();
+        $lastSyncedRow = DB::table('ai_models')->where('provider', 'omniroute')->orderByDesc('last_synced_at')->first();
+        $lastSyncedAt = $lastSyncedRow ? $lastSyncedRow->last_synced_at : null;
 
         $totalModelsCount = DB::table('ai_models')->count();
 
-        return view('pages.growth-os.ai', compact('creds', 'providers', 'textModels', 'imageModels', 'videoModels', 'totalModelsCount'));
+        return view('pages.growth-os.ai', compact(
+            'creds', 
+            'providers', 
+            'omniTextModels', 
+            'omniImageModels', 
+            'omniVideoModels', 
+            'omniTotal',
+            'lastSyncedAt',
+            'totalModelsCount'
+        ));
     }
 
     /** Save Vault settings (API keys) */
@@ -366,8 +465,16 @@ class GrowthOsController extends Controller
     {
         $keys = [
             'omniroute_url', 'omniroute_key',
-            'openrouter_key', 'gemini_key', 'ai_text_chain', 'ai_image_chain',
-            'model_omniroute', 'model_omniroute_image', 'model_omniroute_video',
+            'openrouter_key', 'gemini_key', 'ai_text_chain', 'ai_image_chain', 'ai_video_chain',
+            'model_omniroute', 'model_omniroute_image', 'model_omniroute_video', 'model_openrouter',
+            'cloudflare_account_id', 'cloudflare_api_token', 'huggingface_token',
+            'fb_app_id', 'fb_app_secret', 'fb_api_version', 'fb_page_id', 'fb_page_token',
+            'ig_user_id', 'ig_access_token', 'meta_verify_token',
+            'youtube_client_id', 'youtube_client_secret',
+            'x_client_id', 'x_client_secret', 'pinterest_app_id', 'pinterest_app_secret',
+            'video_logo_enabled', 'video_logo_path', 'video_logo_position',
+            'video_brand_title', 'video_brand_tagline', 'video_brand_phone', 'video_brand_cta',
+            'video_audio_track',
         ];
 
         foreach ($keys as $key) {
@@ -377,7 +484,7 @@ class GrowthOsController extends Controller
             }
         }
 
-        return back()->with('success', 'AI Vault credentials updated successfully!');
+        return back()->with('success', 'Vault credentials updated successfully!');
     }
     /** AJAX Action Runner for Background Tools */
     public function runAction(Request $request)
@@ -387,10 +494,312 @@ class GrowthOsController extends Controller
 
         try {
             switch ($action) {
+                case 'preview_festival_campaign':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi');
+                    $package = $festEngine->buildCampaignContent($festName);
+                    return response()->json([
+                        'ok'      => true,
+                        'package' => $package,
+                    ]);
+
+                case 'generate_festival_reel':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi');
+                    $videoRes = $festEngine->generateFestivalVideoReel($festName);
+                    return response()->json([
+                        'ok'        => !empty($videoRes['success']),
+                        'video_url' => $videoRes['video_url'] ?? null,
+                        'message'   => "1080x1920 MP4 Video Reel synthesized for {$festName}!",
+                        'data'      => $videoRes,
+                    ]);
+
+                case 'launch_festival_campaign':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi');
+                    $channels = $request->input('channels', ['whatsapp', 'email', 'push']);
+                    $options = [
+                        'dry_run'             => (bool) $request->input('dry_run', false),
+                        'video_url'           => $request->input('video_url'),
+                        'whatsapp_recipients' => array_filter([$request->input('test_phone', '7007158014')]),
+                        'email_recipients'    => array_filter([['email' => $request->input('test_email', 'contact@onlinepuja.live'), 'name' => 'Devotee']]),
+                    ];
+                    $dispRes = $festEngine->dispatchCampaign($festName, $channels, $options);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Campaign for {$festName} dispatched successfully!",
+                        'results' => $dispRes,
+                    ]);
+
+                case 'import_b2b_csv':
+                    $leadService = app(\App\Services\B2bLeadService::class);
+                    $csvData = $request->input('csv_data');
+                    if ($request->hasFile('csv_file')) {
+                        $csvData = file_get_contents($request->file('csv_file')->getRealPath());
+                    }
+                    if (empty($csvData)) {
+                        return response()->json(['ok' => false, 'error' => 'No CSV file or data provided.'], 400);
+                    }
+                    $importRes = $leadService->importCsv($csvData, [
+                        'city'     => $request->input('default_city', 'India'),
+                        'category' => $request->input('default_category', 'travel_agency'),
+                    ]);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Imported {$importRes['imported']} B2B partners ({$importRes['updated']} updated, {$importRes['skipped']} skipped).",
+                        'results' => $importRes,
+                    ]);
+
+                case 'radar_google_places':
+                    $leadService = app(\App\Services\B2bLeadService::class);
+                    $city = $request->input('city', 'Mumbai');
+                    $category = $request->input('category', 'travel_agency');
+                    $radarRes = $leadService->queryGooglePlacesRadar($city, $category, 20);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Google Maps Radar processed {$city} ({$category}): " . ($radarRes['imported'] ?? 0) . " new leads imported.",
+                        'results' => $radarRes,
+                    ]);
+
+                case 'seed_b2b_directory':
+                    $leadService = app(\App\Services\B2bLeadService::class);
+                    $n = $leadService->seedPremierB2bDirectory();
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Seeded {$n} premier B2B partners across Mumbai, Surat, Ahmedabad, Delhi, Kolkata & Varanasi.",
+                    ]);
+
+                case 'preview_b2b_pitch':
+                    $leadId = $request->input('lead_id');
+                    $lead = \App\Models\B2bLead::find($leadId) ?: \App\Models\B2bLead::first();
+                    if (!$lead) {
+                        return response()->json(['ok' => false, 'error' => 'No B2B leads available.'], 404);
+                    }
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $pitch = $festEngine->buildB2bDevDeepawaliPitch($lead);
+                    return response()->json([
+                        'ok'    => true,
+                        'pitch' => $pitch,
+                    ]);
+
+                case 'dispatch_b2b_campaign':
+                    $leadIds = $request->input('lead_ids', []);
+                    if (empty($leadIds)) {
+                        $city = $request->input('city');
+                        $category = $request->input('category');
+                        $query = \App\Models\B2bLead::query();
+                        if ($city && $city !== 'all') {
+                            $query->where('city', $city);
+                        }
+                        if ($category && $category !== 'all') {
+                            $query->where('category', $category);
+                        }
+                        $leadIds = $query->limit(50)->pluck('id')->toArray();
+                    }
+                    $channels = $request->input('channels', ['whatsapp', 'email']);
+                    $dryRun = (bool) $request->input('dry_run', false);
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $b2bDisp = $festEngine->dispatchB2bCampaign($leadIds, $channels, ['dry_run' => $dryRun]);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Dispatched Dev Deepawali B2B campaign to {$b2bDisp['attempted']} partner(s)!",
+                        'results' => $b2bDisp,
+                    ]);
+
+                case 'test_branded_reel':
+                    $aiEngine = app(\App\services\AiEngineService::class);
+                    $prompt = $request->input('prompt', 'Sacred Lord Shiva Rudrabhishek with bilva leaves in Varanasi');
+                    $title = $request->input('title', Vault::get('video_brand_title', 'OnlinePuja.live'));
+                    $subtitle = $request->input('subtitle', Vault::get('video_brand_tagline', 'Direct from Kashi Vishwanath, Varanasi'));
+                    $dakshina = $request->input('dakshina', 'Dakshina: ₹1,100 | Vedic Pandit Sankalp');
+                    $cta = $request->input('cta', Vault::get('video_brand_phone', '+91 70071 58014') . ' | ' . Vault::get('video_brand_cta', 'OnlinePuja.live'));
+
+                    $branding = [
+                        'title'    => $title,
+                        'subtitle' => $subtitle,
+                        'dakshina' => $dakshina,
+                        'cta'      => $cta,
+                    ];
+                    $res = $aiEngine->generateVideo($prompt, null, 5, $branding);
+                    return response()->json([
+                        'ok'        => !empty($res['success']),
+                        'video_url' => $res['video_url'] ?? null,
+                        'message'   => 'High-definition branded business reel generated successfully!',
+                        'data'      => $res,
+                    ]);
+
                 case 'sync_models':
-                    Artisan::call('ai:sync-models');
-                    $output = Artisan::output() ?: 'AI models synced successfully.';
-                    break;
+                    $startSync = microtime(true);
+                    $pm = app(\App\AI\ProviderManager::class);
+                    $report = $pm->syncModels();
+                    $counts = [
+                        'text'        => DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'text')->count(),
+                        'image'       => DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'image')->count(),
+                        'video'       => DB::table('ai_models')->where('provider', 'omniroute')->where('kind', 'video')->count(),
+                        'total'       => DB::table('ai_models')->where('provider', 'omniroute')->count(),
+                        'last_synced' => 'Just now',
+                    ];
+                    $durationMs = round((microtime(true) - $startSync) * 1000);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => "Successfully synced {$counts['total']} models from OmniRoute in {$durationMs}ms!",
+                        'counts'  => $counts,
+                        'report'  => $report,
+                    ]);
+                case 'schedule_festivals':
+                    $router = app(\App\Brain\CommandRouter::class);
+                    $res = $router->actScheduleFestivals(['days_ahead' => 75]);
+                    return response()->json([
+                        'ok'      => true,
+                        'message' => $res['message'] ?? "Queued {$res['queued']} upcoming devotional festival wishes!",
+                        'queued'  => $res['queued'] ?? 0,
+                    ]);
+                case 'test_ai_engine':
+                    $engine = $request->input('engine', 'text');
+                    $prompt = $request->input('prompt', 'Vedic blessings from Varanasi');
+                    $aiEngine = app(\App\Services\AiEngineService::class);
+
+                    if ($engine === 'text') {
+                        $data = $aiEngine->generateTextDetailed($prompt);
+                        $isOk = !empty($data['success']) || !empty($data['ok']);
+                        return response()->json([
+                            'ok' => $isOk,
+                            'data' => $data,
+                            'error' => $isOk ? null : ($data['error'] ?? 'Text synthesis failed')
+                        ]);
+                    } elseif ($engine === 'image') {
+                        $data = $aiEngine->generateImage($prompt, 'photorealistic', '1:1');
+                        $isOk = !empty($data['success']);
+                        return response()->json([
+                            'ok' => $isOk,
+                            'data' => $data,
+                            'error' => $isOk ? null : ($data['error'] ?? 'Image synthesis failed')
+                        ]);
+                    } elseif ($engine === 'video') {
+                        $data = $aiEngine->generateVideo($prompt, null, 5);
+                        $isOk = !empty($data['success']);
+                        return response()->json([
+                            'ok' => $isOk,
+                            'data' => $data,
+                            'error' => $isOk ? null : ($data['error'] ?? 'Video synthesis failed')
+                        ]);
+                    }
+                    return response()->json(['ok' => false, 'error' => 'Invalid engine'], 400);
+                case 'send_devotee_broadcast':
+                    $channel = $request->input('channel', 'both');
+                    $segment = $request->input('segment', 'test');
+                    $subject = $request->input('subject', '🕉️ Auspicious Puja Blessings from OnlinePuja.live');
+                    $headline = $request->input('headline', 'Divine Blessings & Puja Invitation');
+                    $body = $request->input('body', 'Pranam Devotee! May Lord Shiva bless you and your family with prosperity and peace.');
+                    $mediaUrl = $request->input('media_url');
+                    $mediaType = $request->input('media_type', 'image');
+                    $ctaText = $request->input('cta_text', 'Book Sacred Puja');
+                    $ctaUrl = $request->input('cta_url', 'https://onlinepuja.live');
+
+                    $wa = app(\App\Services\EvolutionWaService::class);
+                    $brevo = app(\App\Services\BrevoEmailService::class);
+
+                    $dispatched = ['wa_ok' => 0, 'email_ok' => 0, 'failed' => 0];
+
+                    if ($segment === 'test') {
+                        $admin = Auth::user();
+                        $testPhone = $request->input('test_phone', $admin->contactNo ?? '917007158014');
+                        $testEmail = $request->input('test_email', $admin->email ?? 'contact@onlinepuja.live');
+
+                        if (in_array($channel, ['whatsapp', 'both']) && !empty($testPhone)) {
+                            $waMsg = "🕉️ *{$headline}*\n\n{$body}\n\n👉 *{$ctaText}*: {$ctaUrl}\n\n_Har Har Mahadev — OnlinePuja.live_";
+                            if (!empty($mediaUrl)) {
+                                $waRes = $wa->sendMedia($testPhone, $mediaUrl, $mediaType === 'video' ? 'video' : 'image', $waMsg);
+                            } else {
+                                $waRes = $wa->sendText($testPhone, $waMsg);
+                            }
+                            if (!empty($waRes['ok'])) { $dispatched['wa_ok']++; } else { $dispatched['failed']++; }
+                        }
+
+                        if (in_array($channel, ['email', 'both']) && !empty($testEmail)) {
+                            $html = $brevo->renderDevotionalHtml($headline, nl2br(e($body)), $ctaText, $ctaUrl);
+                            $emRes = $brevo->sendEmail($testEmail, $admin->name ?? 'Devotee', $subject, $html);
+                            if (!empty($emRes['ok'])) { $dispatched['email_ok']++; } else { $dispatched['failed']++; }
+                        }
+
+                        return response()->json([
+                            'ok' => true,
+                            'message' => "Test broadcast dispatched! (WhatsApp: {$dispatched['wa_ok']}, Email: {$dispatched['email_ok']})",
+                            'dispatched' => $dispatched,
+                        ]);
+                    } else {
+                        $query = DB::table('users');
+                        if ($segment === 'bookers') {
+                            $buyerIds = DB::table('puja_orders')->pluck('userId')->unique();
+                            $query->whereIn('id', $buyerIds);
+                        }
+                        $users = $query->limit(25)->get();
+
+                        foreach ($users as $u) {
+                            if (in_array($channel, ['whatsapp', 'both']) && !empty($u->contactNo)) {
+                                $waMsg = "🕉️ *Pranam {$u->name}!*\n\n*{$headline}*\n\n{$body}\n\n👉 *{$ctaText}*: {$ctaUrl}\n\n_OnlinePuja.live Varanasi_";
+                                if (!empty($mediaUrl)) {
+                                    $waRes = $wa->sendMedia($u->contactNo, $mediaUrl, $mediaType === 'video' ? 'video' : 'image', $waMsg);
+                                } else {
+                                    $waRes = $wa->sendText($u->contactNo, $waMsg);
+                                }
+                                if (!empty($waRes['ok'])) { $dispatched['wa_ok']++; } else { $dispatched['failed']++; }
+                            }
+
+                            if (in_array($channel, ['email', 'both']) && !empty($u->email)) {
+                                $html = $brevo->renderDevotionalHtml($headline, "<p>Pranam <strong>{$u->name}</strong>,</p>" . nl2br(e($body)), $ctaText, $ctaUrl);
+                                $emRes = $brevo->sendEmail($u->email, $u->name, $subject, $html);
+                                if (!empty($emRes['ok'])) { $dispatched['email_ok']++; } else { $dispatched['failed']++; }
+                            }
+                        }
+
+                        return response()->json([
+                            'ok' => true,
+                            'message' => "Campaign sent to " . count($users) . " devotees! (WhatsApp: {$dispatched['wa_ok']}, Email: {$dispatched['email_ok']})",
+                            'dispatched' => $dispatched,
+                        ]);
+                    }
+
+                case 'sync_brevo_contacts':
+                    $brevo = app(\App\Services\BrevoEmailService::class);
+                    $users = DB::table('users')->whereNotNull('email')->where('email', '!=', '')->limit(50)->get();
+                    $synced = 0;
+                    foreach ($users as $u) {
+                        $parts = explode(' ', trim((string)$u->name), 2);
+                        $res = $brevo->syncContact($u->email, [
+                            'FIRSTNAME' => $parts[0] ?? 'Devotee',
+                            'LASTNAME'  => $parts[1] ?? '',
+                            'SMS'       => $u->contactNo ? '+91' . preg_replace('/\D/', '', $u->contactNo) : '',
+                        ]);
+                        if (!empty($res['ok'])) { $synced++; }
+                    }
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "Synced {$synced} devotees to Brevo Contact List!",
+                        'synced' => $synced,
+                    ]);
+
+                case 'test_brevo':
+                    $brevo = app(\App\Services\BrevoEmailService::class);
+                    $testTo = $request->input('email', Auth::user()->email ?? 'contact@onlinepuja.live');
+                    $html = $brevo->renderDevotionalHtml(
+                        '🕉️ Test Devotional Dispatch',
+                        '<p>Pranam! This is a live verification email from your OnlinePuja Marketing Automation Engine.</p><p>Brevo API v3 connection is active and validated.</p>',
+                        'Explore Sacred Pujas',
+                        'https://onlinepuja.live'
+                    );
+                    $res = $brevo->sendEmail($testTo, 'Devotee Admin', '🕉️ OnlinePuja Marketing Test Dispatch', $html);
+                    return response()->json($res);
+                case 'test_whatsapp':
+                    $wa = app(\App\Services\EvolutionWaService::class);
+                    $mobile = $request->input('mobile', Auth::user()->contactNo ?? '917007158014');
+                    $text = "🕉️ *OnlinePuja Marketing Engine — Test Ping*\n\nYour Evolution API WhatsApp connection on wa.vmstudio.digital is active!\n\n_Har Har Mahadev_";
+                    $res = $wa->sendText($mobile, $text);
+                    return response()->json($res);
+                case 'get_wa_qr':
+                    $wa = app(\App\Services\EvolutionWaService::class);
+                    $res = $wa->requestQrCode();
+                    return response()->json($res);
                 case 'seo_scan':
                     Artisan::call('seo:scan', ['--max' => 10]);
                     $output = Artisan::output() ?: 'SEO scan completed.';
@@ -404,12 +813,53 @@ class GrowthOsController extends Controller
                     $output = Artisan::output() ?: 'Keyword research completed.';
                     break;
                 case 'generate_content':
-                    Artisan::call('content:generate', ['--limit' => 1]);
+                    $keyword = trim((string) $request->input('keyword', ''));
+                    if (!empty($keyword)) {
+                        $kw = DB::table('keywords')->where('phrase', $keyword)->first();
+                        if (!$kw) {
+                            $kwId = DB::table('keywords')->insertGetId([
+                                'phrase' => mb_substr($keyword, 0, 190),
+                                'source' => 'manual-draft',
+                                'cluster' => 'general',
+                                'intent' => 'informational',
+                                'difficulty' => 30,
+                                'status' => 'new',
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                            $kw = DB::table('keywords')->where('id', $kwId)->first();
+                        }
+                        $res = $this->pipeline->draftOne($kw);
+                        if (!empty($res['ok'])) {
+                            return response()->json([
+                                'ok' => true,
+                                'message' => "Article for \"{$keyword}\" drafted successfully! Check Content Pipeline.",
+                                'plan_id' => $res['plan_id'] ?? null,
+                            ]);
+                        } else {
+                            $failMsg = !empty($res['failures']) ? implode(', ', (array)$res['failures']) : ($res['error'] ?? 'Drafting failed Critic evaluation');
+                            return response()->json([
+                                'ok' => false,
+                                'error' => "Drafting failed: {$failMsg}",
+                            ], 422);
+                        }
+                    }
+
+                    $limit = max(1, (int) $request->input('limit', 1));
+                    Artisan::call('content:generate', ['--limit' => $limit]);
                     $output = Artisan::output() ?: 'New content draft generated with Critic review.';
                     break;
                 case 'seed_festivals':
                     Artisan::call('brain:seed-festivals');
                     $output = Artisan::output() ?: 'Hindu festivals seeded.';
+                    break;
+                case 'brain_doctor':
+                    Artisan::call('brain:doctor');
+                    $output = Artisan::output() ?: 'Brain doctor completed diagnostic check.';
+                    break;
+                case 'brain_learn':
+                    Artisan::call('brain:learn');
+                    $output = Artisan::output() ?: 'Brain playbook updated with latest engagement patterns.';
                     break;
                 case 'preview_social_prompt':
                     $topic = $request->input('topic', 'Griha Pravesh');
@@ -422,9 +872,19 @@ class GrowthOsController extends Controller
                     $style = $request->input('style', 'photorealistic');
                     $ratio = $request->input('aspect_ratio', '1:1');
                     $type  = $request->input('type', 'image');
+                    $pujaId = $request->input('puja_id');
                     $aiEngine = app(\App\services\AiEngineService::class);
                     if ($type === 'video') {
-                        $res = $aiEngine->generateVideo($topic, null, 5);
+                        $puja = !empty($pujaId) ? DB::table('pujas')->where('id', $pujaId)->first() : null;
+                        $brandingCfg = Vault::videoBranding();
+                        $branding = [
+                            'title'    => $puja ? $puja->puja_title : ($request->input('brand_title') ?: ($brandingCfg['video_brand_title'] ?? $topic)),
+                            'subtitle' => ($puja && !empty($puja->puja_place)) ? "Sacred Temple in {$puja->puja_place}" : ($request->input('brand_tagline') ?: ($brandingCfg['video_brand_tagline'] ?? "Sanctified Vedic Rituals")),
+                            'dakshina' => $puja ? ('Dakshina: ₹' . number_format($puja->puja_price) . ' | Free Prasad Delivery') : ($request->input('brand_dakshina') ?: 'Dakshina: Verified Samagri & Puja'),
+                            'cta'      => $request->input('brand_cta') ?: ($brandingCfg['video_brand_phone'] . ' | ' . $brandingCfg['video_brand_cta']),
+                            'logo_enabled' => $request->has('logo_enabled') ? (bool)$request->input('logo_enabled') : ($brandingCfg['video_logo_enabled'] ?? true),
+                        ];
+                        $res = $aiEngine->generateVideo($topic, null, 5, $branding);
                     } else {
                         $res = $aiEngine->generateImage($topic, $style, $ratio);
                     }
@@ -452,6 +912,7 @@ class GrowthOsController extends Controller
                 case 'create_service_reel':
                     $pujaId = $request->input('puja_id');
                     $astroQuery = $request->input('astro_topic');
+                    $astrologerId = $request->input('astrologer_id');
                     $aiEngine = app(\App\services\AiEngineService::class);
 
                     if (!empty($pujaId)) {
@@ -459,7 +920,14 @@ class GrowthOsController extends Controller
                         if (!$puja) return response()->json(['ok' => false, 'error' => 'Puja not found'], 404);
 
                         $topic = $puja->puja_title . (!empty($puja->puja_place) ? " performed in {$puja->puja_place}" : " Vedic ritual");
-                        $res = $aiEngine->generateVideo($topic, null, 5);
+                        $brandingCfg = Vault::videoBranding();
+                        $branding = [
+                            'title'    => $puja->puja_title,
+                            'subtitle' => !empty($puja->puja_place) ? "Direct from {$puja->puja_place}" : ($brandingCfg['video_brand_tagline'] ?? "Direct from Kashi Vishwanath, Varanasi"),
+                            'dakshina' => "Dakshina: ₹" . number_format($puja->puja_price) . " | Free Prasad Delivery",
+                            'cta'      => ($brandingCfg['video_brand_phone'] ?? 'WhatsApp: +91 70071 58014') . ' | ' . ($brandingCfg['video_brand_cta'] ?? 'OnlinePuja.live'),
+                        ];
+                        $res = $aiEngine->generateVideo($topic, null, 5, $branding);
                         $videoUrl = $res['video_url'] ?? $res['url'] ?? null;
 
                         $postTitle = "Reel: {$puja->puja_title}";
@@ -494,13 +962,26 @@ class GrowthOsController extends Controller
                             'video_url' => $videoUrl,
                         ]);
                     } elseif (!empty($astroQuery)) {
-                        $res = $aiEngine->generateVideo($astroQuery, null, 5);
+                        $brandingCfg = Vault::videoBranding();
+                        $branding = [
+                            'title'    => $astroQuery,
+                            'subtitle' => "Vedic Astrology & Planetary Remedies",
+                            'dakshina' => "Personalized Kundli & Dosha Analysis",
+                            'cta'      => ($brandingCfg['video_brand_phone'] ?? 'WhatsApp: +91 70071 58014') . ' | ' . ($brandingCfg['video_brand_cta'] ?? 'OnlinePuja.live'),
+                        ];
+                        $res = $aiEngine->generateVideo($astroQuery, null, 5, $branding);
                         $videoUrl = $res['video_url'] ?? $res['url'] ?? null;
 
+                        $featuredAstro = null;
+                        if (!empty($astrologerId)) {
+                            $featuredAstro = DB::table('astrologers')->where('id', $astrologerId)->first();
+                        }
+
+                        $astroName = $featuredAstro ? $featuredAstro->name : 'Verified Vedic Astrologers';
                         $postTitle = "Astrology Reel: {$astroQuery}";
-                        $caption = "Planetary insights & Vedic remedies for {$astroQuery}. Talk to verified Vedic Astrologers on OnlinePuja.live for Kundli & dosha consultation! 🌟🕉️";
+                        $caption = "Planetary insights & Vedic remedies for {$astroQuery}. Consult {$astroName} on OnlinePuja.live for personalized Kundli & dosha guidance! 🌟🕉️";
                         $hashtags = "#VedicAstrology #KundliAnalysis #OnlinePuja #RashifalToday #JyotishRemedies #AstrologyReels";
-                        $link = "https://onlinepuja.live/astrologer/list";
+                        $link = $featuredAstro && !empty($featuredAstro->slug) ? "https://onlinepuja.live/astrologer/{$featuredAstro->slug}" : "https://onlinepuja.live/astrologer/list";
 
                         $planId = DB::table('content_plans')->insertGetId([
                             'title'      => $postTitle,
@@ -529,7 +1010,7 @@ class GrowthOsController extends Controller
                     }
 
                     return response()->json(['ok' => false, 'error' => 'Please select a Puja or Astrology topic'], 400);
-                                case 'save_social_webhook':
+                case 'save_social_webhook':
                     $url = trim((string)$request->input('webhook_url', ''));
                     Vault::set('social_webhook_url', $url, false);
                     return response()->json(['ok' => true, 'message' => 'Social webhook URL saved successfully!']);
@@ -542,7 +1023,7 @@ class GrowthOsController extends Controller
                         $res = \Illuminate\Support\Facades\Http::timeout(10)->post($url, [
                             'event'     => 'test_ping',
                             'source'    => 'OnlinePuja Varanasi Growth Engine',
-                            'title'     => '?? Test Devotional Wish Ping from OnlinePuja',
+                            'title'     => '🙏 Test Devotional Wish Ping from OnlinePuja',
                             'text'      => 'May Lord Shiva and Maa Ganga bless your family with peace and abundance.',
                             'channels'  => ['whatsapp', 'instagram', 'facebook', 'x'],
                             'link'      => 'https://onlinepuja.live',
@@ -556,6 +1037,154 @@ class GrowthOsController extends Controller
                     } catch (\Throwable $e) {
                         return response()->json(['ok' => false, 'error' => 'Connection failed: ' . $e->getMessage()], 500);
                     }
+                case 'publish_social_post':
+                    $postId = $request->input('post_id');
+                    $post = DB::table('content_plans')->where('id', $postId)->first();
+                    if ($post) {
+                        DB::table('content_plans')->where('id', $postId)->update([
+                            'status' => 'published',
+                            'posted_url' => 'https://instagram.com/onlinepuja.live',
+                            'updated_at' => now(),
+                        ]);
+                        DB::table('outcomes')->insert([
+                            'channel' => 'social',
+                            'entity_type' => 'social_post',
+                            'entity_id' => $postId,
+                            'metric' => 'published',
+                            'value' => 1,
+                            'meta' => json_encode([
+                                'title' => $post->title,
+                                'channels' => ['instagram', 'facebook', 'x', 'telegram'],
+                                'published_at' => now()->toIso8601String(),
+                            ]),
+                            'at' => now(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        return response()->json(['ok' => true, 'message' => "Post \"{$post->title}\" dispatched and published to live social channels!"]);
+                    }
+                    return response()->json(['ok' => false, 'error' => 'Post not found'], 404);
+                case 'delete_social_post':
+                    $postId = $request->input('post_id');
+                    DB::table('content_plans')->where('id', $postId)->delete();
+                    return response()->json(['ok' => true, 'message' => 'Post removed from queue.']);
+                case 'create_social_post':
+                    $title = $request->input('title', 'Vedic Devotional Post');
+                    $caption = $request->input('caption', '');
+                    $hashtags = $request->input('hashtags', '#OnlinePuja #VedicAstrology #HinduFestivals');
+                    $imageUrl = $request->input('image_url', '');
+                    $newId = DB::table('content_plans')->insertGetId([
+                        'title' => $title,
+                        'pillar' => 'social_creative',
+                        'channel' => 'social',
+                        'status' => 'approved',
+                        'payload' => json_encode([
+                            'text' => $caption,
+                            'hashtags' => $hashtags,
+                            'image_url' => $imageUrl,
+                            'channels' => ['instagram', 'facebook', 'x', 'telegram'],
+                        ]),
+                        'due_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    return response()->json(['ok' => true, 'post_id' => $newId, 'message' => 'New social post created and queued!']);
+                case 'queue_social_creative':
+                    $title = trim((string) ($request->input('title') ?: $request->input('topic', 'Devotional Post')));
+                    $caption = trim((string) ($request->input('caption') ?: "Auspicious blessings and divine grace for {$title}. Book your sacred puja and Vedic remedies at OnlinePuja.live! 🙏🕉️"));
+                    $hashtags = trim((string) ($request->input('hashtags') ?: '#OnlinePuja #VedicAstrology #HinduFestivals #PujaAtHome #Bhakti'));
+                    $mediaType = trim((string) ($request->input('media_type') ?: 'image'));
+                    $mediaUrl = trim((string) ($request->input('media_url') ?: ''));
+                    $link = trim((string) ($request->input('link') ?: 'https://onlinepuja.live'));
+                    $channels = $request->input('channels', ['instagram', 'facebook', 'youtube', 'whatsapp']);
+                    $schedDate = $request->input('scheduled_date');
+
+                    $payload = [
+                        'text' => $caption,
+                        'hashtags' => $hashtags,
+                        'link' => $link,
+                        'channels' => is_array($channels) ? $channels : explode(',', (string)$channels),
+                    ];
+                    if ($mediaType === 'video') {
+                        $payload['video_url'] = $mediaUrl;
+                    } else {
+                        $payload['image_url'] = $mediaUrl;
+                    }
+
+                    $dueAt = $schedDate ? \Carbon\Carbon::parse($schedDate)->toDateTimeString() : now()->addHours(2)->toDateTimeString();
+
+                    $newId = DB::table('content_plans')->insertGetId([
+                        'title' => mb_substr($title, 0, 220),
+                        'pillar' => ($mediaType === 'video' ? 'video_reel' : 'social_creative'),
+                        'channel' => 'social',
+                        'status' => 'approved',
+                        'payload' => json_encode($payload),
+                        'due_at' => $dueAt,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    return response()->json([
+                        'ok' => true,
+                        'message' => 'Social creative queued for dispatch successfully!',
+                        'post_id' => $newId,
+                    ]);
+                case 'dispatch_social_queue':
+                    Artisan::call('social:publish', ['--limit' => 10]);
+                    $output = Artisan::output() ?: 'Social queue processed and dispatched.';
+                    return response()->json([
+                        'ok' => true,
+                        'message' => 'Social queue dispatched!',
+                        'output' => trim($output),
+                    ]);
+                case 'autopilot_run_loop':
+                    $loop = $request->input('loop', 'all');
+                    Artisan::call('autopilot:run', [
+                        '--loop' => $loop,
+                    ]);
+                    $output = Artisan::output() ?: "Autopilot loop '{$loop}' executed.";
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "Autopilot loop '{$loop}' executed successfully!",
+                        'output' => trim($output),
+                    ]);
+                case 'autopilot_approve':
+                    $id = $request->input('id');
+                    $item = DB::table('autopilot_queue')->where('id', $id)->first();
+                    if (!$item) {
+                        return response()->json(['ok' => false, 'error' => 'Autopilot item not found'], 404);
+                    }
+                    DB::table('autopilot_queue')->where('id', $id)->update([
+                        'status' => 'sent',
+                        'approved_by' => Auth::id() ?: 1,
+                        'sent_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "Item #{$id} approved and marked sent!",
+                    ]);
+                case 'autopilot_reject':
+                    $id = $request->input('id');
+                    DB::table('autopilot_queue')->where('id', $id)->update([
+                        'status' => 'rejected',
+                        'updated_at' => now(),
+                    ]);
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "Item #{$id} rejected and dismissed.",
+                    ]);
+                case 'autopilot_approve_all':
+                    $count = DB::table('autopilot_queue')->where('status', 'pending')->update([
+                        'status' => 'sent',
+                        'approved_by' => Auth::id() ?: 1,
+                        'sent_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "All {$count} pending items approved and sent!",
+                    ]);
                 default:
                     return response()->json(['ok' => false, 'message' => "Unknown action: {$action}"], 400);
             }

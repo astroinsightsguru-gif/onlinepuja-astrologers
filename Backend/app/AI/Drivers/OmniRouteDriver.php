@@ -60,7 +60,7 @@ class OmniRouteDriver implements TextProvider, ImageProvider
         }
 
         $payload = array_filter([
-            'model'       => $args['model'] ?? 'gpt-4o',
+            'model'       => $args['model'] ?? (\App\Brain\Vault::aiCredentials()['model_omniroute'] ?? 'auto/best-fast'),
             'messages'    => [
                 ['role' => 'system', 'content' => $system],
                 ['role' => 'user', 'content' => $prompt],
@@ -105,7 +105,7 @@ class OmniRouteDriver implements TextProvider, ImageProvider
 
         $size = $args['size'] ?? '1024x1024';
         $body = [
-            'model'           => $args['image_model'] ?? 'flux',
+            'model'           => $args['image_model'] ?? (\App\Brain\Vault::aiCredentials()['model_omniroute_image'] ?? 'nvidia/black-forest-labs/flux.1-dev'),
             'prompt'          => $prompt,
             'n'               => 1,
             'size'            => $size,
@@ -159,7 +159,39 @@ class OmniRouteDriver implements TextProvider, ImageProvider
 
         foreach ((array) $res->json('data') as $m) {
             if ($id = $m['id'] ?? null) {
-                $out[] = ['id' => $id, 'label' => $m['name'] ?? $id];
+                $idLower = strtolower($id);
+
+                // Precise video classification (reject text LLMs like 'inkling' or 'minimax')
+                $isVideo = (
+                    str_contains($idLower, 'text-to-video') ||
+                    str_contains($idLower, 'image-to-video') ||
+                    str_contains($idLower, 't2v') ||
+                    str_contains($idLower, 'i2v') ||
+                    preg_match('/\b(kling|runway|luma-video|sora|cogvideo|pika|hunyuan-video)\b/', $idLower) ||
+                    str_starts_with($idLower, 'wan-ai/')
+                ) && !str_contains($idLower, 'inkling');
+
+                // Precise image classification (reject vision chat models)
+                $isImage = (
+                    str_contains($idLower, 'text-to-image') ||
+                    str_contains($idLower, 'flux') ||
+                    str_contains($idLower, 'midjourney') ||
+                    str_contains($idLower, 'dall-e') ||
+                    str_contains($idLower, 'sdxl') ||
+                    str_contains($idLower, 'stable-diffusion') ||
+                    str_contains($idLower, 'recraft') ||
+                    str_contains($idLower, 'imagen')
+                ) && !str_contains($idLower, 'flash-image');
+
+                if ($kind === 'video' && $isVideo) {
+                    $out[] = ['id' => $id, 'label' => $m['name'] ?? $id];
+                } elseif ($kind === 'image' && $isImage) {
+                    $out[] = ['id' => $id, 'label' => $m['name'] ?? $id];
+                } elseif ($kind === 'text' && !$isVideo && !$isImage) {
+                    $out[] = ['id' => $id, 'label' => $m['name'] ?? $id];
+                } elseif ($kind === 'all') {
+                    $out[] = ['id' => $id, 'label' => $m['name'] ?? $id];
+                }
             }
         }
 

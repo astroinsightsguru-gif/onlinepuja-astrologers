@@ -37,14 +37,14 @@ class ProviderManager
         ];
     }
 
-    protected function openAiCompat(string $slug, string $base, string $key, string $defaultModel): TextProvider
+    protected function openAiCompat(string $slug, string $base, ?string $key, string $defaultModel): TextProvider
     {
         return new class($slug, $base, $key, $defaultModel) implements TextProvider
         {
             public function __construct(
                 protected string $slug,
                 protected string $base,
-                protected string $key,
+                protected ?string $key,
                 protected string $defaultModel
             ) {}
 
@@ -60,7 +60,7 @@ class ProviderManager
 
             public function isConfigured(): bool
             {
-                return $this->key !== '';
+                return !empty($this->key);
             }
 
             public function chat(string $system, string $prompt, array $args = []): array
@@ -100,6 +100,9 @@ class ProviderManager
 
             public function models(): array
             {
+                if (empty($this->key)) {
+                    return [];
+                }
                 try {
                     $res = Http::withToken($this->key)->timeout(12)
                         ->get(rtrim($this->base, '/').'/models');
@@ -214,28 +217,106 @@ class ProviderManager
                 continue;
             }
 
+            $uniqueModels = [];
             foreach ($models as $m) {
-                \DB::table('ai_models')->updateOrInsert(
-                    ['provider' => $slug, 'kind' => 'text', 'model_id' => $m['id']],
-                    ['label' => $m['label'], 'enabled' => true, 'last_synced_at' => $now]
-                );
+                if (!empty($m['id'])) {
+                    $uniqueModels[$m['id']] = $m;
+                }
             }
 
-            $report['providers'][$slug] = count($models);
-            $report['total'] += count($models);
+            $rows = [];
+            foreach ($uniqueModels as $m) {
+                $rows[] = [
+                    'provider'       => $slug,
+                    'kind'           => 'text',
+                    'model_id'       => $m['id'],
+                    'label'          => $m['label'] ?? $m['id'],
+                    'enabled'        => true,
+                    'last_synced_at' => $now,
+                ];
+            }
+
+            foreach (array_chunk($rows, 300) as $chunk) {
+                try {
+                    \DB::table('ai_models')->upsert(
+                        $chunk,
+                        ['provider', 'kind', 'model_id'],
+                        ['label', 'enabled', 'last_synced_at']
+                    );
+                } catch (\Throwable $e) {
+                    // Fallback to row-by-row if upsert unique index is missing
+                    foreach ($chunk as $row) {
+                        try {
+                            \DB::table('ai_models')->updateOrInsert(
+                                ['provider' => $row['provider'], 'kind' => $row['kind'], 'model_id' => $row['model_id']],
+                                ['label' => $row['label'], 'enabled' => $row['enabled'], 'last_synced_at' => $row['last_synced_at']]
+                            );
+                        } catch (\Throwable $e2) {}
+                    }
+                }
+            }
+
+            $report['providers'][$slug] = count($uniqueModels);
+            $report['total'] += count($uniqueModels);
         }
 
-        // Image models via OmniRoute when ready.
+        // Image & Video models via OmniRoute
         $omni = new OmniRouteDriver();
 
         if ($omni->isConfigured()) {
+            $imageRows = [];
             foreach ($omni->models('image') as $m) {
-                \DB::table('ai_models')->updateOrInsert(
-                    ['provider' => 'omniroute', 'kind' => 'image', 'model_id' => $m['id']],
-                    ['label' => $m['label'], 'enabled' => true, 'last_synced_at' => $now]
-                );
-                $report['total']++;
+                $imageRows[] = [
+                    'provider'       => 'omniroute',
+                    'kind'           => 'image',
+                    'model_id'       => $m['id'],
+                    'label'          => $m['label'] ?? $m['id'],
+                    'enabled'        => true,
+                    'last_synced_at' => $now,
+                ];
             }
+            foreach (array_chunk($imageRows, 300) as $chunk) {
+                try {
+                    \DB::table('ai_models')->upsert($chunk, ['provider', 'kind', 'model_id'], ['label', 'enabled', 'last_synced_at']);
+                } catch (\Throwable $e) {
+                    foreach ($chunk as $row) {
+                        try {
+                            \DB::table('ai_models')->updateOrInsert(
+                                ['provider' => $row['provider'], 'kind' => $row['kind'], 'model_id' => $row['model_id']],
+                                ['label' => $row['label'], 'enabled' => $row['enabled'], 'last_synced_at' => $row['last_synced_at']]
+                            );
+                        } catch (\Throwable $e2) {}
+                    }
+                }
+            }
+            $report['total'] += count($imageRows);
+
+            $videoRows = [];
+            foreach ($omni->models('video') as $m) {
+                $videoRows[] = [
+                    'provider'       => 'omniroute',
+                    'kind'           => 'video',
+                    'model_id'       => $m['id'],
+                    'label'          => $m['label'] ?? $m['id'],
+                    'enabled'        => true,
+                    'last_synced_at' => $now,
+                ];
+            }
+            foreach (array_chunk($videoRows, 300) as $chunk) {
+                try {
+                    \DB::table('ai_models')->upsert($chunk, ['provider', 'kind', 'model_id'], ['label', 'enabled', 'last_synced_at']);
+                } catch (\Throwable $e) {
+                    foreach ($chunk as $row) {
+                        try {
+                            \DB::table('ai_models')->updateOrInsert(
+                                ['provider' => $row['provider'], 'kind' => $row['kind'], 'model_id' => $row['model_id']],
+                                ['label' => $row['label'], 'enabled' => $row['enabled'], 'last_synced_at' => $row['last_synced_at']]
+                            );
+                        } catch (\Throwable $e2) {}
+                    }
+                }
+            }
+            $report['total'] += count($videoRows);
         }
 
         \DB::table('brain_memories')->updateOrInsert(
@@ -245,4 +326,32 @@ class ProviderManager
 
         return $report;
     }
+
+    public function imageProviders(): array
+    {
+        return [
+            'omniroute' => new OmniRouteDriver(),
+        ];
+    }
+
+    public function breakerState(): array
+    {
+        $state = [];
+        foreach (array_keys($this->textProviders()) as $slug) {
+            $state[$slug] = [
+                'benched' => $this->isBenched($slug),
+                'fails' => \Illuminate\Support\Facades\Cache::get("ai.fails.$slug", 0),
+            ];
+        }
+        return $state;
+    }
+
+
+    public function videoProviders(): array
+    {
+        return [
+            'omniroute' => new OmniRouteDriver(),
+        ];
+    }
+
 }
