@@ -589,4 +589,12 @@ Route::prefix('manager')->group(function () {
     Route::post('sankalp/fulfill', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'fulfillSankalp']);
     Route::post('growth/run-action', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'triggerGrowthAction']);
     Route::post('growth/broadcast', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'broadcastPush']);
+
+    // 🤖 Online Puja AI Multi-Agent Pocket Control Center
+    Route::get('agents', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'listAgents']);
+    Route::post('agents/{id}/toggle', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'toggleAgent']);
+    Route::post('agents/{id}/update', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'updateAgentConfig']);
+    Route::post('agents/{id}/run-now', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'runAgentNow']);
+    Route::get('agents/outputs', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'getAgentOutputs']);
+    Route::post('agents/outputs/{id}/approve', [\App\Http\Controllers\API\Manager\ManagerApiController::class, 'approveAgentOutput']);
 });

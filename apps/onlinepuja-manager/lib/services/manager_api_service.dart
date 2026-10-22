@@ -125,4 +125,94 @@ class ManagerApiService {
       return false;
     }
   }
+
+  // 7. Fetch AI Agents Fleet
+  Future<List<Map<String, dynamic>>> fetchAgents() async {
+    try {
+      final res = await http.get(Uri.parse('$baseUrl/agents')).timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final decoded = jsonDecode(res.body);
+        if (decoded['success'] == true && decoded['data'] is List) {
+          return List<Map<String, dynamic>>.from(decoded['data']);
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  // 8. Toggle Agent Active / Paused
+  Future<bool> toggleAgent(int id) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/agents/$id/toggle'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 8));
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // 9. Update Agent Configuration
+  Future<bool> updateAgentConfig(int id, Map<String, dynamic> data) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/agents/$id/update'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      ).timeout(const Duration(seconds: 10));
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // 10. Run Agent Immediately
+  Future<Map<String, dynamic>> runAgentNow(int id) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/agents/$id/run-now'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 30));
+      if (res.statusCode == 200 || res.statusCode == 400) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error: $e'};
+    }
+    return {'success': false, 'message': 'Failed to execute agent.'};
+  }
+
+  // 11. Fetch Agent Outputs
+  Future<List<Map<String, dynamic>>> fetchAgentOutputs({int? agentId, String? status}) async {
+    try {
+      String url = '$baseUrl/agents/outputs';
+      List<String> queryParams = [];
+      if (agentId != null) queryParams.add('agent_id=$agentId');
+      if (status != null) queryParams.add('status=$status');
+      if (queryParams.isNotEmpty) url += '?${queryParams.join('&')}';
+
+      final res = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final decoded = jsonDecode(res.body);
+        if (decoded['success'] == true && decoded['data'] is List) {
+          return List<Map<String, dynamic>>.from(decoded['data']);
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  // 12. Approve Output
+  Future<bool> approveOutput(int outputId) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/agents/outputs/$outputId/approve'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 8));
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
 }

@@ -382,6 +382,16 @@ class GrowthOsController extends Controller
             ? DB::table('brain_run_log')->orderByDesc('id')->limit(20)->get()
             : collect();
 
+        $agents = \Illuminate\Support\Facades\Schema::hasTable('ai_agents')
+            ? \App\Models\AiAgent::withCount(['outputs as pending_outputs_count' => function ($q) {
+                $q->where('status', 'pending_review');
+            }])->get()
+            : collect();
+
+        $agentOutputs = \Illuminate\Support\Facades\Schema::hasTable('ai_agent_outputs')
+            ? \App\Models\AiAgentOutput::with('agent')->orderByDesc('id')->limit(20)->get()
+            : collect();
+
         return view('pages.growth-os.autopilot', compact(
             'mode',
             'confidence_floor',
@@ -390,7 +400,9 @@ class GrowthOsController extends Controller
             'sent_count',
             'loops',
             'queue',
-            'logs'
+            'logs',
+            'agents',
+            'agentOutputs'
         ));
     }
 
@@ -1230,6 +1242,34 @@ class GrowthOsController extends Controller
                         'ok' => true,
                         'message' => "All {$count} pending items approved and sent!",
                     ]);
+
+                case 'run_ai_agent':
+                    $agentKey = $request->input('agent');
+                    $res = \App\Brain\Agents\AgentRunner::run($agentKey);
+                    return response()->json($res);
+
+                case 'toggle_ai_agent':
+                    $agentId = $request->input('agent_id');
+                    $agent = \App\Models\AiAgent::findOrFail($agentId);
+                    $agent->is_active = !$agent->is_active;
+                    $agent->save();
+                    return response()->json([
+                        'ok' => true,
+                        'is_active' => $agent->is_active,
+                        'message' => "Agent '{$agent->name}' is now " . ($agent->is_active ? 'Active' : 'Paused'),
+                    ]);
+
+                case 'approve_agent_output':
+                    $outputId = $request->input('output_id');
+                    $out = \App\Models\AiAgentOutput::findOrFail($outputId);
+                    $out->status = 'approved';
+                    $out->published_at = now();
+                    $out->save();
+                    return response()->json([
+                        'ok' => true,
+                        'message' => "✓ Output '{$out->title}' approved & dispatched!",
+                    ]);
+
                 default:
                     return response()->json(['ok' => false, 'message' => "Unknown action: {$action}"], 400);
             }

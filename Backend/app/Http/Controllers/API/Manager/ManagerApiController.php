@@ -313,4 +313,140 @@ class ManagerApiController extends Controller
             return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * 8. GET /api/manager/agents
+     * Returns full list of active AI agents, configurations, and stats
+     */
+    public function listAgents(Request $request)
+    {
+        try {
+            $agents = \App\Models\AiAgent::withCount(['outputs as pending_outputs_count' => function ($q) {
+                $q->where('status', 'pending_review');
+            }])->get();
+
+            return response()->json([
+                'status'  => 200,
+                'success' => true,
+                'data'    => $agents,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 9. POST /api/manager/agents/{id}/toggle
+     */
+    public function toggleAgent(Request $request, $id)
+    {
+        try {
+            $agent = \App\Models\AiAgent::findOrFail($id);
+            $agent->is_active = !$agent->is_active;
+            $agent->save();
+
+            return response()->json([
+                'status'    => 200,
+                'success'   => true,
+                'is_active' => $agent->is_active,
+                'message'   => "Agent '{$agent->name}' is now " . ($agent->is_active ? 'Active' : 'Paused'),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 10. POST /api/manager/agents/{id}/update
+     */
+    public function updateAgentConfig(Request $request, $id)
+    {
+        try {
+            $agent = \App\Models\AiAgent::findOrFail($id);
+
+            $fields = ['system_prompt', 'language', 'tone', 'mode', 'cron_cadence', 'model_preference'];
+            foreach ($fields as $f) {
+                if ($request->has($f)) {
+                    $agent->$f = $request->input($f);
+                }
+            }
+            $agent->save();
+
+            return response()->json([
+                'status'  => 200,
+                'success' => true,
+                'data'    => $agent,
+                'message' => "Configuration for '{$agent->name}' updated successfully!",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 11. POST /api/manager/agents/{id}/run-now
+     */
+    public function runAgentNow(Request $request, $id)
+    {
+        try {
+            $res = \App\Brain\Agents\AgentRunner::run($id);
+            return response()->json([
+                'status'  => $res['ok'] ? 200 : 400,
+                'success' => $res['ok'],
+                'message' => $res['message'],
+                'output'  => $res['output'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 12. GET /api/manager/agents/outputs
+     */
+    public function getAgentOutputs(Request $request)
+    {
+        try {
+            $query = \App\Models\AiAgentOutput::with('agent')->orderByDesc('id');
+
+            if ($request->has('agent_id')) {
+                $query->where('agent_id', $request->input('agent_id'));
+            }
+            if ($request->has('status')) {
+                $query->where('status', $request->input('status'));
+            }
+
+            $outputs = $query->limit(40)->get();
+
+            return response()->json([
+                'status'  => 200,
+                'success' => true,
+                'data'    => $outputs,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * 13. POST /api/manager/agents/outputs/{id}/approve
+     */
+    public function approveAgentOutput(Request $request, $id)
+    {
+        try {
+            $output = \App\Models\AiAgentOutput::findOrFail($id);
+            $output->status = 'approved';
+            $output->published_at = now();
+            $output->save();
+
+            return response()->json([
+                'status'  => 200,
+                'success' => true,
+                'message' => "✓ Output '{$output->title}' approved & dispatched!",
+                'data'    => $output,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 500, 'error' => $e->getMessage()], 500);
+        }
+    }
 }

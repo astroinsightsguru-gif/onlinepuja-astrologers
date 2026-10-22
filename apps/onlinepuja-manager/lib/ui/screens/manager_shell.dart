@@ -4,6 +4,7 @@ import 'dashboard/live_radar_screen.dart';
 import 'studio/banner_puja_studio_screen.dart';
 import 'fulfillment/sankalp_fulfillment_screen.dart';
 import 'growth/growth_broadcast_screen.dart';
+import 'agents/ai_agents_hub_screen.dart';
 
 class ManagerShell extends StatefulWidget {
   const ManagerShell({super.key});
@@ -20,6 +21,7 @@ class _ManagerShellState extends State<ManagerShell> {
     BannerPujaStudioScreen(),
     SankalpFulfillmentScreen(),
     GrowthBroadcastScreen(),
+    AiAgentsHubScreen(),
   ];
 
   @override
@@ -54,6 +56,11 @@ class _ManagerShellState extends State<ManagerShell> {
             icon: Icon(Icons.campaign_rounded),
             selectedIcon: Icon(Icons.campaign_rounded, color: ManagerTheme.brandGold),
             label: 'Growth',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.psychology_rounded),
+            selectedIcon: Icon(Icons.psychology_rounded, color: ManagerTheme.brandGold),
+            label: 'AI Swarm',
           ),
         ],
       ),
