@@ -1,334 +1,616 @@
 @extends('pages.growth-os.layout')
 
 @section('growth_content')
-<div class="space-y-6">
+<style>
+/* ========================================================
+   GROWTH & MARKETING OS — UNIVERSAL DESIGN SYSTEM (AI ENGINE ALIGNED)
+   High-contrast, zero-theme-clash, bulletproof scoped styles
+   ======================================================== */
+.ai-scope {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+}
 
-    {{-- Top Action Header & AI Vault Navigation Ribbon --}}
-    <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 mb-1.5">
-                <span>🕉️</span> Autonomous Marketing & Festival Campaign Nerve Center
+/* Card Containers */
+.ai-box {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 4px -2px rgba(15, 23, 42, 0.02) !important;
+    padding: 22px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Hero Top & Spotlight Dark Cards */
+.ai-hero-card {
+    background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e293b 100%) !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 18px !important;
+    padding: 24px !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.25) !important;
+    margin-bottom: 20px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Primary Action Buttons */
+.ai-btn-gold {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #020617 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+}
+.ai-btn-gold:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45) !important;
+    transform: translateY(-1px) !important;
+    color: #020617 !important;
+}
+
+.ai-btn-dark {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+    padding: 10px 18px !important;
+    border: 1px solid #334155 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18) !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+}
+.ai-btn-dark:hover {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.28) !important;
+    transform: translateY(-1px) !important;
+    color: #ffffff !important;
+}
+
+/* Secondary & Testing Buttons */
+.ai-btn-test {
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    text-decoration: none !important;
+}
+.ai-btn-test-blue {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1.5px solid #bfdbfe !important;
+}
+.ai-btn-test-blue:hover {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: #93c5fd !important;
+}
+.ai-btn-test-amber {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border: 1.5px solid #fde68a !important;
+}
+.ai-btn-test-amber:hover {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fcd34d !important;
+}
+.ai-btn-test-rose {
+    background: #fff1f2 !important;
+    color: #be123c !important;
+    border: 1.5px solid #fecdd3 !important;
+}
+.ai-btn-test-rose:hover {
+    background: #ffe4e6 !important;
+    color: #9f1239 !important;
+    border-color: #fda4af !important;
+}
+.ai-btn-test-emerald {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+    border: 1.5px solid #a7f3d0 !important;
+}
+.ai-btn-test-emerald:hover {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #6ee7b7 !important;
+}
+
+/* Badges & Pills */
+.ai-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+/* Number Step Badges */
+.ai-step-badge {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    flex-shrink: 0 !important;
+}
+
+/* Form Inputs, Selects & Textareas (Light Theme) */
+.ai-input, .ai-select, .ai-textarea {
+    width: 100% !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    padding: 9px 12px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    outline: none !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+}
+.ai-input:focus, .ai-select:focus, .ai-textarea:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Dark Form Controls (For Dark Hubs & Panels) */
+.ai-input-dark, .ai-select-dark, .ai-textarea-dark {
+    width: 100% !important;
+    background: #090d16 !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 9px !important;
+    padding: 9px 12px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    outline: none !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+}
+.ai-input-dark:focus, .ai-select-dark:focus, .ai-textarea-dark:focus {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.18) !important;
+}
+
+/* Stat Cards */
+.ai-stat-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+.ai-stat-card-dark {
+    background: #090d16 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 14px !important;
+    padding: 16px 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+/* Festival Subcard */
+.ai-fest-card {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    transition: all 0.15s ease !important;
+}
+.ai-fest-card:hover {
+    border-color: #fbbf24 !important;
+    background: #ffffff !important;
+    box-shadow: 0 6px 16px -2px rgba(245, 158, 11, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Tables */
+.ai-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    font-size: 12px !important;
+    color: #e2e8f0 !important;
+}
+.ai-table th {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid #334155 !important;
+    text-align: left !important;
+}
+.ai-table td {
+    padding: 12px 14px !important;
+    border-bottom: 1px solid #1e293b !important;
+    vertical-align: middle !important;
+}
+.ai-table tr:hover td {
+    background: rgba(30, 41, 59, 0.5) !important;
+}
+</style>
+
+<div class="ai-scope">
+
+    {{-- TOP: Autonomous Marketing Hub Header Ribbon --}}
+    <div class="ai-hero-card" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+        <div style="display: flex; flex-direction: column; md:flex-row; justify-content: space-between; align-items: flex-start; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <span style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; flex-shrink: 0;">
+                    🕉️
+                </span>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <h2 style="font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin: 0;">
+                            Autonomous Marketing & Festival Multi-Campaign Hub
+                        </h2>
+                        @php
+                            $waStateVal = $waState['state'] ?? ($waState['instance']['state'] ?? 'connecting');
+                            $isWaConnected = ($waStateVal === 'open');
+                        @endphp
+                        <span class="ai-pill" style="{{ $isWaConnected ? 'background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);' }}">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ $isWaConnected ? '#34d399' : '#f59e0b' }}; display: inline-block;"></span>
+                            WhatsApp: {{ ucfirst($waStateVal) }}
+                        </span>
+                        <span class="ai-pill" style="{{ $brevoConfigured ? 'background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);' : 'background: rgba(244, 63, 94, 0.2); color: #fecdd3; border: 1px solid rgba(244, 63, 94, 0.4);' }}">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ $brevoConfigured ? '#60a5fa' : '#f43f5e' }}; display: inline-block;"></span>
+                            Brevo Email: {{ $brevoConfigured ? 'Connected' : 'Missing Key' }}
+                        </span>
+                    </div>
+                    <p style="font-size: 12px; color: #94a3b8; margin-top: 4px; margin-bottom: 0; line-height: 1.4;">
+                        Orchestrate Dev Deepawali Varanasi 2026 & parallel Hindu festivals with 1080×1920 MP4 Video Reels, SEO longform guides, and national B2B partner distribution.
+                    </p>
+                </div>
             </div>
-            <h1 class="text-xl font-black text-slate-900 tracking-tight">
-                Festival Multi-Campaigns, Content Studio & B2B Distribution Hub
-            </h1>
-            <p class="text-xs text-slate-600 mt-0.5">
-                Orchestrate Dev Deepawali & parallel Hindu festivals with 1080×1920 MP4 Video Reels, SEO longform guides, and national B2B partner distribution.
-            </p>
-        </div>
 
-        <div class="flex items-center gap-2.5 flex-wrap">
-            {{-- Gateway Status Badges --}}
-            @php
-                $waStateVal = $waState['state'] ?? ($waState['instance']['state'] ?? 'connecting');
-                $isWaConnected = ($waStateVal === 'open');
-            @endphp
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold {{ $isWaConnected ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-amber-100 text-amber-900 border border-amber-300' }}">
-                <span class="w-2 h-2 rounded-full {{ $isWaConnected ? 'bg-emerald-600 animate-pulse' : 'bg-amber-600' }}"></span>
-                WhatsApp: {{ ucfirst($waStateVal) }}
+            <div style="display: flex; align-items: center; gap: 12px; align-self: flex-end;">
+                <a href="{{ route('growth-os.ai') }}#vault" class="ai-btn-gold">
+                    <span>⚙️</span>
+                    <span>Manage Gateways in AI Vault ↗</span>
+                </a>
             </div>
-
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold {{ $brevoConfigured ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-rose-100 text-rose-900 border border-rose-300' }}">
-                <span class="w-2 h-2 rounded-full {{ $brevoConfigured ? 'bg-blue-600' : 'bg-rose-600' }}"></span>
-                Brevo: {{ $brevoConfigured ? 'Connected' : 'Missing Key' }}
-            </div>
-
-            <a href="{{ route('growth-os.ai') }}#vault" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-400/40 shadow-sm flex items-center gap-1.5 transition-all">
-                <span>⚙️</span> Manage Gateways in AI Vault ↗
-            </a>
         </div>
     </div>
 
     {{-- Audience Metrics Strip --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
-            <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-slate-800">
-                <i data-lucide="users" class="w-5 h-5"></i>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div class="ai-stat-card">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #334155; flex-shrink: 0;">
+                <i data-lucide="users" style="width: 22px; height: 22px;"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Devotees</p>
-                <h4 class="text-xl font-black text-slate-900">{{ number_format($totalDevotees) }}</h4>
+                <p style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 2px 0;">Total Devotees</p>
+                <h4 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1;">{{ number_format($totalDevotees) }}</h4>
+                <span style="font-size: 11px; color: #94a3b8;">Registered users</span>
             </div>
         </div>
 
-        <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
-            <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-                <i data-lucide="phone" class="w-5 h-5"></i>
+        <div class="ai-stat-card">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; display: flex; align-items: center; justify-content: center; color: #059669; flex-shrink: 0;">
+                <i data-lucide="phone" style="width: 22px; height: 22px;"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">WhatsApp Reachable</p>
-                <h4 class="text-xl font-black text-slate-900">{{ number_format($devoteesWithPhone) }}</h4>
+                <p style="font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 2px 0;">WhatsApp Reachable</p>
+                <h4 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1;">{{ number_format($devoteesWithPhone) }}</h4>
+                <span style="font-size: 11px; color: #059669; font-weight: 600;">Verified Indian (+91)</span>
             </div>
         </div>
 
-        <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
-            <div class="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
-                <i data-lucide="mail-check" class="w-5 h-5"></i>
+        <div class="ai-stat-card">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: center; color: #2563eb; flex-shrink: 0;">
+                <i data-lucide="mail-check" style="width: 22px; height: 22px;"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-blue-700 uppercase tracking-wider">Email Reachable</p>
-                <h4 class="text-xl font-black text-slate-900">{{ number_format($devoteesWithEmail) }}</h4>
+                <p style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 2px 0;">Email Reachable</p>
+                <h4 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1;">{{ number_format($devoteesWithEmail) }}</h4>
+                <span style="font-size: 11px; color: #2563eb; font-weight: 600;">Brevo syncable</span>
             </div>
         </div>
 
-        <div class="bg-white border-2 border-slate-200/90 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
-            <div class="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
-                <i data-lucide="flame" class="w-5 h-5"></i>
+        <div class="ai-stat-card">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a; display: flex; align-items: center; justify-content: center; color: #d97706; flex-shrink: 0;">
+                <i data-lucide="flame" style="width: 22px; height: 22px;"></i>
             </div>
             <div>
-                <p class="text-xs font-bold text-amber-700 uppercase tracking-wider">Bookable Pujas</p>
-                <h4 class="text-xl font-black text-slate-900">{{ count($pujas) }} Active</h4>
+                <p style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 2px 0;">Bookable Pujas</p>
+                <h4 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1;">{{ count($pujas) }} Active</h4>
+                <span style="font-size: 11px; color: #b45309; font-weight: 600;">Ready to promote</span>
             </div>
         </div>
     </div>
 
-    {{-- 🪔 Indian Festivals Radar & Autonomous Multi-Channel Cockpit --}}
-    <div class="bg-gradient-to-br from-amber-500/10 via-rose-500/5 to-orange-500/10 border-2 border-amber-300 rounded-3xl p-6 shadow-xs relative overflow-hidden">
-        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl select-none pointer-events-none">
-            🪔
-        </div>
-
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-amber-200/70">
-            <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-950 mb-2 border border-amber-400/50">
-                    <span>🕉️</span> Autonomous Festival Campaign Radar
+    {{-- DEV DEEPAWALI 2026 SPOTLIGHT BANNER (DARK HERO CARD - 100% BULLETPROOF CONTRAST) --}}
+    <div class="ai-hero-card" style="padding: 26px !important; margin-bottom: 24px !important;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: center;">
+            {{-- Left: Event Details & Copy --}}
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span class="ai-pill" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+                        ✨ Next Major Varanasi Pilgrimage Event • Tuesday, 24 Nov 2026
+                    </span>
                 </div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Upcoming Indian Festivals & Multi-Channel Campaigns</h2>
-                <p class="text-xs text-slate-700 mt-1 max-w-3xl leading-relaxed">
-                    Detects approaching Hindu festivals, synthesizes 1080×1920 MP4 Video Reels, generates branded promotional banners, publishes in-depth SEO guides, and broadcasts simultaneously across WhatsApp, Brevo Email, and Web/App Push.
+
+                <h2 style="font-size: 24px; font-weight: 900; color: #fbbf24; letter-spacing: -0.01em; margin: 0; line-height: 1.25;">
+                    Dev Deepawali & Maha Deepdaan 2026 (Kartik Purnima)
+                </h2>
+
+                <p style="font-size: 13px; color: #f1f5f9; line-height: 1.6; margin: 0;">
+                    On <strong style="color: #ffffff;">Tuesday, 24 November 2026</strong>, all 84 Ghats of Varanasi illuminate with 10+ Lakh earthen lamps as the gods descend to bathe in the holy Ganga. Devotees worldwide can offer 108 Deepdaan at Dashashwamedh & Manikarnika Ghats with certified Purohits chanting their family Gotra Sankalp.
+                </p>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
+                    <span class="ai-pill" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399; display: inline-block;"></span>
+                        WhatsApp: 1080×1920 Reel + Copy Ready
+                    </span>
+                    <span class="ai-pill" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; display: inline-block;"></span>
+                        Brevo Email: Responsive HTML Ready
+                    </span>
+                    <span class="ai-pill" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #c084fc; display: inline-block;"></span>
+                        Push: Broadcast Ready
+                    </span>
+                </div>
+            </div>
+
+            {{-- Right: Autonomous Brain Studio Box --}}
+            <div style="background: #090d16; border: 1.5px solid #334155; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="text-align: center; padding-bottom: 8px; border-bottom: 1px solid #1e293b;">
+                    <span style="font-size: 11px; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800;">
+                        ⚡ Autonomous Brain Studio
+                    </span>
+                </div>
+
+                <button type="button" id="btn-master-orchestrate" onclick="orchestrateMasterCampaign('Dev Deepawali Varanasi 2026')" class="ai-btn-gold" style="width: 100%; padding: 12px 16px; font-size: 13px;">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                    <span>🚀 1-Tap Full Autonomous Campaign</span>
+                </button>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" id="btn-gen-banners" onclick="generateFestivalBanners('Dev Deepawali & Deepdaan Varanasi 2026')" class="ai-btn-dark" style="font-size: 12px; padding: 9px 12px; color: #fbbf24 !important;">
+                        <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+                        <span>Banners (1200 & 1080)</span>
+                    </button>
+                    <button type="button" id="btn-publish-blog" onclick="publishFestivalBlog('Dev Deepawali Varanasi 2026')" class="ai-btn-dark" style="font-size: 12px; padding: 9px 12px; color: #6ee7b7 !important;">
+                        <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                        <span>Publish SEO Blog</span>
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" id="btn-gen-dev-reel" onclick="generateFestivalReel('Dev Deepawali Varanasi 2026')" class="ai-btn-dark" style="font-size: 12px; padding: 9px 12px; color: #d8b4fe !important;">
+                        <i data-lucide="film" style="width: 14px; height: 14px;"></i>
+                        <span>1080x1920 Reel</span>
+                    </button>
+                    <button type="button" onclick="loadFestivalCampaign('Dev Deepawali Varanasi 2026')" class="ai-btn-dark" style="font-size: 12px; padding: 9px 12px; color: #e2e8f0 !important;">
+                        <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i>
+                        <span>Load Composer</span>
+                    </button>
+                </div>
+
+                <button type="button" id="btn-quick-launch-dev" onclick="quickLaunchFestivalCampaign('Dev Deepawali Varanasi 2026')" style="width: 100%; padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 800; background: linear-flex; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #ffffff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);">
+                    <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                    <span>Broadcast (WhatsApp + Email + Push)</span>
+                </button>
+
+                {{-- Dynamic Asset Dock --}}
+                <div id="master-asset-dock" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: none;">
+                    <p style="font-size: 11px; font-weight: 800; color: #fbbf24; text-transform: uppercase; margin: 0 0 6px 0;">✨ Fresh Campaign Assets Live:</p>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #020617; padding: 8px 12px; border-radius: 8px; border: 1px solid #1e293b; font-size: 12px;">
+                            <span style="color: #cbd5e1;">Live SEO Blog:</span>
+                            <a id="dock-blog-link" href="#" target="_blank" style="color: #34d399; font-weight: bold; text-decoration: none;">View Article ↗</a>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #020617; padding: 8px 12px; border-radius: 8px; border: 1px solid #1e293b; font-size: 12px;">
+                            <span style="color: #cbd5e1;">1200x630 Banner:</span>
+                            <a id="dock-banner-link" href="#" target="_blank" style="color: #fbbf24; font-weight: bold; text-decoration: none;">View Image ↗</a>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #020617; padding: 8px 12px; border-radius: 8px; border: 1px solid #1e293b; font-size: 12px;">
+                            <span style="color: #cbd5e1;">1080x1920 Reel:</span>
+                            <a id="dock-reel-link" href="#" target="_blank" style="color: #c084fc; font-weight: bold; text-decoration: none;">Watch Video ↗</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- SECTION: Sacred Festival Calendar (Parallel Multi-Campaign Engine) --}}
+    <div class="ai-box">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>🗓️</span>
+                    <span>Upcoming Sacred Festival Calendar (Parallel Multi-Campaign Engine)</span>
+                </h3>
+                <p style="font-size: 12px; color: #64748b; margin: 3px 0 0 0;">
+                    Detects approaching Hindu festivals and automates T-14, T-7, T-3, T-1, and Day-0 campaign drops in parallel.
                 </p>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <button type="button" onclick="loadFestivalCampaign('Dev Deepawali Varanasi 2026')" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white shadow-md flex items-center gap-2 transition-all">
-                    <span>🪔</span> Dev Deepawali Spotlight
-                </button>
-            </div>
+            <button type="button" onclick="openScheduleModal()" class="ai-btn-dark" style="font-size: 12px; padding: 8px 14px;">
+                <i data-lucide="calendar-plus" style="width: 14px; height: 14px; color: #fbbf24;"></i>
+                <span>➕ Schedule New Event / Festival</span>
+            </button>
         </div>
 
-        {{-- Dev Deepawali Spotlight Banner --}}
-        <div class="mt-5 bg-slate-950 text-white rounded-3xl p-6 lg:p-7 shadow-xl border-2 border-amber-500/50 relative overflow-hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                <div class="lg:col-span-7 space-y-3.5">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-amber-400 text-slate-950 uppercase tracking-wider">
-                        ✨ Next Major Varanasi Pilgrimage Event • Tuesday, 24 Nov 2026
-                    </div>
-                    <h2 class="text-2xl lg:text-3xl font-black text-amber-300 tracking-tight leading-snug">
-                        Dev Deepawali & Maha Deepdaan 2026 (Kartik Purnima)
-                    </h2>
-                    <p class="text-xs lg:text-sm text-slate-100 leading-relaxed">
-                        On <strong>Tuesday, 24 November 2026</strong>, all 84 Ghats of Varanasi illuminate with 10+ Lakh earthen lamps as the gods descend to bathe in the holy Ganga. Devotees worldwide can offer 108 Deepdaan at Dashashwamedh & Manikarnika Ghats with certified Purohits chanting their family Gotra Sankalp.
-                    </p>
-                    <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-                        <span class="px-3 py-1.5 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-500/60 font-bold flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> WhatsApp: 1080x1920 Reel + Copy Ready
-                        </span>
-                        <span class="px-3 py-1.5 rounded-xl bg-blue-950 text-blue-300 border border-blue-500/60 font-bold flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-blue-400"></span> Brevo Email: Responsive HTML Ready
-                        </span>
-                        <span class="px-3 py-1.5 rounded-xl bg-purple-950 text-purple-300 border border-purple-500/60 font-bold flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-purple-400"></span> Push: Broadcast Ready
-                        </span>
-                    </div>
-                </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            @if(isset($festivalsRadar) && count($festivalsRadar) > 0)
+                @foreach($festivalsRadar as $fest)
+                    @php
+                        $badgeStyle = match($fest['milestone']) {
+                            't_minus_1', 'day_0' => 'background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;',
+                            't_minus_3' => 'background: #fffbeb; color: #b45309; border: 1px solid #fde68a;',
+                            't_minus_7' => 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;',
+                            't_minus_14' => 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;',
+                            default => 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;',
+                        };
+                    @endphp
+                    <div class="ai-fest-card">
+                        <div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
+                                <span style="font-size: 11.5px; font-weight: 700; color: #475569;">{{ $fest['formatted_date'] }}</span>
+                                <span class="ai-pill" style="{{ $badgeStyle }}">
+                                    {{ $fest['days_left'] }}d left
+                                </span>
+                            </div>
 
-                <div class="lg:col-span-5 flex flex-col gap-2.5 bg-slate-900/90 p-4 rounded-2xl border border-amber-500/40">
-                    <div class="text-center pb-2 border-b border-amber-500/20">
-                        <span class="text-[11px] text-amber-300 uppercase tracking-wider font-extrabold">Autonomous Brain Studio</span>
-                    </div>
-                    <button type="button" id="btn-master-orchestrate" onclick="orchestrateMasterCampaign('Dev Deepawali Varanasi 2026')" class="w-full py-3 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-rose-500 hover:from-amber-300 hover:to-rose-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg animate-pulse">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i> 🚀 1-Tap Full Autonomous Campaign
-                    </button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="btn-gen-banners" onclick="generateFestivalBanners('Dev Deepawali & Deepdaan Varanasi 2026')" class="py-2.5 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-500/40 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-                            <i data-lucide="image" class="w-3.5 h-3.5"></i> Banners (1200 & 1080)
-                        </button>
-                        <button type="button" id="btn-publish-blog" onclick="publishFestivalBlog('Dev Deepawali Varanasi 2026')" class="py-2.5 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Publish SEO Blog
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="btn-gen-dev-reel" onclick="generateFestivalReel('Dev Deepawali Varanasi 2026')" class="py-2.5 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-purple-300 border border-purple-500/40 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-                            <i data-lucide="film" class="w-3.5 h-3.5"></i> 1080x1920 Reel
-                        </button>
-                        <button type="button" onclick="loadFestivalCampaign('Dev Deepawali Varanasi 2026')" class="py-2.5 px-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Load Composer
-                        </button>
-                    </div>
-                    <button type="button" id="btn-quick-launch-dev" onclick="quickLaunchFestivalCampaign('Dev Deepawali Varanasi 2026')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md">
-                        <i data-lucide="zap" class="w-4 h-4"></i> Broadcast (WhatsApp + Email + Push)
-                    </button>
+                            <h4 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 10px 0 4px 0;">{{ $fest['name'] }}</h4>
+                            <p style="font-size: 11.5px; color: #64748b; margin: 0;">Deity: <strong style="color: #0f172a;">{{ $fest['deity'] ?? 'Vedic Devata' }}</strong></p>
 
-                    {{-- Dynamic Asset Dock --}}
-                    <div id="master-asset-dock" class="mt-2 pt-2 border-t border-amber-500/20 text-xs space-y-2 hidden">
-                        <p class="font-extrabold text-amber-300 uppercase text-[11px]">✨ Fresh Campaign Assets Live:</p>
-                        <div class="flex items-center justify-between bg-black/60 p-2.5 rounded-xl border border-slate-800">
-                            <span class="text-slate-200">Live SEO Blog:</span>
-                            <a id="dock-blog-link" href="#" target="_blank" class="text-emerald-400 hover:underline font-bold">View Article ↗</a>
-                        </div>
-                        <div class="flex items-center justify-between bg-black/60 p-2.5 rounded-xl border border-slate-800">
-                            <span class="text-slate-200">1200x630 Banner:</span>
-                            <a id="dock-banner-link" href="#" target="_blank" class="text-amber-400 hover:underline font-bold">View Image ↗</a>
-                        </div>
-                        <div class="flex items-center justify-between bg-black/60 p-2.5 rounded-xl border border-slate-800">
-                            <span class="text-slate-200">1080x1920 Reel:</span>
-                            <a id="dock-reel-link" href="#" target="_blank" class="text-purple-400 hover:underline font-bold">Watch Video ↗</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Upcoming Festivals Parallel Grid --}}
-        <div class="mt-8">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span>🗓️</span> Upcoming Sacred Festival Calendar (Parallel Multi-Campaign Engine)
-                </h3>
-                <button type="button" onclick="openScheduleModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-400/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
-                    <i data-lucide="calendar-plus" class="w-4 h-4"></i> ➕ Schedule New Event / Festival
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                @if(isset($festivalsRadar) && count($festivalsRadar) > 0)
-                    @foreach($festivalsRadar as $fest)
-                        @php
-                            $badgeColor = match($fest['milestone']) {
-                                't_minus_1', 'day_0' => 'bg-rose-100 text-rose-900 border-rose-300 animate-pulse',
-                                't_minus_3' => 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
-                                't_minus_7' => 'bg-blue-100 text-blue-900 border-blue-300 font-bold',
-                                't_minus_14' => 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
-                                default => 'bg-slate-100 text-slate-800 border-slate-300 font-semibold',
-                            };
-                        @endphp
-                        <div class="bg-white border-2 border-slate-200 hover:border-amber-400 rounded-2xl p-4 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100">
-                                    <span class="text-xs font-bold text-slate-700">{{ $fest['formatted_date'] }}</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] border {{ $badgeColor }}">
-                                        {{ $fest['days_left'] }}d left
-                                    </span>
+                            @if(!empty($fest['puja']))
+                                <div style="margin-top: 10px; font-size: 11.5px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; color: #92400e; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $fest['puja']['title'] }}">
+                                    🪔 {{ $fest['puja']['title'] }}
                                 </div>
-                                <h4 class="text-base font-black text-slate-900 mt-2.5">{{ $fest['name'] }}</h4>
-                                <p class="text-xs text-slate-600 mt-1">Deity: <span class="font-bold text-slate-900">{{ $fest['deity'] ?? 'Vedic Devata' }}</span></p>
-
-                                @if(!empty($fest['puja']))
-                                    <div class="mt-2.5 text-xs bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-amber-950 font-bold truncate" title="{{ $fest['puja']['title'] }}">
-                                        🪔 {{ $fest['puja']['title'] }}
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
-                                <button type="button" onclick="loadFestivalCampaign('{{ addslashes($fest['name']) }}')" class="py-2 px-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold text-center transition-all">
-                                    Composer
-                                </button>
-                                <button type="button" onclick="orchestrateMasterCampaign('{{ addslashes($fest['name']) }}')" class="py-2 px-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-400 text-slate-950 rounded-xl text-xs font-black text-center transition-all shadow-sm">
-                                    ⚡ 1-Tap Brain
-                                </button>
-                            </div>
+                            @endif
                         </div>
-                    @endforeach
-                @else
-                    <div class="col-span-full py-6 text-center text-xs text-slate-500 bg-white rounded-2xl border border-slate-200">
-                        No upcoming festivals found in the next 60 days. Run <code>php artisan brain:seed-festivals</code> to refresh.
+
+                        <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button type="button" onclick="loadFestivalCampaign('{{ addslashes($fest['name']) }}')" class="ai-btn-test-blue" style="width: 100%;">
+                                Composer
+                            </button>
+                            <button type="button" onclick="orchestrateMasterCampaign('{{ addslashes($fest['name']) }}')" class="ai-btn-gold" style="width: 100%; font-size: 11.5px; padding: 8px 10px;">
+                                ⚡ 1-Tap Brain
+                            </button>
+                        </div>
                     </div>
-                @endif
-            </div>
+                @endforeach
+            @else
+                <div style="grid-column: 1 / -1; padding: 24px; text-align: center; font-size: 12px; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    No upcoming festivals found in the next 60 days. Run <code>php artisan brain:seed-festivals</code> to refresh.
+                </div>
+            @endif
         </div>
     </div>
 
-    {{-- 🤝 B2B Partner Network & Google Maps Lead Automation Hub --}}
-    <div class="bg-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl border border-slate-700 relative overflow-hidden">
-        <div class="absolute -right-12 -top-12 opacity-10 text-9xl select-none pointer-events-none">
-            🤝
-        </div>
-
-        {{-- B2B Header & Metrics --}}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-700">
+    {{-- SECTION: B2B Partner Network Hub --}}
+    <div class="ai-hero-card" style="padding: 26px !important; margin-bottom: 24px !important;">
+        <div style="display: flex; flex-direction: column; md:flex-row; justify-content: space-between; align-items: flex-start; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid #334155;">
             <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 mb-2">
-                    <span>💼</span> B2B Partner Distribution Engine
-                </div>
-                <h2 class="text-2xl font-black text-white tracking-tight">
+                <span class="ai-pill" style="background: rgba(99, 102, 241, 0.25); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.5); font-weight: 800; text-transform: uppercase;">
+                    💼 B2B Partner Distribution Engine
+                </span>
+                <h2 style="font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: -0.01em; margin: 10px 0 6px 0;">
                     Promote Dev Deepawali 2026 & Varanasi Pujas via National B2B Partners
                 </h2>
-                <p class="text-xs text-slate-200 mt-1 max-w-3xl leading-relaxed">
-                    Partner with Travel Agencies, Pilgrimage Tour Operators, Astrologers, and Samagri Stores across Mumbai, Surat, Ahmedabad, Delhi, Kolkata, and Varanasi. They sell your Kashi Vedic Pujas to their clients with zero logistics, and earn a lucrative <strong class="text-emerald-300 font-bold">25% Revenue Share</strong> per booking.
+                <p style="font-size: 12.5px; color: #cbd5e1; max-width: 820px; line-height: 1.5; margin: 0;">
+                    Partner with Travel Agencies, Pilgrimage Tour Operators, Astrologers, and Samagri Stores across Mumbai, Surat, Ahmedabad, Delhi, Kolkata, and Varanasi. They sell your Kashi Vedic Pujas to their clients with zero logistics, and earn a lucrative <strong style="color: #6ee7b7;">25% Revenue Share</strong> per booking.
                 </p>
             </div>
 
-            <div class="flex items-center gap-3">
-                <button type="button" onclick="seedB2bDirectory()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/40 shadow-md flex items-center gap-1.5 transition-all">
-                    <span>⚡</span> Seed Premier Directory
+            <div>
+                <button type="button" onclick="seedB2bDirectory()" class="ai-btn-gold">
+                    <span>⚡</span>
+                    <span>Seed Premier Directory</span>
                 </button>
             </div>
         </div>
 
         {{-- B2B Stat Counters --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
-            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <p class="text-xs font-bold text-indigo-300 uppercase tracking-wider">B2B Partners in Network</p>
-                <h4 class="text-2xl font-black text-white mt-1">{{ number_format($totalB2bPartners ?? 0) }}</h4>
-                <p class="text-xs text-slate-300 mt-0.5">Travel agents & astrologers</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 18px 0;">
+            <div class="ai-stat-card-dark">
+                <span style="font-size: 11px; font-weight: 700; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.05em;">B2B Partners in Network</span>
+                <h4 style="font-size: 24px; font-weight: 900; color: #ffffff; margin: 4px 0 2px 0;">{{ number_format($totalB2bPartners ?? 0) }}</h4>
+                <span style="font-size: 11px; color: #94a3b8;">Travel agents & astrologers</span>
             </div>
-            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Partner Margin / Revenue Share</p>
-                <h4 class="text-2xl font-black text-emerald-300 mt-1">25% Net</h4>
-                <p class="text-xs text-slate-300 mt-0.5">₹300 - ₹600 profit / booking</p>
+            <div class="ai-stat-card-dark">
+                <span style="font-size: 11px; font-weight: 700; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.05em;">Partner Margin / Rev Share</span>
+                <h4 style="font-size: 24px; font-weight: 900; color: #6ee7b7; margin: 4px 0 2px 0;">25% Net</h4>
+                <span style="font-size: 11px; color: #94a3b8;">₹300 - ₹600 profit / booking</span>
             </div>
-            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <p class="text-xs font-bold text-amber-300 uppercase tracking-wider">Top Indian Hubs</p>
-                <h4 class="text-xl font-bold text-amber-200 mt-1 truncate">
+            <div class="ai-stat-card-dark">
+                <span style="font-size: 11px; font-weight: 700; color: #fde68a; text-transform: uppercase; letter-spacing: 0.05em;">Top Indian Hubs</span>
+                <h4 style="font-size: 20px; font-weight: 800; color: #fef08a; margin: 4px 0 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     {{ isset($b2bCities) && count($b2bCities) > 0 ? $b2bCities->take(3)->pluck('city')->implode(', ') : 'Mumbai, Surat, Delhi' }}
                 </h4>
-                <p class="text-xs text-slate-300 mt-0.5">{{ count($b2bCities ?? []) }} cities active</p>
+                <span style="font-size: 11px; color: #94a3b8;">{{ count($b2bCities ?? []) }} cities active</span>
             </div>
-            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <p class="text-xs font-bold text-purple-300 uppercase tracking-wider">Dev Deepawali Target</p>
-                <h4 class="text-2xl font-black text-purple-300 mt-1">₹5,00,000+</h4>
-                <p class="text-xs text-slate-300 mt-0.5">1,000 partner bookings goal</p>
+            <div class="ai-stat-card-dark">
+                <span style="font-size: 11px; font-weight: 700; color: #d8b4fe; text-transform: uppercase; letter-spacing: 0.05em;">Dev Deepawali Target</span>
+                <h4 style="font-size: 24px; font-weight: 900; color: #d8b4fe; margin: 4px 0 2px 0;">₹5,00,000+</h4>
+                <span style="font-size: 11px; color: #94a3b8;">1,000 partner bookings goal</span>
             </div>
         </div>
 
-        {{-- B2B Actions Grid: Google Maps Importer & Live Radar --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-            
-            {{-- Google Maps Lead Ingestion (Left 7 cols) --}}
-            <div class="lg:col-span-7 bg-slate-950/80 border border-slate-700 rounded-2xl p-5 space-y-4">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-700">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">📍</span>
-                        <div>
-                            <h3 class="text-sm font-bold text-white">Google Maps Business Lead Ingestion</h3>
-                            <p class="text-xs text-slate-300">Import CSV from Google Maps scraper tools or search via Live Radar</p>
-                        </div>
+        {{-- B2B Actions: Lead Ingestion & Dev Deepawali Blast Center --}}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 14px;">
+            {{-- Google Maps Lead Ingestion --}}
+            <div style="background: #090d16; border: 1.5px solid #334155; border-radius: 16px; padding: 18px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #1e293b; margin-bottom: 12px;">
+                    <div>
+                        <h4 style="font-size: 13.5px; font-weight: 800; color: #ffffff; margin: 0;">📍 Google Maps Business Lead Ingestion</h4>
+                        <p style="font-size: 11.5px; color: #94a3b8; margin: 2px 0 0 0;">Import CSV from Google Maps scraper tools or search via Live Radar</p>
                     </div>
-                    <span class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">Auto +91 Cleaner</span>
+                    <span class="ai-pill" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4); font-family: monospace;">
+                        Auto +91 Cleaner
+                    </span>
                 </div>
 
                 {{-- Sub-tabs --}}
-                <div class="flex items-center gap-2 border-b border-slate-700 pb-2 text-xs">
-                    <button type="button" onclick="switchB2bTab('csv')" id="tab-btn-csv" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition-all">
+                <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                    <button type="button" onclick="switchB2bTab('csv')" id="tab-btn-csv" class="ai-btn-gold" style="font-size: 12px; padding: 7px 14px;">
                         📁 CSV / Excel Upload
                     </button>
-                    <button type="button" onclick="switchB2bTab('radar')" id="tab-btn-radar" class="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 font-semibold transition-all">
+                    <button type="button" onclick="switchB2bTab('radar')" id="tab-btn-radar" class="ai-btn-dark" style="font-size: 12px; padding: 7px 14px;">
                         🔍 Live City Radar
                     </button>
                 </div>
 
                 {{-- Sub-tab 1: CSV Upload --}}
-                <div id="b2b-tab-csv" class="space-y-3">
-                    <p class="text-xs text-slate-200">
-                        Upload leads scraped from Google Maps (compatible with <strong>Outscraper, Apify, Instant Data Scraper, PhantomBuster</strong>). The engine automatically detects business name, phone, address, and Google rating.
+                <div id="b2b-tab-csv" style="display: flex; flex-direction: column; gap: 12px;">
+                    <p style="font-size: 11.5px; color: #cbd5e1; margin: 0; line-height: 1.4;">
+                        Upload leads scraped from Google Maps (compatible with <strong style="color: #ffffff;">Outscraper, Apify, Instant Data Scraper</strong>). The engine automatically detects name, phone, address, and Google rating.
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <label class="block text-xs text-slate-200 font-bold mb-1">Default City</label>
-                            <input type="text" id="b2b-csv-city" placeholder="e.g. Mumbai, Surat, Delhi" value="Mumbai" class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 focus:border-amber-400 focus:ring-0">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Default City</label>
+                            <input type="text" id="b2b-csv-city" placeholder="e.g. Mumbai, Surat, Delhi" value="Mumbai" class="ai-input-dark">
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-200 font-bold mb-1">Category</label>
-                            <select id="b2b-csv-category" class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 focus:border-amber-400 focus:ring-0">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Category</label>
+                            <select id="b2b-csv-category" class="ai-select-dark">
                                 <option value="travel_agency">✈️ Travel Agency / Tour Operator</option>
                                 <option value="astrologer">🔮 Astrologer / Jyotish Kendra</option>
                                 <option value="samagri_store">🪔 Puja Samagri / Spiritual Store</option>
@@ -339,29 +621,30 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-200 font-bold mb-1">Upload CSV File or Paste Raw CSV Text</label>
-                        <input type="file" id="b2b-csv-file" accept=".csv,.txt" class="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 mb-2">
-                        <textarea id="b2b-csv-text" rows="3" placeholder="Or paste CSV with headers: name, phone, address, city, rating..." class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 font-mono focus:border-amber-400 focus:ring-0"></textarea>
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Upload CSV File or Paste Raw CSV Text</label>
+                        <input type="file" id="b2b-csv-file" accept=".csv,.txt" style="display: block; width: 100%; font-size: 11.5px; color: #94a3b8; margin-bottom: 8px;">
+                        <textarea id="b2b-csv-text" rows="3" placeholder="Or paste CSV with headers: name, phone, address, city, rating..." class="ai-textarea-dark" style="font-family: monospace;"></textarea>
                     </div>
 
-                    <button type="button" id="btn-import-csv" onclick="importB2bCsv()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all">
-                        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Ingest & Validate Indian Numbers (+91)
+                    <button type="button" id="btn-import-csv" onclick="importB2bCsv()" class="ai-btn-test-emerald" style="width: 100%; padding: 10px; font-size: 12.5px;">
+                        <i data-lucide="upload-cloud" style="width: 16px; height: 16px;"></i>
+                        <span>Ingest & Validate Indian Numbers (+91)</span>
                     </button>
                 </div>
 
                 {{-- Sub-tab 2: Live City Radar --}}
-                <div id="b2b-tab-radar" class="space-y-3 hidden">
-                    <p class="text-xs text-slate-200">
+                <div id="b2b-tab-radar" style="display: none; flex-direction: column; gap: 12px;">
+                    <p style="font-size: 11.5px; color: #cbd5e1; margin: 0; line-height: 1.4;">
                         Query Google Places API to search verified businesses in any target Indian commercial hub.
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div>
-                            <label class="block text-xs text-slate-200 font-bold mb-1">Target City</label>
-                            <input type="text" id="b2b-radar-city" placeholder="e.g. Surat, Ahmedabad, Jaipur" value="Surat" class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 focus:border-amber-400 focus:ring-0">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Target City</label>
+                            <input type="text" id="b2b-radar-city" placeholder="e.g. Surat, Ahmedabad, Jaipur" value="Surat" class="ai-input-dark">
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-200 font-bold mb-1">Category Query</label>
-                            <select id="b2b-radar-category" class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 focus:border-amber-400 focus:ring-0">
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Category Query</label>
+                            <select id="b2b-radar-category" class="ai-select-dark">
                                 <option value="travel_agency">✈️ Tour and Travel Agencies</option>
                                 <option value="astrologer">🔮 Astrologers & Vastu Consultants</option>
                                 <option value="samagri_store">🪔 Puja Samagri Stores</option>
@@ -369,34 +652,37 @@
                             </select>
                         </div>
                     </div>
-                    <button type="button" id="btn-radar-search" onclick="runGoogleMapsRadar()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all">
-                        <i data-lucide="radar" class="w-4 h-4"></i> Scan Google Maps Places & Ingest
+                    <button type="button" id="btn-radar-search" onclick="runGoogleMapsRadar()" class="ai-btn-gold" style="width: 100%; padding: 10px; font-size: 12.5px;">
+                        <i data-lucide="radar" style="width: 16px; height: 16px;"></i>
+                        <span>Scan Google Maps Places & Ingest</span>
                     </button>
                 </div>
             </div>
 
-            {{-- B2B Dev Deepawali Blast Center (Right 5 cols) --}}
-            <div class="lg:col-span-5 bg-gradient-to-br from-amber-950/70 via-slate-900 to-slate-950 border border-amber-500/40 rounded-2xl p-5 flex flex-col justify-between">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between pb-3 border-b border-amber-500/20">
-                        <div class="flex items-center gap-2">
-                            <span class="text-lg">🪔</span>
-                            <h3 class="text-sm font-bold text-amber-200">B2B Dev Deepawali Campaign</h3>
+            {{-- B2B Dev Deepawali Blast Center --}}
+            <div style="background: #090d16; border: 1.5px solid #334155; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #1e293b;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px;">🪔</span>
+                            <h4 style="font-size: 13.5px; font-weight: 800; color: #fbbf24; margin: 0;">B2B Dev Deepawali Campaign</h4>
                         </div>
-                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">24 Nov 2026</span>
+                        <span class="ai-pill" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+                            24 Nov 2026
+                        </span>
                     </div>
 
-                    <div class="bg-black/50 rounded-xl p-3.5 border border-amber-500/30 text-xs space-y-1.5 text-amber-100">
-                        <p class="font-extrabold text-amber-300">Commercial Partner Pitch Outline:</p>
-                        <p>• <strong>The Problem:</strong> Hotels & boats in Kashi are 100% full. Devotees cannot travel.</p>
-                        <p>• <strong>The Solution:</strong> Travel agency sells 108 Deepdaan on Manikarnika Ghat with client gotra.</p>
-                        <p>• <strong>Fulfillment:</strong> Kashi Purohit performs puja, sends HD video + couriers Mahaprasad to client.</p>
-                        <p>• <strong>Profit:</strong> Partner earns <strong class="text-emerald-300 font-bold">25% margin</strong> (₹300 - ₹600/booking).</p>
+                    <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid #1e293b; border-radius: 12px; padding: 12px; font-size: 12px; color: #e2e8f0; line-height: 1.5;">
+                        <p style="font-weight: 800; color: #fbbf24; margin: 0 0 6px 0;">Commercial Partner Pitch Outline:</p>
+                        <p style="margin: 0 0 4px 0;">• <strong>The Problem:</strong> Hotels & boats in Kashi are 100% full. Devotees cannot travel.</p>
+                        <p style="margin: 0 0 4px 0;">• <strong>The Solution:</strong> Travel agency sells 108 Deepdaan on Manikarnika Ghat with client gotra.</p>
+                        <p style="margin: 0 0 4px 0;">• <strong>Fulfillment:</strong> Kashi Purohit performs puja, sends HD video + couriers Mahaprasad to client.</p>
+                        <p style="margin: 0;">• <strong>Profit:</strong> Partner earns <strong style="color: #6ee7b7;">25% margin</strong> (₹300 - ₹600/booking).</p>
                     </div>
 
-                    <div class="text-xs space-y-2">
-                        <label class="block text-xs text-slate-200 font-bold">Filter Partner Target City</label>
-                        <select id="b2b-campaign-city" class="w-full text-xs rounded-xl bg-slate-900 border border-slate-600 text-white p-2.5 focus:border-amber-400 focus:ring-0">
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">Filter Partner Target City</label>
+                        <select id="b2b-campaign-city" class="ai-select-dark">
                             <option value="all">🇮🇳 All Cities & Partners (National Blast)</option>
                             @if(isset($b2bCities))
                                 @foreach($b2bCities as $bc)
@@ -407,45 +693,50 @@
                     </div>
                 </div>
 
-                <div class="space-y-2 pt-4">
-                    <button type="button" onclick="previewB2bPitch()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-500/40 font-bold text-xs flex items-center justify-center gap-2 transition-all">
-                        <i data-lucide="eye" class="w-4 h-4"></i> Preview Sample Partner Pitch
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e293b;">
+                    <button type="button" onclick="previewB2bPitch()" class="ai-btn-dark" style="width: 100%; color: #fbbf24 !important;">
+                        <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                        <span>Preview Sample Partner Pitch</span>
                     </button>
-                    <button type="button" id="btn-dispatch-b2b" onclick="dispatchB2bCampaign()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-red-600 hover:from-amber-600 hover:to-red-700 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
-                        <i data-lucide="send" class="w-4 h-4"></i> 🚀 Launch B2B Dev Deepawali Campaign
+                    <button type="button" id="btn-dispatch-b2b" onclick="dispatchB2bCampaign()" class="ai-btn-gold" style="width: 100%; padding: 12px; font-size: 13px;">
+                        <i data-lucide="send" style="width: 15px; height: 15px;"></i>
+                        <span>🚀 Launch B2B Dev Deepawali Campaign</span>
                     </button>
                 </div>
             </div>
-
         </div>
 
         {{-- B2B Partners Directory Table --}}
-        <div class="mt-8 bg-slate-950 border border-slate-700 rounded-2xl p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-700">
-                <div class="flex items-center gap-2">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">B2B Verified Leads Directory</h3>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">{{ count($b2bLeads ?? []) }} Displayed</span>
+        <div style="margin-top: 22px; background: #090d16; border: 1.5px solid #334155; border-radius: 16px; padding: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #1e293b; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h4 style="font-size: 13.5px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
+                        B2B Verified Leads Directory
+                    </h4>
+                    <span class="ai-pill" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
+                        {{ count($b2bLeads ?? []) }} Displayed
+                    </span>
                 </div>
-                <div class="text-xs text-slate-300">
+                <div style="font-size: 11.5px; color: #94a3b8;">
                     Each partner has an auto-generated unique booking code for 25% revenue share attribution.
                 </div>
             </div>
 
-            <div class="overflow-x-auto mt-3">
-                <table class="w-full text-left text-xs text-slate-200">
+            <div style="overflow-x: auto;">
+                <table class="ai-table">
                     <thead>
-                        <tr class="border-b border-slate-700 text-slate-300 text-xs font-bold bg-slate-900/60">
-                            <th class="py-3 px-3">Business Name</th>
-                            <th class="py-3 px-3">Category</th>
-                            <th class="py-3 px-3">City</th>
-                            <th class="py-3 px-3">Phone / WhatsApp</th>
-                            <th class="py-3 px-3">Google Rating</th>
-                            <th class="py-3 px-3">Partner Code</th>
-                            <th class="py-3 px-3">Status</th>
-                            <th class="py-3 px-3 text-right">Quick Action</th>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>Category</th>
+                            <th>City</th>
+                            <th>Phone / WhatsApp</th>
+                            <th>Google Rating</th>
+                            <th>Partner Code</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Quick Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800">
+                    <tbody>
                         @if(isset($b2bLeads) && count($b2bLeads) > 0)
                             @foreach($b2bLeads as $lead)
                                 @php
@@ -457,37 +748,37 @@
                                         default => '🏢 Corporate',
                                     };
                                     $statusBadge = match($lead->status) {
-                                        'partner_onboarded' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-                                        'contacted' => 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-                                        default => 'bg-slate-700/60 text-slate-200 border-slate-600',
+                                        'partner_onboarded' => 'background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);',
+                                        'contacted' => 'background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);',
+                                        default => 'background: #1e293b; color: #cbd5e1; border: 1px solid #334155;',
                                     };
                                 @endphp
-                                <tr class="hover:bg-slate-800/50 transition-all">
-                                    <td class="py-3 px-3 font-bold text-white flex items-center gap-1.5">
+                                <tr>
+                                    <td style="font-weight: 700; color: #ffffff;">
                                         {{ $lead->business_name }}
                                         @if($lead->contact_person)
-                                            <span class="text-xs text-slate-400 font-normal">({{ $lead->contact_person }})</span>
+                                            <span style="font-size: 11px; color: #94a3b8; font-weight: normal;">({{ $lead->contact_person }})</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 px-3">{{ $catLabel }}</td>
-                                    <td class="py-3 px-3 font-semibold text-amber-300">{{ $lead->city ?? 'India' }}</td>
-                                    <td class="py-3 px-3 font-mono text-xs">{{ $lead->phone }}</td>
-                                    <td class="py-3 px-3">
+                                    <td>{{ $catLabel }}</td>
+                                    <td style="color: #fbbf24; font-weight: 600;">{{ $lead->city ?? 'India' }}</td>
+                                    <td style="font-family: monospace;">{{ $lead->phone }}</td>
+                                    <td>
                                         @if($lead->google_rating)
-                                            <span class="text-amber-300 font-bold">★ {{ $lead->google_rating }}</span>
-                                            <span class="text-xs text-slate-400">({{ $lead->google_reviews_count }})</span>
+                                            <span style="color: #fbbf24; font-weight: 700;">★ {{ $lead->google_rating }}</span>
+                                            <span style="font-size: 11px; color: #94a3b8;">({{ $lead->google_reviews_count }})</span>
                                         @else
-                                            <span class="text-slate-500">—</span>
+                                            <span style="color: #64748b;">—</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 px-3 font-mono text-xs text-indigo-300 font-bold">{{ $lead->partner_code }}</td>
-                                    <td class="py-3 px-3">
-                                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $statusBadge }}">
+                                    <td style="font-family: monospace; font-weight: 700; color: #a5b4fc;">{{ $lead->partner_code }}</td>
+                                    <td>
+                                        <span class="ai-pill" style="{{ $statusBadge }}">
                                             {{ ucfirst($lead->status) }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-3 text-right">
-                                        <button type="button" onclick="previewB2bPitch({{ $lead->id }})" class="px-3 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white font-bold text-xs transition-all border border-indigo-500/40">
+                                    <td style="text-align: right;">
+                                        <button type="button" onclick="previewB2bPitch({{ $lead->id }})" class="ai-btn-test-blue" style="font-size: 11px; padding: 4px 10px;">
                                             Pitch
                                         </button>
                                     </td>
@@ -495,7 +786,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-slate-300">
+                                <td colspan="8" style="padding: 24px; text-align: center; color: #94a3b8;">
                                     No B2B leads in database yet. Click <strong>"Seed Premier Directory"</strong> or upload a Google Maps CSV above.
                                 </td>
                             </tr>
@@ -506,26 +797,27 @@
         </div>
     </div>
 
-    {{-- Interactive Omnichannel Campaign Studio & Live Device Preview --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {{-- Campaign Composer (Left 7 Cols) --}}
-        <div class="lg:col-span-7 bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+    {{-- SECTION: Omnichannel Campaign Studio & Devotee Smartphone Preview --}}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+        {{-- Campaign Composer (Left) --}}
+        <div class="ai-box" style="margin-bottom: 0 !important;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px;">
                 <div>
-                    <h3 class="text-lg font-black text-slate-900">Broadcast Campaign Studio</h3>
-                    <p class="text-xs text-slate-600 mt-0.5">Compose and blast devotional campaigns across WhatsApp & Brevo Email</p>
+                    <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Broadcast Campaign Studio</h3>
+                    <p style="font-size: 12px; color: #64748b; margin: 3px 0 0 0;">Compose and blast devotional campaigns across WhatsApp & Brevo Email</p>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">Omnichannel</span>
+                <span class="ai-pill" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                    Omnichannel
+                </span>
             </div>
 
-            <form id="form-broadcast" class="mt-5 space-y-4 text-xs" onsubmit="event.preventDefault();">
+            <form id="form-broadcast" style="display: flex; flex-direction: column; gap: 14px;" onsubmit="event.preventDefault();">
                 @csrf
-                {{-- Target Audience & Channel Row --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Target Devotee Audience</label>
-                        <select id="camp-segment" class="w-full text-xs font-semibold rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 bg-white text-slate-900">
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Target Devotee Audience</label>
+                        <select id="camp-segment" class="ai-select">
                             <option value="test">📱 Test to My Own WhatsApp & Email (Safe)</option>
                             <option value="all">👥 All Registered Devotees ({{ $totalDevotees }} contacts)</option>
                             <option value="bookers">🪔 Past Puja Bookers ({{ $totalOrders }} orders)</option>
@@ -533,8 +825,8 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Dispatch Channels</label>
-                        <select id="camp-channel" class="w-full text-xs font-semibold rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 bg-white text-slate-900">
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Dispatch Channels</label>
+                        <select id="camp-channel" class="ai-select">
                             <option value="both">⚡ Omnichannel (WhatsApp + Brevo Email)</option>
                             <option value="whatsapp">📱 WhatsApp Only (Evolution API)</option>
                             <option value="email">✉️ Email Only (Brevo REST API)</option>
@@ -542,10 +834,9 @@
                     </div>
                 </div>
 
-                {{-- Puja Quick Filler --}}
                 <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Select Bookable Puja (Auto-Fills Details)</label>
-                    <select id="camp-puja-preset" class="w-full text-xs font-bold rounded-xl border-2 border-amber-200 bg-amber-50/50 focus:border-amber-500 focus:ring-0 p-2.5 text-amber-950" onchange="applyPujaPreset(this)">
+                    <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Select Bookable Puja (Auto-Fills Details)</label>
+                    <select id="camp-puja-preset" class="ai-select" style="background: #fffbeb !important; border-color: #fde68a !important; color: #92400e !important; font-weight: 700;" onchange="applyPujaPreset(this)">
                         <option value="">-- Choose a Puja to Promote --</option>
                         @foreach($pujas as $p)
                             <option value="{{ $p->id }}" 
@@ -559,258 +850,258 @@
                     </select>
                 </div>
 
-                {{-- Campaign Headline & Email Subject --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">WhatsApp Headline / Greeting</label>
-                        <input type="text" id="camp-headline" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-semibold" 
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">WhatsApp Headline / Greeting</label>
+                        <input type="text" id="camp-headline" class="ai-input" 
                                value="🕉️ Special Rudrabhishek Puja Blessings from Varanasi" oninput="updateLivePreview()">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Email Subject Line</label>
-                        <input type="text" id="camp-subject" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-semibold" 
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Email Subject Line</label>
+                        <input type="text" id="camp-subject" class="ai-input" 
                                value="Divine Blessings for You and Your Family — OnlinePuja.live">
                     </div>
                 </div>
 
-                {{-- Message Body --}}
                 <div>
-                    <label class="block font-bold text-slate-800 mb-1.5">Message Body & Vedic Sankalp Details</label>
-                    <textarea id="camp-body" rows="4" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-3 text-slate-900 leading-relaxed font-normal" oninput="updateLivePreview()">Pranam Devotee!
+                    <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Message Body & Vedic Sankalp Details</label>
+                    <textarea id="camp-body" rows="4" class="ai-textarea" oninput="updateLivePreview()">Pranam Devotee!
 
 Participate in the auspicious Vedic ritual performed by certified Varanasi pandits with your personal sankalp and gotra. Sanctified Ganga Jal, Bhasma & holy prasad will be blessed in your name and dispatched directly to your doorstep.
 
 May Lord Shiva bestow divine health, peace, and abundance upon your household. 🙏✨</textarea>
                 </div>
 
-                {{-- Media Attachment (Reel / Poster) --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="md:col-span-2">
-                        <label class="block font-bold text-slate-800 mb-1.5">Attach Media URL (Video Reel MP4 / Poster Image)</label>
-                        <input type="url" id="camp-media-url" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-mono" 
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Attach Media URL (Video Reel MP4 / Poster Image)</label>
+                        <input type="url" id="camp-media-url" class="ai-input" style="font-family: monospace;" 
                                placeholder="https://.../video.mp4 or poster.jpg" oninput="updateLivePreview()">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Media Type</label>
-                        <select id="camp-media-type" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-bold" onchange="updateLivePreview()">
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Media Type</label>
+                        <select id="camp-media-type" class="ai-select" onchange="updateLivePreview()">
                             <option value="image">🖼️ Poster Image</option>
                             <option value="video">🎬 9:16 Video Reel</option>
                         </select>
                     </div>
                 </div>
 
-                {{-- Call To Action Button & Link --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Button Label</label>
-                        <input type="text" id="camp-cta-text" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-bold" 
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Button Label</label>
+                        <input type="text" id="camp-cta-text" class="ai-input" 
                                value="Book Sacred Puja with Sankalp 🙏" oninput="updateLivePreview()">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-800 mb-1.5">Destination URL</label>
-                        <input type="url" id="camp-cta-url" class="w-full text-xs rounded-xl border-2 border-slate-200 focus:border-amber-500 focus:ring-0 p-2.5 text-slate-900 font-mono" 
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Destination URL</label>
+                        <input type="url" id="camp-cta-url" class="ai-input" style="font-family: monospace;" 
                                value="https://onlinepuja.live" oninput="updateLivePreview()">
                     </div>
                 </div>
 
-                {{-- Dispatch Actions --}}
-                <div class="pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
-                    <button type="button" onclick="sendCampaign('test')" class="btn btn-sm bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-300">
-                        <i data-lucide="smartphone" class="w-4 h-4 text-slate-700"></i> Send Test to Admin
+                <div style="padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px;">
+                    <button type="button" onclick="sendCampaign('test')" class="ai-btn-dark">
+                        <i data-lucide="smartphone" style="width: 14px; height: 14px;"></i>
+                        <span>Send Test to Admin</span>
                     </button>
-                    <button type="button" onclick="sendCampaign('live')" class="btn btn-sm bg-slate-900 hover:bg-slate-800 text-white py-2.5 px-6 rounded-xl text-xs font-black flex items-center gap-2 shadow-md">
-                        <i data-lucide="send" class="w-4 h-4 text-amber-400"></i> Launch Broadcast Campaign
+                    <button type="button" onclick="sendCampaign('live')" class="ai-btn-gold">
+                        <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+                        <span>Launch Broadcast Campaign</span>
                     </button>
                 </div>
             </form>
         </div>
 
-        {{-- Live Smartphone Preview Mockup (Right 5 Cols) --}}
-        <div class="lg:col-span-5 bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col items-center">
-            <div class="w-full flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
-                <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Live WhatsApp Preview</h4>
-                <span class="text-xs text-slate-500 font-semibold">Devotee Phone View</span>
+        {{-- Live Smartphone Preview Mockup (Right) --}}
+        <div class="ai-box" style="margin-bottom: 0 !important; display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px;">
+                <h4 style="font-size: 12.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;">
+                    Live WhatsApp Preview
+                </h4>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">Devotee Phone View</span>
             </div>
 
             {{-- Phone Frame --}}
-            <div class="w-full max-w-[320px] bg-slate-900 rounded-[36px] p-2.5 shadow-2xl border-4 border-slate-800">
-                {{-- Screen --}}
-                <div class="bg-[#efeae2] rounded-[28px] overflow-hidden text-slate-900 flex flex-col min-h-[460px]">
+            <div style="width: 100%; max-width: 310px; background: #0f172a; border-radius: 36px; padding: 10px; box-shadow: 0 16px 40px -10px rgba(15, 23, 42, 0.4); border: 3px solid #1e293b;">
+                <div style="background: #efeae2; border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; min-height: 440px;">
                     {{-- WhatsApp Header --}}
-                    <div class="bg-[#075e54] text-white px-3.5 py-3 flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center font-black text-xs">
+                    <div style="background: #075e54; color: #ffffff; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f59e0b; color: #020617; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px;">
                             🕉️
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-1">
-                                <span class="font-bold text-xs truncate">Online Puja</span>
-                                <span class="text-emerald-300 text-[10px]">✓</span>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="font-weight: 700; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Online Puja</span>
+                                <span style="color: #6ee7b7; font-size: 10px;">✓</span>
                             </div>
-                            <p class="text-[10px] text-emerald-100 truncate">Official Verified Business</p>
+                            <p style="font-size: 9.5px; color: #a7f3d0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Official Verified Business</p>
                         </div>
                     </div>
 
                     {{-- Chat Bubble Area --}}
-                    <div class="p-3 flex-1 flex flex-col justify-end space-y-2">
-                        <div class="bg-white rounded-xl rounded-tl-none p-3.5 shadow-sm text-xs space-y-2 border border-slate-200">
+                    <div style="padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <div style="background: #ffffff; border-radius: 12px; border-top-left-radius: 0; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
                             {{-- Media Preview Thumbnail --}}
-                            <div id="preview-media-container" class="rounded-lg overflow-hidden bg-slate-100 aspect-video flex items-center justify-center relative hidden">
-                                <img id="preview-media-img" src="" class="w-full h-full object-cover hidden" alt="Campaign Preview">
-                                <div id="preview-video-badge" class="absolute inset-0 bg-black/40 flex items-center justify-center text-white hidden">
-                                    <div class="w-9 h-9 rounded-full bg-white/90 text-slate-900 flex items-center justify-center font-bold text-xs shadow-md">▶</div>
+                            <div id="preview-media-container" style="border-radius: 8px; overflow: hidden; background: #f1f5f9; aspect-ratio: 16/9; display: none; align-items: center; justify-content: center; position: relative;">
+                                <img id="preview-media-img" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;" alt="Campaign Preview">
+                                <div id="preview-video-badge" style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">▶</div>
                                 </div>
                             </div>
 
-                            <p class="font-extrabold text-slate-900 leading-snug text-xs" id="preview-headline">🕉️ Special Rudrabhishek Puja Blessings from Varanasi</p>
+                            <p style="font-weight: 800; color: #0f172a; font-size: 12px; margin: 0; line-height: 1.3;" id="preview-headline">
+                                🕉️ Special Rudrabhishek Puja Blessings from Varanasi
+                            </p>
                             
-                            <p class="text-slate-700 whitespace-pre-line leading-relaxed text-[11px]" id="preview-body">
+                            <p style="color: #334155; white-space: pre-line; line-height: 1.45; font-size: 11px; margin: 0;" id="preview-body">
                                 Pranam Devotee!
 
-                                Participate in the auspicious Vedic ritual performed by certified Varanasi pandits with your personal sankalp and gotra.
+Participate in the auspicious Vedic ritual performed by certified Varanasi pandits with your personal sankalp and gotra.
                             </p>
 
-                            <div class="pt-2 border-t border-slate-100 flex flex-col gap-1.5">
-                                <div class="bg-emerald-50 text-emerald-900 text-center py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-1 border border-emerald-300 shadow-2xs">
+                            <div style="padding-top: 6px; border-top: 1px solid #f1f5f9;">
+                                <div style="background: #ecfdf5; color: #065f46; text-align: center; padding: 7px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; border: 1px solid #a7f3d0;">
                                     <span id="preview-cta-text">Book Sacred Puja with Sankalp 🙏</span>
                                 </div>
                             </div>
 
-                            <div class="text-[10px] text-right text-slate-500 mt-1 font-semibold">11:45 AM • ✓✓</div>
+                            <div style="font-size: 9.5px; text-align: right; color: #94a3b8; font-weight: 600; margin-top: 2px;">
+                                11:45 AM • <span style="color: #3b82f6;">✓✓</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <p class="text-xs text-slate-500 text-center mt-4">
+            <p style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 14px; margin-bottom: 0;">
                 Rendered with high-contrast formatting, bold Unicode emojis & inline media.
             </p>
         </div>
 
     </div>
 
-    {{-- Lifecycle Automated Triggers --}}
-    <div class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+    {{-- SECTION: Devotee Lifecycle Automated Triggers --}}
+    <div class="ai-box">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px;">
             <div>
-                <h3 class="text-lg font-black text-slate-900">Automated Devotee Lifecycle Journeys</h3>
-                <p class="text-xs text-slate-600 mt-0.5">Always-on triggers that send personalized WhatsApp & Brevo email notifications</p>
+                <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">Automated Devotee Lifecycle Journeys</h3>
+                <p style="font-size: 12px; color: #64748b; margin: 3px 0 0 0;">Always-on triggers that send personalized WhatsApp & Brevo email notifications</p>
             </div>
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-300">4 Active Flows</span>
+            <span class="ai-pill" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">
+                4 Active Flows
+            </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
-            {{-- Flow 1 --}}
-            <div class="border-2 border-slate-200 rounded-xl p-4 bg-slate-50/70 hover:bg-white hover:shadow-xs transition-all">
-                <div class="flex items-center justify-between">
-                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-900 flex items-center justify-center font-black text-xs">1</span>
-                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">Auto-Active</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="ai-step-badge" style="background: #059669;">1</span>
+                    <span class="ai-pill" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 10px;">Auto-Active</span>
                 </div>
-                <h4 class="font-black text-slate-900 text-xs mt-3">Welcome & ₹101 Sankalp</h4>
-                <p class="text-xs text-slate-600 mt-1">Triggers when a devotee registers. Sends welcome email + WhatsApp ₹101 coupon code.</p>
-                <div class="mt-3 text-xs text-slate-600 font-mono font-bold">Coupon: SANKALP101</div>
+                <h4 style="font-weight: 800; color: #0f172a; font-size: 13px; margin: 10px 0 4px 0;">Welcome & ₹101 Sankalp</h4>
+                <p style="font-size: 11.5px; color: #64748b; margin: 0; line-height: 1.4;">Triggers on user registration. Sends welcome email + WhatsApp ₹101 coupon.</p>
+                <div style="margin-top: 10px; font-size: 11px; color: #059669; font-family: monospace; font-weight: 700;">Coupon: SANKALP101</div>
             </div>
 
-            {{-- Flow 2 --}}
-            <div class="border-2 border-slate-200 rounded-xl p-4 bg-slate-50/70 hover:bg-white hover:shadow-xs transition-all">
-                <div class="flex items-center justify-between">
-                    <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 flex items-center justify-center font-black text-xs">2</span>
-                    <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-300">Auto-Active</span>
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="ai-step-badge" style="background: #2563eb;">2</span>
+                    <span class="ai-pill" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 10px;">Auto-Active</span>
                 </div>
-                <h4 class="font-black text-slate-900 text-xs mt-3">Puja Booking Confirmation</h4>
-                <p class="text-xs text-slate-600 mt-1">Triggers immediately after checkout. Sends Order ID, Pandit details, and ritual timing guide.</p>
-                <div class="mt-3 text-xs text-slate-600 font-mono font-bold">WhatsApp + Brevo HTML</div>
+                <h4 style="font-weight: 800; color: #0f172a; font-size: 13px; margin: 10px 0 4px 0;">Puja Booking Confirmation</h4>
+                <p style="font-size: 11.5px; color: #64748b; margin: 0; line-height: 1.4;">Triggers immediately post-checkout. Sends Pandit details and muhurat timings.</p>
+                <div style="margin-top: 10px; font-size: 11px; color: #2563eb; font-family: monospace; font-weight: 700;">WhatsApp + Brevo HTML</div>
             </div>
 
-            {{-- Flow 3 --}}
-            <div class="border-2 border-slate-200 rounded-xl p-4 bg-slate-50/70 hover:bg-white hover:shadow-xs transition-all">
-                <div class="flex items-center justify-between">
-                    <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center font-black text-xs">3</span>
-                    <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-300">Auto-Active</span>
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="ai-step-badge" style="background: #d97706;">3</span>
+                    <span class="ai-pill" style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 10px;">Auto-Active</span>
                 </div>
-                <h4 class="font-black text-slate-900 text-xs mt-3">Prasad Dispatch & Tracking</h4>
-                <p class="text-xs text-slate-600 mt-1">Triggers when prasad is packed in Varanasi. Sends India Post / courier tracking link to WhatsApp.</p>
-                <div class="mt-3 text-xs text-slate-600 font-mono font-bold">WhatsApp Tracking</div>
+                <h4 style="font-weight: 800; color: #0f172a; font-size: 13px; margin: 10px 0 4px 0;">Prasad Dispatch & Tracking</h4>
+                <p style="font-size: 11.5px; color: #64748b; margin: 0; line-height: 1.4;">Triggers on packing in Varanasi. Sends India Post / courier tracking to WhatsApp.</p>
+                <div style="margin-top: 10px; font-size: 11px; color: #d97706; font-family: monospace; font-weight: 700;">WhatsApp Tracking</div>
             </div>
 
-            {{-- Flow 4 --}}
-            <div class="border-2 border-slate-200 rounded-xl p-4 bg-slate-50/70 hover:bg-white hover:shadow-xs transition-all">
-                <div class="flex items-center justify-between">
-                    <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-900 flex items-center justify-center font-black text-xs">4</span>
-                    <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-300">Auto-Active</span>
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="ai-step-badge" style="background: #9333ea;">4</span>
+                    <span class="ai-pill" style="background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; font-size: 10px;">Auto-Active</span>
                 </div>
-                <h4 class="font-black text-slate-900 text-xs mt-3">Tithi & Muhurat Nudges</h4>
-                <p class="text-xs text-slate-600 mt-1">Panchang-driven broadcast before Ekadashi, Pradosh, and Shivratri with recommended pujas.</p>
-                <div class="mt-3 text-xs text-slate-600 font-mono font-bold">Hindu Calendar Sync</div>
+                <h4 style="font-weight: 800; color: #0f172a; font-size: 13px; margin: 10px 0 4px 0;">Tithi & Muhurat Nudges</h4>
+                <p style="font-size: 11.5px; color: #64748b; margin: 0; line-height: 1.4;">Panchang-driven broadcast before Ekadashi, Pradosh, and Shivratri with pujas.</p>
+                <div style="margin-top: 10px; font-size: 11px; color: #9333ea; font-family: monospace; font-weight: 700;">Hindu Calendar Sync</div>
             </div>
         </div>
     </div>
 
 </div>
 
-{{-- WhatsApp QR Modal --}}
-<div id="modal-wa-qr" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center font-bold mb-3">
-            <i data-lucide="qr-code" class="w-6 h-6"></i>
+{{-- MODAL: WhatsApp QR Modal --}}
+<div id="modal-wa-qr" style="position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #ffffff; border-radius: 18px; max-width: 380px; width: 100%; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid #e2e8f0; text-align: center;">
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: #ecfdf5; color: #059669; margin: 0 auto 12px auto; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+            <i data-lucide="qr-code" style="width: 24px; height: 24px;"></i>
         </div>
-        <h3 class="text-base font-bold text-slate-900">Scan WhatsApp QR Code</h3>
-        <p class="text-xs text-slate-500 mt-1">Open WhatsApp on your phone &gt; Linked Devices &gt; Link a Device</p>
+        <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Scan WhatsApp QR Code</h3>
+        <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Open WhatsApp &gt; Linked Devices &gt; Link a Device</p>
 
-        <div id="wa-qr-container" class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]">
-            <div class="text-xs text-slate-400 animate-pulse">Fetching live QR code…</div>
+        <div id="wa-qr-container" style="margin-top: 16px; padding: 14px; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; min-height: 220px;">
+            <div style="font-size: 12px; color: #94a3b8;">Fetching live QR code…</div>
         </div>
 
-        <div class="mt-4 flex items-center gap-2">
-            <button type="button" onclick="fetchWaQr()" class="flex-1 btn btn-sm btn-outline-secondary py-2 text-xs rounded-xl">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1"></i> Refresh QR
+        <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
+            <button type="button" onclick="fetchWaQr()" class="ai-btn-dark" style="flex: 1; font-size: 12px; padding: 9px 14px;">
+                <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Refresh QR
             </button>
-            <button type="button" onclick="closeWaQrModal()" class="btn btn-sm bg-slate-900 text-white py-2 px-4 text-xs rounded-xl">
+            <button type="button" onclick="closeWaQrModal()" class="ai-btn-gold" style="font-size: 12px; padding: 9px 18px;">
                 Done
             </button>
         </div>
     </div>
 </div>
 
-{{-- Schedule Custom Festival / Event Modal --}}
-<div id="modal-schedule-event" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">🕉️</span>
+{{-- MODAL: Schedule Custom Festival / Event Modal --}}
+<div id="modal-schedule-event" style="position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #ffffff; border-radius: 18px; max-width: 460px; width: 100%; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">🕉️</span>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Schedule Sacred Event / Festival</h3>
-                    <p class="text-xs text-slate-500">Add any upcoming Hindu tithi or puja to parallel campaign engine</p>
+                    <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">Schedule Sacred Event / Festival</h3>
+                    <p style="font-size: 11.5px; color: #64748b; margin: 2px 0 0 0;">Add any upcoming Hindu tithi or puja to parallel engine</p>
                 </div>
             </div>
-            <button type="button" onclick="closeScheduleModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+            <button type="button" onclick="closeScheduleModal()" style="background: none; border: none; font-size: 18px; font-weight: bold; color: #94a3b8; cursor: pointer;">✕</button>
         </div>
 
-        <form id="form-schedule-event" onsubmit="saveCustomFestival(event)" class="mt-4 space-y-4">
+        <form id="form-schedule-event" onsubmit="saveCustomFestival(event)" style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Festival / Sacred Occasion Name *</label>
-                <input type="text" id="sched-fest-name" required placeholder="e.g. Somvati Amavasya Pitru Shanti, Vaikuntha Ekadashi, Gita Jayanti" class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Festival / Sacred Occasion Name *</label>
+                <input type="text" id="sched-fest-name" required placeholder="e.g. Somvati Amavasya Pitru Shanti, Vaikuntha Ekadashi, Gita Jayanti" class="ai-input">
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Event Date *</label>
-                    <input type="date" id="sched-fest-date" required class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+                    <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Event Date *</label>
+                    <input type="date" id="sched-fest-date" required class="ai-input">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Deity / Spiritual Theme</label>
-                    <input type="text" id="sched-fest-deity" placeholder="e.g. Lord Shiva, Maa Lakshmi" value="Lord Shiva & Pitrus" class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+                    <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Deity / Spiritual Theme</label>
+                    <input type="text" id="sched-fest-deity" placeholder="e.g. Lord Shiva, Maa Lakshmi" value="Lord Shiva & Pitrus" class="ai-input">
                 </div>
             </div>
 
-            <div class="p-3 bg-amber-50/80 border border-amber-200/70 rounded-xl text-xs text-amber-900 leading-relaxed font-medium">
-                <span class="font-bold">⚡ Parallel Multi-Campaign Engine:</span> Once scheduled, you can immediately generate Banners, SEO Blogs, and Video Reels, and the daily autopilot radar will sweep milestones (T-14, T-7, T-3, T-1, Day-0) in parallel with all other festivals!
+            <div style="padding: 10px 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; font-size: 11.5px; color: #92400e; line-height: 1.45;">
+                <strong>⚡ Parallel Multi-Campaign Engine:</strong> Once scheduled, you can immediately generate Banners, SEO Blogs, and Video Reels, and the daily autopilot radar will sweep milestones in parallel.
             </div>
 
-            <div class="mt-4 flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                <button type="button" onclick="closeScheduleModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 rounded-xl">
+            <div style="margin-top: 6px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                <button type="button" onclick="closeScheduleModal()" class="ai-btn-dark" style="font-size: 12px; padding: 8px 14px;">
                     Cancel
                 </button>
-                <button type="submit" id="btn-save-custom-fest" class="px-5 py-2 text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+                <button type="submit" id="btn-save-custom-fest" class="ai-btn-gold" style="font-size: 12px; padding: 8px 18px;">
                     <span>➕</span> Add to Parallel Radar
                 </button>
             </div>
@@ -818,39 +1109,39 @@ May Lord Shiva bestow divine health, peace, and abundance upon your household. �
     </div>
 </div>
 
-{{-- B2B Pitch Preview Modal --}}
-<div id="modal-b2b-pitch" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">💼</span>
+{{-- MODAL: B2B Pitch Preview Modal --}}
+<div id="modal-b2b-pitch" style="position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 620px; width: 100%; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid #e2e8f0; max-height: 85vh; overflow-y: auto;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">💼</span>
                 <div>
-                    <h3 class="text-base font-black text-slate-900" id="pitch-modal-partner">Dev Deepawali 2026 B2B Partnership Proposal</h3>
-                    <p class="text-xs text-slate-500">25% Commission • Zero Logistics Vedic Fulfillment</p>
+                    <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;" id="pitch-modal-partner">Dev Deepawali 2026 B2B Partnership Proposal</h3>
+                    <p style="font-size: 11.5px; color: #64748b; margin: 2px 0 0 0;">25% Commission • Zero Logistics Vedic Fulfillment</p>
                 </div>
             </div>
-            <button type="button" onclick="closeB2bPitchModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">✕</button>
+            <button type="button" onclick="closeB2bPitchModal()" style="background: none; border: none; font-size: 18px; font-weight: bold; color: #94a3b8; cursor: pointer;">✕</button>
         </div>
 
-        <div class="mt-4 space-y-4">
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
             <div>
-                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">WhatsApp Proposal Message</label>
-                <div id="pitch-modal-whatsapp" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-800 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto"></div>
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">WhatsApp Proposal Message</label>
+                <div id="pitch-modal-whatsapp" style="padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #cbd5e1; font-family: monospace; font-size: 12px; color: #0f172a; white-space: pre-wrap; line-height: 1.5; max-height: 220px; overflow-y: auto;"></div>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Partner Attribution URL (25% Commission Tracking)</label>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="pitch-modal-url" readonly class="w-full text-xs font-mono rounded-xl bg-slate-100 border border-slate-300 p-2.5 text-slate-900 font-semibold select-all">
-                    <button type="button" onclick="copyPitchUrl()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold whitespace-nowrap">
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Partner Attribution URL (25% Commission Tracking)</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="pitch-modal-url" readonly class="ai-input" style="font-family: monospace; background: #f1f5f9 !important;">
+                    <button type="button" onclick="copyPitchUrl()" class="ai-btn-gold" style="padding: 9px 16px; font-size: 12px;">
                         Copy
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="mt-5 pt-3 border-t border-slate-200 flex items-center justify-end">
-            <button type="button" onclick="closeB2bPitchModal()" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs">
+        <div style="margin-top: 18px; padding-top: 12px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end;">
+            <button type="button" onclick="closeB2bPitchModal()" class="ai-btn-dark" style="font-size: 12px; padding: 8px 18px;">
                 Done
             </button>
         </div>
@@ -874,16 +1165,16 @@ function updateLivePreview() {
     var videoBadge = document.getElementById('preview-video-badge');
 
     if (mediaUrl) {
-        mediaBox.classList.remove('hidden');
+        mediaBox.style.display = 'flex';
         mediaImg.src = mediaUrl;
-        mediaImg.classList.remove('hidden');
+        mediaImg.style.display = 'block';
         if (mediaType === 'video') {
-            videoBadge.classList.remove('hidden');
+            videoBadge.style.display = 'flex';
         } else {
-            videoBadge.classList.add('hidden');
+            videoBadge.style.display = 'none';
         }
     } else {
-        mediaBox.classList.add('hidden');
+        mediaBox.style.display = 'none';
     }
 }
 
@@ -943,7 +1234,7 @@ function generateFestivalReel(festivalName) {
     var origText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">⏳</span> Synthesizing 1080x1920 MP4 Reel (FFmpeg)...';
+        btn.innerHTML = '<span>⏳</span> Synthesizing 1080x1920 MP4 Reel (FFmpeg)...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -984,7 +1275,7 @@ function orchestrateMasterCampaign(festivalName) {
     var origText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">⏳</span> Orchestrating Brain (Blog + Banners + Reel + Copy)...';
+        btn.innerHTML = '<span>⏳</span> Orchestrating Brain (Blog + Banners + Reel + Copy)...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1018,7 +1309,7 @@ function orchestrateMasterCampaign(festivalName) {
 
             var dock = document.getElementById('master-asset-dock');
             if (dock) {
-                dock.classList.remove('hidden');
+                dock.style.display = 'block';
                 if (res.blog && res.blog.blog_url) {
                     document.getElementById('dock-blog-link').href = res.blog.blog_url;
                 }
@@ -1049,7 +1340,7 @@ function generateFestivalBanners(festivalName) {
     var origText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">🎨</span> Rendering...';
+        btn.innerHTML = '<span>🎨</span> Rendering...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1090,7 +1381,7 @@ function publishFestivalBlog(festivalName) {
     var origText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">✍️</span> Publishing...';
+        btn.innerHTML = '<span>✍️</span> Publishing...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1132,7 +1423,7 @@ function quickLaunchFestivalCampaign(festivalName) {
     var btn = document.getElementById('btn-quick-launch-dev');
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">🚀</span> Broadcasting...';
+        btn.innerHTML = '<span>🚀</span> Broadcasting...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1152,7 +1443,7 @@ function quickLaunchFestivalCampaign(festivalName) {
     .then(function(res) {
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> Broadcast (WhatsApp + Email + Push)';
+            btn.innerHTML = '<i data-lucide="zap" style="width: 14px; height: 14px;"></i> Broadcast (WhatsApp + Email + Push)';
         }
         if (res && res.ok) {
             alert('🎉 Multi-Channel Broadcast Complete!\n\nWhatsApp: ' + res.results.whatsapp.sent + '\nEmail: ' + res.results.email.sent + '\nPush: ' + res.results.push.sent);
@@ -1163,7 +1454,7 @@ function quickLaunchFestivalCampaign(festivalName) {
     .catch(function(err) {
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> Broadcast (WhatsApp + Email + Push)';
+            btn.innerHTML = '<i data-lucide="zap" style="width: 14px; height: 14px;"></i> Broadcast (WhatsApp + Email + Push)';
         }
         alert('Error: ' + err.message);
     });
@@ -1193,7 +1484,7 @@ function sendCampaign(mode) {
     var origText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">⏳</span> Dispatching...';
+        btn.innerHTML = '<span>⏳</span> Dispatching...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1241,7 +1532,7 @@ function sendCampaign(mode) {
 function openScheduleModal() {
     var modal = document.getElementById('modal-schedule-event');
     if (modal) {
-        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
         var dateInput = document.getElementById('sched-fest-date');
         if (dateInput && !dateInput.value) {
             var d = new Date();
@@ -1253,7 +1544,7 @@ function openScheduleModal() {
 
 function closeScheduleModal() {
     var modal = document.getElementById('modal-schedule-event');
-    if (modal) modal.classList.add('hidden');
+    if (modal) modal.style.display = 'none';
 }
 
 function saveCustomFestival(e) {
@@ -1271,7 +1562,7 @@ function saveCustomFestival(e) {
     var btn = document.getElementById('btn-save-custom-fest');
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="animate-spin">⏳</span> Scheduling...';
+        btn.innerHTML = '<span>⏳</span> Scheduling...';
     }
 
     fetch('{{ route("growth-os.action") }}', {
@@ -1318,15 +1609,15 @@ function switchB2bTab(tab) {
     var btnRadar = document.getElementById('tab-btn-radar');
 
     if (tab === 'csv') {
-        csvTab.classList.remove('hidden');
-        radarTab.classList.add('hidden');
-        btnCsv.className = 'px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition-all';
-        btnRadar.className = 'px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 font-semibold transition-all';
+        csvTab.style.display = 'flex';
+        radarTab.style.display = 'none';
+        btnCsv.className = 'ai-btn-gold';
+        btnRadar.className = 'ai-btn-dark';
     } else {
-        csvTab.classList.add('hidden');
-        radarTab.classList.remove('hidden');
-        btnCsv.className = 'px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 font-semibold transition-all';
-        btnRadar.className = 'px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition-all';
+        csvTab.style.display = 'none';
+        radarTab.style.display = 'flex';
+        btnCsv.className = 'ai-btn-dark';
+        btnRadar.className = 'ai-btn-gold';
     }
 }
 
@@ -1366,7 +1657,7 @@ function importB2bCsv() {
 
     var btn = document.getElementById('btn-import-csv');
     btn.disabled = true;
-    btn.innerHTML = '<span class="animate-spin">⏳</span> Ingesting and Validating Numbers...';
+    btn.innerHTML = '<span>⏳</span> Ingesting and Validating Numbers...';
 
     if (fileInput.files && fileInput.files.length > 0) {
         var reader = new FileReader();
@@ -1397,7 +1688,7 @@ function submitCsvPayload(csvContent, city, category, btn) {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i> Ingest & Validate Indian Numbers (+91)';
+        btn.innerHTML = '<i data-lucide="upload-cloud" style="width: 16px; height: 16px;"></i> Ingest & Validate Indian Numbers (+91)';
         if (res && res.ok) {
             alert('🎉 ' + res.message);
             location.reload();
@@ -1407,7 +1698,7 @@ function submitCsvPayload(csvContent, city, category, btn) {
     })
     .catch(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i> Ingest & Validate Indian Numbers (+91)';
+        btn.innerHTML = '<i data-lucide="upload-cloud" style="width: 16px; height: 16px;"></i> Ingest & Validate Indian Numbers (+91)';
         alert('Network error: ' + err.message);
     });
 }
@@ -1423,7 +1714,7 @@ function runGoogleMapsRadar() {
 
     var btn = document.getElementById('btn-radar-search');
     btn.disabled = true;
-    btn.innerHTML = '<span class="animate-spin">📡</span> Scanning Google Places Radar in ' + city + '...';
+    btn.innerHTML = '<span>📡</span> Scanning Google Places Radar in ' + city + '...';
 
     fetch('{{ route("growth-os.action") }}', {
         method: 'POST',
@@ -1441,7 +1732,7 @@ function runGoogleMapsRadar() {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="radar" class="w-4 h-4"></i> Scan Google Maps Places & Ingest';
+        btn.innerHTML = '<i data-lucide="radar" style="width: 16px; height: 16px;"></i> Scan Google Maps Places & Ingest';
         if (res && res.ok) {
             alert('🎉 ' + res.message);
             location.reload();
@@ -1451,7 +1742,7 @@ function runGoogleMapsRadar() {
     })
     .catch(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="radar" class="w-4 h-4"></i> Scan Google Maps Places & Ingest';
+        btn.innerHTML = '<i data-lucide="radar" style="width: 16px; height: 16px;"></i> Scan Google Maps Places & Ingest';
         alert('Network error: ' + err.message);
     });
 }
@@ -1475,7 +1766,7 @@ function previewB2bPitch(leadId) {
             document.getElementById('pitch-modal-partner').innerText = 'Proposal for ' + (res.pitch.partner_name || 'B2B Partner');
             document.getElementById('pitch-modal-whatsapp').innerText = res.pitch.whatsapp_copy;
             document.getElementById('pitch-modal-url').value = res.pitch.booking_url;
-            document.getElementById('modal-b2b-pitch').classList.remove('hidden');
+            document.getElementById('modal-b2b-pitch').style.display = 'flex';
         } else {
             alert('Could not generate pitch: ' + (res.error || 'Unknown'));
         }
@@ -1486,7 +1777,7 @@ function previewB2bPitch(leadId) {
 }
 
 function closeB2bPitchModal() {
-    document.getElementById('modal-b2b-pitch').classList.add('hidden');
+    document.getElementById('modal-b2b-pitch').style.display = 'none';
 }
 
 function copyPitchUrl() {
@@ -1506,7 +1797,7 @@ function dispatchB2bCampaign() {
 
     var btn = document.getElementById('btn-dispatch-b2b');
     btn.disabled = true;
-    btn.innerHTML = '<span class="animate-spin">🚀</span> Broadcasting B2B Proposals...';
+    btn.innerHTML = '<span>🚀</span> Broadcasting B2B Proposals...';
 
     fetch('{{ route("growth-os.action") }}', {
         method: 'POST',
@@ -1524,7 +1815,7 @@ function dispatchB2bCampaign() {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> 🚀 Launch B2B Dev Deepawali Campaign';
+        btn.innerHTML = '<i data-lucide="send" style="width: 15px; height: 15px;"></i> Launch B2B Dev Deepawali Campaign';
         if (res && res.ok) {
             alert('🎉 ' + res.message + '\n\nWhatsApp Sent: ' + (res.results ? res.results.whatsapp.sent : 0) + '\nEmail Sent: ' + (res.results ? res.results.email.sent : 0));
             location.reload();
@@ -1534,23 +1825,23 @@ function dispatchB2bCampaign() {
     })
     .catch(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> 🚀 Launch B2B Dev Deepawali Campaign';
+        btn.innerHTML = '<i data-lucide="send" style="width: 15px; height: 15px;"></i> Launch B2B Dev Deepawali Campaign';
         alert('Network Error: ' + err.message);
     });
 }
 
 function openWaQrModal() {
-    document.getElementById('modal-wa-qr').classList.remove('hidden');
+    document.getElementById('modal-wa-qr').style.display = 'flex';
     fetchWaQr();
 }
 
 function closeWaQrModal() {
-    document.getElementById('modal-wa-qr').classList.add('hidden');
+    document.getElementById('modal-wa-qr').style.display = 'none';
 }
 
 function fetchWaQr() {
     var box = document.getElementById('wa-qr-container');
-    box.innerHTML = '<div class="text-xs text-slate-400 animate-pulse">Requesting QR from Evolution API…</div>';
+    box.innerHTML = '<div style="font-size: 12px; color: #94a3b8;">Requesting QR from Evolution API…</div>';
 
     fetch('{{ route("growth-os.action") }}', {
         method: 'POST',
@@ -1564,21 +1855,21 @@ function fetchWaQr() {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         if (res && res.base64) {
-            var html = '<img src="' + res.base64 + '" class="w-48 h-48 rounded-lg shadow-sm mx-auto" alt="WhatsApp QR Code">';
+            var html = '<img src="' + res.base64 + '" style="width: 192px; height: 192px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 auto;" alt="WhatsApp QR Code">';
             if (res.pairingCode) {
-                html += '<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-[10px] text-slate-400 block uppercase font-semibold">Or use Pairing Code in WhatsApp:</span><span class="text-base font-mono font-bold text-amber-300 tracking-wider">' + res.pairingCode + '</span></div>';
+                html += '<div style="margin-top: 12px; padding: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; text-align: center;"><span style="font-size: 10px; color: #94a3b8; display: block; text-transform: uppercase; font-weight: 700;">Or use Pairing Code in WhatsApp:</span><span style="font-size: 16px; font-family: monospace; font-weight: 800; color: #fbbf24; letter-spacing: 0.1em;">' + res.pairingCode + '</span></div>';
             }
             box.innerHTML = html;
         } else if (res && res.pairingCode) {
-            box.innerHTML = '<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-xs text-slate-700 block mb-1 font-bold">WhatsApp Pairing Code:</span><span class="text-2xl font-mono font-black text-amber-600 tracking-widest">' + res.pairingCode + '</span><p class="text-xs text-slate-500 mt-2">Enter this in WhatsApp &gt; Linked Devices &gt; Link with phone number</p></div>';
+            box.innerHTML = '<div style="padding: 16px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; text-align: center;"><span style="font-size: 12px; color: #0f172a; display: block; margin-bottom: 4px; font-weight: 700;">WhatsApp Pairing Code:</span><span style="font-size: 24px; font-family: monospace; font-weight: 900; color: #d97706; letter-spacing: 0.15em;">' + res.pairingCode + '</span><p style="font-size: 11px; color: #64748b; margin-top: 8px;">Enter this in WhatsApp &gt; Linked Devices &gt; Link with phone number</p></div>';
         } else if (res && (res.code || res.state === 'open')) {
-            box.innerHTML = '<div class="p-3 bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 text-xs rounded-lg font-bold text-center">Instance is already paired and active!</div>';
+            box.innerHTML = '<div style="padding: 12px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 12px; border-radius: 10px; font-weight: 700; text-align: center;">Instance is already paired and active!</div>';
         } else {
-            box.innerHTML = '<div class="text-xs text-rose-500 font-bold">' + (res.error || 'Failed to fetch QR') + '</div>';
+            box.innerHTML = '<div style="font-size: 12px; color: #e11d48; font-weight: 700;">' + (res.error || 'Failed to fetch QR') + '</div>';
         }
     })
     .catch(function(err) {
-        box.innerHTML = '<div class="text-xs text-rose-500">Error: ' + err.message + '</div>';
+        box.innerHTML = '<div style="font-size: 12px; color: #e11d48;">Error: ' + err.message + '</div>';
     });
 }
 
