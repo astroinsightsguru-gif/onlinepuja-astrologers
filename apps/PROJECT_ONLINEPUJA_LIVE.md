@@ -2,8 +2,9 @@
 
 > **Target Audience:** Any new AI Coding Assistant or Software Engineer taking over the project.  
 > **Key Objective:** Provide an exhaustive, one-shot mental model of the entire ecosystem: Server, Backend APIs, Database, WebRTC, AI Engines, Flutter Client Apps, Billing, Known Bugs, Root Causes, and Pending Action Items.  
-> **Last Updated:** October 13, 2026  
+> **Last Updated:** October 22, 2026  
 > **Production Host:** `https://onlinepuja.live`  
+> **Master AI Onboarding Guide:** See [`AI_CONTEXT.md`](../AI_CONTEXT.md) in repository root for instant operational guidance.
 
 ---
 
@@ -14,6 +15,7 @@
 2. **Live Astrologer Consultation**: Real-time 1-on-1 Audio and Video consultations between devotees and verified Vedic Astrologers, backed by wallet-based per-minute billing and WebRTC audio/video.
 3. **Cosmic AI Astrologer (AI Twin & Voice Call)**: 24/7 intelligent LLM-powered astrological consultations with live Gochar, Parashari, and KP predictions, and full-screen Vedic AI Acharya voice calls.
 4. **Vedic Bhandar (Sacred Store / E-Commerce)**: A consecrated store for certified Gemstones, Rudraksha, Sphatik Malas, Devalaya Idols, and Vedic literature, seamlessly payable via wallet balance.
+5. **Growth AI OS & Autonomous Marketing Brain**: Multi-channel campaign orchestration, real-time banner synthesis (1200×630 & 1080×1080), 1080×1920 MP4 video reel generation, automatic SEO blog creation, and national B2B partner distribution.
 
 ```mermaid
 graph TD
@@ -33,17 +35,24 @@ graph TD
         B4[Earnings & Kundli Reader]
     end
 
+    subgraph Operations_Manager_Client["OnlinePuja Manager App (Flutter)"]
+        M1[Order Fulfillment & Dispatch]
+        M2[Purohit Assignment & Live Stream]
+        M3[B2B Partner Payout Tracking]
+    end
+
     subgraph Production_Infrastructure["Hostinger Cloud VPS (200.234.41.231)"]
         C1["Nginx + Cloudflare SSL (onlinepuja.live)"]
         C2["Laravel 10 Backend (PHP 8.2 / 8.3)"]
         C3["MySQL Database (onlinepujaastro)"]
         C4["LiveKit WebRTC Server (Port 7880 / rtc.onlinepuja.live)"]
-        C5["Growth OS AI Engine & Master Brain"]
-        C6["OneSignal & FCM Push Microservices"]
+        C5["Growth OS AI Engine & Marketing Brain"]
+        C6["OneSignal, Evolution API & Brevo Services"]
     end
 
     A1 & A2 & A3 & A4 & A5 & A6 --> C1
     B1 & B2 & B3 & B4 --> C1
+    M1 & M2 & M3 --> C1
     C1 --> C2
     C2 --> C3
     C2 --> C4
@@ -105,6 +114,11 @@ d:\Dev\onlinepuja-live\apps
 │   │       ├── home/requests_screen.dart   # Real-time Call/Chat Request Inbox (4s Poller)
 │   │       ├── home/availability_screen.dart # Go Online / Busy / Offline Radar
 │   │       └── call/call_session_screen.dart # Partner LiveKit WebRTC Session
+│
+├── onlinepuja-manager/           # Operations, Temple & Purohit Dispatch App
+│   ├── lib/
+│   │   ├── main.dart             # Operations Admin entry point
+│   │   └── ui/                   # Dispatch queue, Live darshan broadcaster, B2B tracker
 │
 └── shared/ (op_shared)           # Shared Core Foundation Package
     ├── lib/src/
