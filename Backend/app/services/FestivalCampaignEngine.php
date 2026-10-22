@@ -695,6 +695,17 @@ class FestivalCampaignEngine
     public function generateFestivalBanners(string $festivalName = 'Dev Deepawali & Deepdaan Varanasi 2026', array $options = []): array
     {
         $bannerStudio = app(BannerStudioService::class);
+        $pkg = $this->buildCampaignContent($festivalName);
+
+        if (empty($options['title'])) {
+            $options['title'] = $pkg['branding']['title'] ?? $festivalName;
+        }
+        if (empty($options['subtitle'])) {
+            $options['subtitle'] = $pkg['branding']['subtitle'] ?? "Sacred Vedic Mahotsav & Sankalp • OnlinePuja.live";
+        }
+        if (empty($options['muhurat'])) {
+            $options['muhurat'] = "Auspicious Date: " . ($pkg['date_formatted'] ?? 'Vedic Tithi 2026');
+        }
 
         $landscape = $bannerStudio->generateBanner($festivalName, 'landscape', $options);
         $square = $bannerStudio->generateBanner($festivalName, 'square', $options);
@@ -716,11 +727,16 @@ class FestivalCampaignEngine
         $landscapeUrl = $banners['landscape']['banner_url'] ?? 'https://onlinepuja.live/storage/reels/reel_sacred_6ad8b1472b630.mp4';
         $squareUrl = $banners['square']['banner_url'] ?? $landscapeUrl;
 
-        $title = "Dev Deepawali 2026 in Varanasi: Sacred Maha Deepdaan Vidhi, Muhurat & Kashi Ghats Sankalp Guide";
-        $slug = "dev-deepawali-2026-varanasi-maha-deepdaan-kashi-ghats-sankalp-guide";
-        $bookingUrl = "https://onlinepuja.live/pujas/dev-deepawali-maha-deepdaan-kashi-vishwanath-sankalp";
+        $isDevDeepawali = str_contains(strtolower($festivalName), 'dev deepawali') || str_contains(strtolower($festivalName), 'dev diwali');
+        $isChhath = str_contains(strtolower($festivalName), 'chhath');
 
-        $htmlContent = <<<HTML
+        if ($isDevDeepawali) {
+            $title = "Dev Deepawali 2026 in Varanasi: Sacred Maha Deepdaan Vidhi, Muhurat & Kashi Ghats Sankalp Guide";
+            $slug = "dev-deepawali-2026-varanasi-maha-deepdaan-kashi-ghats-sankalp-guide";
+            $bookingUrl = "https://onlinepuja.live/pujas/dev-deepawali-maha-deepdaan-kashi-vishwanath-sankalp";
+            $metaDesc = "Participate in Dev Deepawali 2026 in Varanasi. Perform sacred 108 Deepdaan on Manikarnika and Assi Ghats with Vedic Purohits. Personalized Sankalp & Prasad delivered home.";
+
+            $htmlContent = <<<HTML
 <div class="devotional-article max-w-4xl mx-auto py-8 text-slate-800 leading-relaxed font-sans">
     <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-2xl border border-amber-200 mb-8 shadow-sm">
         <h2 class="text-2xl font-bold text-amber-900 mb-2">🕉️ Dev Deepawali 2026 in Kashi: The Festival of the Gods</h2>
@@ -794,6 +810,96 @@ class FestivalCampaignEngine
     </div>
 </div>
 HTML;
+        } elseif ($isChhath) {
+            $title = "Chhath Puja 2026: Nahay Khay, Kharna, Sandhya & Usha Arghya Muhurat, Vidhi & Sacred Offerings Guide";
+            $slug = "chhath-puja-2026-arghya-muhurat-vidhi-varanasi-ghats-guide";
+            $bookingUrl = "https://onlinepuja.live/pujas";
+            $metaDesc = "Complete guide to Chhath Puja 2026. Auspicious Sandhya and Usha Arghya timings, Chhathi Maiya & Surya Dev puja vidhi, and Prasad booking from Varanasi Ghats.";
+
+            $htmlContent = <<<HTML
+<div class="devotional-article max-w-4xl mx-auto py-8 text-slate-800 leading-relaxed font-sans">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-2xl border border-amber-200 mb-8 shadow-sm">
+        <h2 class="text-2xl font-bold text-amber-900 mb-2">☀️ Chhath Mahaparv 2026: Complete 4-Day Vedic Worship of Surya Dev & Chhathi Maiya</h2>
+        <p class="text-sm text-amber-800 mb-2"><strong>Sacred Teertha:</strong> Ganga Ghats, Varanasi (Kashi) • Dedicated to Health, Longevity & Family Prosperity</p>
+        <p class="text-xs text-amber-700 italic">"ॐ आदित्याय विद्महे मार्तण्डाय धीमहि तन्नः सूर्यः प्रचोदयात्॥" — सूर्य गायत्री मन्त्र</p>
+    </div>
+
+    <p class="text-base mb-6">
+        <strong>Chhath Puja</strong> is one of the most rigorous, spiritually elevating, and pristine Vedic festivals dedicated to <strong>Bhagwan Surya (Sun God)</strong> and <strong>Chhathi Maiya (Shashti Devi)</strong>. Celebrated with utmost devotion on the holy banks of sacred rivers, Chhath invokes the life-sustaining solar energies to cure physical ailments, ensure children's prosperity, and fulfill the most heartfelt sankalpas of the household.
+    </p>
+
+    <div class="my-8 text-center">
+        <img src="{$landscapeUrl}" alt="Chhath Puja 2026 Varanasi Ghats" class="rounded-2xl shadow-lg mx-auto w-full max-w-3xl border border-amber-100">
+        <p class="text-xs text-slate-500 mt-2 italic">Chhath Puja Sandhya and Usha Arghya at Varanasi Ganga Ghats — OnlinePuja.live</p>
+    </div>
+
+    <h3 class="text-xl font-bold text-slate-900 mt-8 mb-4 border-l-4 border-amber-500 pl-3">The 4 Sacred Days of Chhath Puja</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-amber-700 text-base">Day 1: Nahay Khay</h4>
+            <p class="text-sm text-slate-600 mt-1">Holy cleansing dip in the sacred river, followed by satvik Prasad of bottle gourd (kaddu-bhaat) prepared with sendha namak.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-amber-700 text-base">Day 2: Kharna</h4>
+            <p class="text-sm text-slate-600 mt-1">Strict nirjala fasting culminating at sunset with sacred jaggery kheer (Rasiya) and pure ghee rotis offered to Chhathi Maiya.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-amber-700 text-base">Day 3: Sandhya Arghya</h4>
+            <p class="text-sm text-slate-600 mt-1">Devotees stand waist-deep in water at sunset, offering Soop filled with Thekua, sugarcane, fruits, and diyas to the setting Sun.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-amber-700 text-base">Day 4: Usha Arghya & Paran</h4>
+            <p class="text-sm text-slate-600 mt-1">Final offering to the rising Sun at dawn, concluding the 36-hour fast with joyous distribution of divine Mahaprasad.</p>
+        </div>
+    </div>
+
+    <div class="bg-amber-600 text-white p-6 rounded-2xl my-8 text-center shadow-lg">
+        <h3 class="text-2xl font-black mb-2">Perform Chhath Puja Vedic Sankalp on Varanasi Ghats</h3>
+        <p class="text-sm text-amber-100 mb-5 max-w-xl mx-auto">Have certified Purohits offer the sacred Soop and Arghya in your family Gotra on the banks of Maa Ganga in Kashi. Receive live video and consecrated prasad at home.</p>
+        <a href="{$bookingUrl}" class="inline-block bg-white text-amber-900 font-extrabold text-sm px-8 py-3.5 rounded-full shadow-md hover:bg-amber-50 transition-all uppercase tracking-wider">Book Chhath Puja Seva Online 🙏</a>
+    </div>
+</div>
+HTML;
+        } else {
+            $cleanName = trim(preg_replace('/\s*\(.*?\)\s*/', ' ', $festivalName));
+            $title = "{$cleanName} 2026: Auspicious Muhurat, Sacred Puja Vidhi, Mantras & Teertha Sankalp Guide";
+            $slug = Str::slug($cleanName . "-2026-puja-vidhi-muhurat-guide");
+            $bookingUrl = "https://onlinepuja.live/pujas";
+            $metaDesc = "Discover auspicious muhurat, vidhi, and spiritual significance of {$cleanName} 2026. Book authentic Vedic rituals performed by verified Purohits with prasad home delivery.";
+
+            $htmlContent = <<<HTML
+<div class="devotional-article max-w-4xl mx-auto py-8 text-slate-800 leading-relaxed font-sans">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-2xl border border-amber-200 mb-8 shadow-sm">
+        <h2 class="text-2xl font-bold text-amber-900 mb-2">🕉️ {$cleanName} 2026: Vedic Significance, Muhurat & Vidhi</h2>
+        <p class="text-sm text-amber-800 mb-2"><strong>Sacred Observance:</strong> Authentic Vedic Rituals performed live from Varanasi Teertha Kshetra</p>
+        <p class="text-xs text-amber-700 italic">"यत्करोषि यदश्नासि यज्जुहोषि ददासि यत्। यत्तपस्यसि कौन्तेय तत्कुरुष्व मदर्पणम्॥" — श्रीमद्भगवद्गीता</p>
+    </div>
+
+    <p class="text-base mb-6">
+        The auspicious occasion of <strong>{$cleanName}</strong> holds immense spiritual power in Vedic Sanatana Dharma. Performing dedicated pujas, japa, and daan on this sacred tithi cleanses lingering karmic debts, invokes the divine grace of the ruling deities, and blesses the devotee's entire lineage with prosperity, health, and peace of mind.
+    </p>
+
+    <div class="my-8 text-center">
+        <img src="{$landscapeUrl}" alt="{$cleanName} 2026 Sacred Puja" class="rounded-2xl shadow-lg mx-auto w-full max-w-3xl border border-amber-100">
+        <p class="text-xs text-slate-500 mt-2 italic">Official {$cleanName} 2026 Vedic Sankalp Seva — OnlinePuja.live</p>
+    </div>
+
+    <h3 class="text-xl font-bold text-slate-900 mt-8 mb-4 border-l-4 border-amber-500 pl-3">Spiritual Benefits of Remote Gotra Sankalp</h3>
+    <ul class="list-disc list-inside space-y-2 text-base mb-6 text-slate-700">
+        <li><strong>Personalized Chanting:</strong> Verified Vedic Purohits chant your Family Gotra, Names, and Nakshatra during the Pradhan Sankalp.</li>
+        <li><strong>Authentic Shastric Vidhi:</strong> Performed with 100% natural, consecrated samagri strictly adhering to Vedic injunctions.</li>
+        <li><strong>Video Proof & Live Darshan:</strong> High-definition video recording of your personalized ritual delivered directly to your WhatsApp.</li>
+        <li><strong>Sanctified Prasad:</strong> Consecrated temple Mahaprasad securely dispatched to your doorstep.</li>
+    </ul>
+
+    <div class="bg-amber-600 text-white p-6 rounded-2xl my-8 text-center shadow-lg">
+        <h3 class="text-2xl font-black mb-2">Perform {$cleanName} Sankalp Online</h3>
+        <p class="text-sm text-amber-100 mb-5 max-w-xl mx-auto">Invite cosmic blessings into your family life without travel barriers. Certified Purohits perform the sacred vidhi in your name.</p>
+        <a href="{$bookingUrl}" class="inline-block bg-white text-amber-900 font-extrabold text-sm px-8 py-3.5 rounded-full shadow-md hover:bg-amber-50 transition-all uppercase tracking-wider">Book Sacred Sankalp Now 🙏</a>
+    </div>
+</div>
+HTML;
+        }
 
         // Check or insert into blogs table
         $existing = DB::table('blogs')->where('slug', $slug)->first();
@@ -801,7 +907,7 @@ HTML;
             DB::table('blogs')->where('id', $existing->id)->update([
                 'title'            => $title,
                 'description'      => $htmlContent,
-                'meta_description' => "Participate in Dev Deepawali 2026 in Varanasi. Perform sacred 108 Deepdaan on Manikarnika and Assi Ghats with Vedic Purohits. Personalized Sankalp & Prasad delivered home.",
+                'meta_description' => $metaDesc,
                 'blogImage'        => $landscapeUrl,
                 'previewImage'     => $squareUrl,
                 'updated_at'       => now(),
@@ -815,7 +921,7 @@ HTML;
                 'blogImage'        => $landscapeUrl,
                 'previewImage'     => $squareUrl,
                 'description'      => $htmlContent,
-                'meta_description' => "Participate in Dev Deepawali 2026 in Varanasi. Perform sacred 108 Deepdaan on Manikarnika and Assi Ghats with Vedic Purohits. Personalized Sankalp & Prasad delivered home.",
+                'meta_description' => $metaDesc,
                 'author'           => 'Pt. Vidyadhar Shastri (Kashi Vidwat Parishad)',
                 'postedOn'         => now(),
                 'isActive'         => 1,

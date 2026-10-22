@@ -514,6 +514,19 @@ class GrowthOsController extends Controller
                         'data'      => $videoRes,
                     ]);
 
+                case 'store_custom_festival':
+                    $name = trim($request->input('name'));
+                    $date = $request->input('date');
+                    $deity = $request->input('deity', 'Vedic Devata');
+                    if (!$name || !$date) {
+                        return response()->json(['ok' => false, 'error' => 'Festival Name and Date are required.'], 400);
+                    }
+                    DB::table('hindu_festivals')->updateOrInsert(
+                        ['name' => $name, 'date' => $date],
+                        ['deity' => $deity, 'scheduled' => 0, 'updated_at' => now()]
+                    );
+                    return response()->json(['ok' => true, 'message' => "Custom festival '{$name}' scheduled on {$date} successfully!"]);
+
                 case 'orchestrate_master_campaign':
                     $festEngine = app(\App\Services\FestivalCampaignEngine::class);
                     $festName = $request->input('festival', 'Dev Deepawali Varanasi 2026');

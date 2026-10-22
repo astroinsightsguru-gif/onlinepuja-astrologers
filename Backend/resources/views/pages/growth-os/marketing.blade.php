@@ -282,9 +282,14 @@
 
         {{-- Upcoming Festivals Grid --}}
         <div class="mt-6">
-            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span>🗓️</span> Upcoming Sacred Festival Calendar (Next 60 Days)
-            </h4>
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <span>🗓️</span> Upcoming Sacred Festival Calendar (Parallel Multi-Campaign Engine)
+                </h4>
+                <button type="button" onclick="openScheduleModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-400/40 text-[11px] font-bold flex items-center gap-1.5 transition-all shadow-sm">
+                    <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> ➕ Schedule New Event / Festival
+                </button>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 @if(isset($festivalsRadar) && count($festivalsRadar) > 0)
                     @foreach($festivalsRadar as $fest)
@@ -315,9 +320,12 @@
                                 @endif
                             </div>
 
-                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5">
-                                <button type="button" onclick="loadFestivalCampaign('{{ addslashes($fest['name']) }}')" class="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold text-center transition-all">
-                                    Plan Campaign
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-1.5">
+                                <button type="button" onclick="loadFestivalCampaign('{{ addslashes($fest['name']) }}')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10.5px] font-bold text-center transition-all">
+                                    Composer
+                                </button>
+                                <button type="button" onclick="orchestrateMasterCampaign('{{ addslashes($fest['name']) }}')" class="py-1.5 px-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-400 text-slate-950 rounded-lg text-[10.5px] font-black text-center transition-all shadow-sm">
+                                    ⚡ 1-Tap Brain
                                 </button>
                             </div>
                         </div>
@@ -862,6 +870,53 @@ May Lord Shiva bestow divine health, peace, and abundance upon your household. �
                 Done
             </button>
         </div>
+    </div>
+</div>
+
+{{-- Schedule Custom Festival / Event Modal --}}
+<div id="modal-schedule-event" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🕉️</span>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Schedule Sacred Event / Festival</h3>
+                    <p class="text-xs text-slate-500">Add any upcoming Hindu tithi or puja to parallel campaign engine</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeScheduleModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+        </div>
+
+        <form id="form-schedule-event" onsubmit="saveCustomFestival(event)" class="mt-4 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Festival / Sacred Occasion Name *</label>
+                <input type="text" id="sched-fest-name" required placeholder="e.g. Somvati Amavasya Pitru Shanti, Vaikuntha Ekadashi, Gita Jayanti" class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Event Date *</label>
+                    <input type="date" id="sched-fest-date" required class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Deity / Spiritual Theme</label>
+                    <input type="text" id="sched-fest-deity" placeholder="e.g. Lord Shiva, Maa Lakshmi" value="Lord Shiva & Pitrus" class="w-full text-xs rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-slate-900 focus:bg-white focus:border-amber-500 focus:ring-0">
+                </div>
+            </div>
+
+            <div class="p-3 bg-amber-50/80 border border-amber-200/70 rounded-xl text-[11px] text-amber-900 leading-relaxed">
+                <span class="font-bold">⚡ Parallel Multi-Campaign Engine:</span> Once scheduled, you can immediately generate Banners, SEO Blogs, and Video Reels, and the daily autopilot radar will sweep milestones (T-14, T-7, T-3, T-1, Day-0) in parallel with all other festivals!
+            </div>
+
+            <div class="mt-4 flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeScheduleModal()" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 rounded-xl">
+                    Cancel
+                </button>
+                <button type="submit" id="btn-save-custom-fest" class="px-5 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl shadow-md flex items-center gap-1.5 transition-all">
+                    <span>➕</span> Add to Parallel Radar
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1477,6 +1532,79 @@ function fetchWaQr() {
     })
     .catch(function(err) {
         box.innerHTML = '<div class="text-xs text-rose-500">Error: ' + err.message + '</div>';
+    });
+}
+
+function openScheduleModal() {
+    var modal = document.getElementById('modal-schedule-event');
+    if (modal) {
+        modal.classList.remove('hidden');
+        var dateInput = document.getElementById('sched-fest-date');
+        if (dateInput && !dateInput.value) {
+            var d = new Date();
+            d.setDate(d.getDate() + 7);
+            dateInput.value = d.toISOString().split('T')[0];
+        }
+    }
+}
+
+function closeScheduleModal() {
+    var modal = document.getElementById('modal-schedule-event');
+    if (modal) modal.classList.add('hidden');
+}
+
+function saveCustomFestival(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    var name = document.getElementById('sched-fest-name').value.trim();
+    var date = document.getElementById('sched-fest-date').value;
+    var deity = document.getElementById('sched-fest-deity').value.trim() || 'Vedic Devata';
+
+    if (!name || !date) {
+        alert('Please provide Festival Name and Date.');
+        return;
+    }
+
+    var btn = document.getElementById('btn-save-custom-fest');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin">⏳</span> Scheduling...';
+    }
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            action: 'store_custom_festival',
+            name: name,
+            date: date,
+            deity: deity
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span>➕</span> Add to Parallel Radar';
+        }
+        if (res && res.ok) {
+            alert('🎉 ' + res.message);
+            closeScheduleModal();
+            location.reload();
+        } else {
+            alert('Error: ' + (res.error || res.message || 'Failed to schedule festival'));
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span>➕</span> Add to Parallel Radar';
+        }
+        alert('Network Error: ' + err.message);
     });
 }
 
