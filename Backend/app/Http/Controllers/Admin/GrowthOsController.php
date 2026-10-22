@@ -730,7 +730,7 @@ class GrowthOsController extends Controller
                     } else {
                         $query = DB::table('users');
                         if ($segment === 'bookers') {
-                            $buyerIds = DB::table('puja_orders')->pluck('userId')->unique();
+                            $buyerIds = DB::table('puja_orders')->pluck('user_id')->filter()->unique();
                             $query->whereIn('id', $buyerIds);
                         }
                         $users = $query->limit(25)->get();

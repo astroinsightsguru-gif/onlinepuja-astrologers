@@ -1281,9 +1281,15 @@ function fetchWaQr() {
     .then(function(r) { return r.json(); })
     .then(function(res) {
         if (res && res.base64) {
-            box.innerHTML = '<img src="' + res.base64 + '" class="w-48 h-48 rounded-lg shadow-sm mx-auto" alt="WhatsApp QR Code">';
-        } else if (res && res.code) {
-            box.innerHTML = '<div class="p-3 bg-emerald-50 text-emerald-800 text-xs rounded-lg font-semibold">Instance is already paired and active!</div>';
+            var html = '<img src="' + res.base64 + '" class="w-48 h-48 rounded-lg shadow-sm mx-auto" alt="WhatsApp QR Code">';
+            if (res.pairingCode) {
+                html += '<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-[10px] text-slate-400 block uppercase font-semibold">Or use Pairing Code in WhatsApp:</span><span class="text-base font-mono font-bold text-amber-300 tracking-wider">' + res.pairingCode + '</span></div>';
+            }
+            box.innerHTML = html;
+        } else if (res && res.pairingCode) {
+            box.innerHTML = '<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-[11px] text-slate-300 block mb-1">WhatsApp Pairing Code:</span><span class="text-2xl font-mono font-black text-amber-300 tracking-widest">' + res.pairingCode + '</span><p class="text-[10px] text-slate-400 mt-2">Enter this in WhatsApp &gt; Linked Devices &gt; Link with phone number</p></div>';
+        } else if (res && (res.code || res.state === 'open')) {
+            box.innerHTML = '<div class="p-3 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs rounded-lg font-semibold text-center">Instance is already paired and active!</div>';
         } else {
             box.innerHTML = '<div class="text-xs text-rose-500 font-semibold">' + (res.error || 'Failed to fetch QR') + '</div>';
         }

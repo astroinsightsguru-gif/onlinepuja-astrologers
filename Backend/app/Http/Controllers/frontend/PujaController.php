@@ -63,6 +63,9 @@ class PujaController extends Controller
     public function pujaDetails($slug)
     {
 
+        if (request()->has('partner')) {
+            session(['b2b_partner_code' => trim(request('partner'))]);
+        }
         $puja = Puja::where('slug',$slug)->first();
 
         $latestPujalists = Puja::where('slug', '!=', $slug)->latest()->take(5)->get();
@@ -196,6 +199,17 @@ class PujaController extends Controller
             {
 
                 $order = PlacePujaOrder(['payment_type' => 'wallet','payableAmount'=>$payableAmount,'totalPayable'=>$totalPayable,...$req->all()],$id);
+                if ($order && ($partnerCode = session('b2b_partner_code'))) {
+                    try {
+                        $b2bPartner = \App\Models\B2bLead::where('partner_code', $partnerCode)->first();
+                        if ($b2bPartner) {
+                            $commPct = $b2bPartner->commission_pct ?? 25;
+                            $paid = (float) str_replace(',', '', $req['totalPayable'] ?? 0);
+                            $b2bPartner->increment('total_bookings');
+                            $b2bPartner->increment('total_revenue', round($paid * ($commPct / 100), 2));
+                        }
+                    } catch (\Throwable $e) {}
+                }
 
 
                 if($order)
@@ -369,6 +383,9 @@ class PujaController extends Controller
     public function pujaAstrologerList(Request $request,$slug,$package_id)
     {
 
+        if (request()->has('partner')) {
+            session(['b2b_partner_code' => trim(request('partner'))]);
+        }
         $puja = Puja::where('slug',$slug)->first();
         if ($puja) {
             $puja->packages = $puja->package()->where('id',$package_id)->first();
