@@ -594,7 +594,7 @@
     </div>
 
     {{-- SECTION 3: Live Model Pickers & AI Vault Settings --}}
-    <form method="POST" action="{{ route('growth-os.ai.vault') }}" class="ai-box">
+    <form method="POST" action="{{ route('growth-os.ai.vault') }}" id="vault" class="ai-box">
         @csrf
 
         <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; margin-bottom: 18px;">
@@ -752,6 +752,78 @@
                         <button type="button" class="toggle-secret-btn" data-target="huggingface_token" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
                     </div>
                     <input type="password" id="huggingface_token" name="huggingface_token" value="{{ $creds['huggingface_token'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="hf_…">
+                </div>
+            </div>
+
+            {{-- 4. WhatsApp Gateway (Evolution API) --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <span>📱</span> WhatsApp Gateway (Evolution API v2)
+                    </span>
+                    <span class="ai-pill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">Messaging Node</span>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Evolution API Endpoint</label>
+                    <input type="text" name="evolution_api_url" value="{{ $creds['evolution_api_url'] ?? 'https://wa.vmstudio.digital' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">Evolution API Key</label>
+                        <button type="button" class="toggle-secret-btn" data-target="evolution_api_key" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="evolution_api_key" name="evolution_api_key" value="{{ $creds['evolution_api_key'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="Global API Key">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Instance Name</label>
+                    <input type="text" name="evolution_instance" value="{{ $creds['evolution_instance'] ?? 'onlinepuja' }}" class="ai-input" style="font-family: monospace;">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <button type="button" onclick="openWaQrModal()" class="ai-btn-sm" style="flex: 1; justify-content: center; background: #059669; color: white;">
+                        <i data-lucide="qr-code" style="width: 14px; height: 14px;"></i> Scan WhatsApp QR
+                    </button>
+                    <button type="button" onclick="testWhatsAppPing()" class="ai-btn-sm" style="justify-content: center; background: #e2e8f0; color: #1e293b;">
+                        <i data-lucide="send" style="width: 14px; height: 14px;"></i> Ping
+                    </button>
+                </div>
+            </div>
+
+            {{-- 5. Brevo Email Engine (v3 REST API) --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 13px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                        <span>✉️</span> Brevo Email Engine (v3 REST)
+                    </span>
+                    <span class="ai-pill" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;">Email Node</span>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #475569; margin: 0;">Brevo API v3 Key</label>
+                        <button type="button" class="toggle-secret-btn" data-target="brevo_api_key" style="background: none; border: none; font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;">Show</button>
+                    </div>
+                    <input type="password" id="brevo_api_key" name="brevo_api_key" value="{{ $creds['brevo_api_key'] ?? '' }}" class="ai-input" style="font-family: monospace;" placeholder="xkeysib-…">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Sender Email</label>
+                        <input type="email" name="brevo_sender_email" value="{{ $creds['brevo_sender_email'] ?? 'no-reply@onlinepuja.live' }}" class="ai-input" style="font-size: 11px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Sender Name</label>
+                        <input type="text" name="brevo_sender_name" value="{{ $creds['brevo_sender_name'] ?? 'Online Puja Varanasi' }}" class="ai-input" style="font-size: 11px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Devotees Contact List ID</label>
+                    <input type="text" name="brevo_list_id" value="{{ $creds['brevo_list_id'] ?? '2' }}" class="ai-input" style="font-family: monospace;" placeholder="e.g. 2">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <button type="button" onclick="syncDevoteesToBrevo()" class="ai-btn-sm" style="flex: 1; justify-content: center; background: #2563eb; color: white;">
+                        <i data-lucide="users" style="width: 14px; height: 14px;"></i> Sync Devotees
+                    </button>
+                    <button type="button" onclick="testBrevoEmail()" class="ai-btn-sm" style="justify-content: center; background: #e2e8f0; color: #1e293b;">
+                        <i data-lucide="send" style="width: 14px; height: 14px;"></i> Ping Email
+                    </button>
                 </div>
             </div>
         </div>
@@ -1022,4 +1094,127 @@
     }
 })();
 </script>
+{{-- WhatsApp QR Modal --}}
+<div id="modal-wa-qr" class="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center font-bold mb-3">
+            <i data-lucide="qr-code" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900">Scan WhatsApp QR Code</h3>
+        <p class="text-xs text-slate-500 mt-1">Open WhatsApp on your phone &gt; Linked Devices &gt; Link a Device</p>
+
+        <div id="wa-qr-container" class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]">
+            <div class="text-xs text-slate-400 animate-pulse">Fetching live QR code…</div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-2">
+            <button type="button" onclick="fetchWaQr()" class="flex-1 btn btn-sm btn-outline-secondary py-2 text-xs rounded-xl">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 mr-1"></i> Refresh QR
+            </button>
+            <button type="button" onclick="closeWaQrModal()" class="btn btn-sm bg-slate-900 text-white py-2 px-4 text-xs rounded-xl">
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openWaQrModal() {
+    var m = document.getElementById('modal-wa-qr');
+    if (m) m.classList.remove('hidden');
+    fetchWaQr();
+}
+
+function closeWaQrModal() {
+    var m = document.getElementById('modal-wa-qr');
+    if (m) m.classList.add('hidden');
+}
+
+function fetchWaQr() {
+    var box = document.getElementById('wa-qr-container');
+    if (!box) return;
+    box.innerHTML = '<div class="text-xs text-slate-400 animate-pulse">Requesting QR from Evolution API…</div>';
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'get_wa_qr' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res && res.base64) {
+            var html = '<img src="' + res.base64 + '" class="w-48 h-48 rounded-lg shadow-sm mx-auto" alt="WhatsApp QR Code">';
+            if (res.pairingCode) {
+                html += '<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-[10px] text-slate-400 block uppercase font-semibold">Or use Pairing Code in WhatsApp:</span><span class="text-base font-mono font-bold text-amber-600 tracking-wider">' + res.pairingCode + '</span></div>';
+            }
+            box.innerHTML = html;
+        } else if (res && res.pairingCode) {
+            box.innerHTML = '<div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center"><span class="text-[11px] text-slate-700 block mb-1">WhatsApp Pairing Code:</span><span class="text-2xl font-mono font-black text-amber-600 tracking-widest">' + res.pairingCode + '</span><p class="text-[10px] text-slate-500 mt-2">Enter this in WhatsApp &gt; Linked Devices &gt; Link with phone number</p></div>';
+        } else if (res && (res.code || res.state === 'open')) {
+            box.innerHTML = '<div class="p-3 bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 text-xs rounded-lg font-semibold text-center">Instance is already paired and active!</div>';
+        } else {
+            box.innerHTML = '<div class="text-xs text-rose-500 font-semibold">' + (res.error || 'Failed to fetch QR') + '</div>';
+        }
+    })
+    .catch(function(err) {
+        box.innerHTML = '<div class="text-xs text-rose-500">Error: ' + err.message + '</div>';
+    });
+}
+
+function testWhatsAppPing() {
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'test_whatsapp' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        alert(res.ok ? '✅ ' + (res.message || 'WhatsApp ping successful!') : '❌ ' + (res.error || res.message));
+    })
+    .catch(function(err) { alert('Error: ' + err.message); });
+}
+
+function testBrevoEmail() {
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'test_brevo' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        alert(res.ok ? '✅ ' + (res.message || 'Brevo email sent!') : '❌ ' + (res.error || res.message));
+    })
+    .catch(function(err) { alert('Error: ' + err.message); });
+}
+
+function syncDevoteesToBrevo() {
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'sync_brevo_contacts' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        alert(res.ok ? '✅ ' + (res.message || 'Contacts synced!') : '❌ ' + (res.error || res.message));
+    })
+    .catch(function(err) { alert('Error: ' + err.message); });
+}
+</script>
+
 @endsection

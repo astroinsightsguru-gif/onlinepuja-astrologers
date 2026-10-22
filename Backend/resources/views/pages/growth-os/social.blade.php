@@ -97,7 +97,7 @@
                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-slate-400"></i> OmniRoute AI Creative Studio (Reels & Images)
             </button>
             <button type="button" id="tab-btn-automation" class="section-tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80">
-                <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400"></i> Marketing Automation (WhatsApp · Brevo · z-Agents)
+                <i data-lucide="send" class="w-3.5 h-3.5 text-slate-400"></i> Marketing Channels (WhatsApp · Brevo · Push)
             </button>
         </div>
         <div class="flex items-center gap-2">
@@ -548,54 +548,49 @@
                 </div>
             </div>
 
-            {{-- 3. Android z-Agents App Card --}}
+            {{-- 3. Push & In-App Notification Node --}}
             <div class="col-span-12 lg:col-span-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col justify-between h-full">
                     <div>
                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                             <div class="flex items-center gap-2.5">
                                 <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-                                    🤖
+                                    <i data-lucide="bell" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">z-Agents Mobile Companion</h4>
-                                    <span class="text-[11px] text-slate-500 font-mono">vmai-plugins/z-agents</span>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Push & In-App Engine</h4>
+                                    <span class="text-[11px] text-slate-500 font-mono">OneSignal & FCM</span>
                                 </div>
                             </div>
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                Android Node
+                                Active Node
                             </span>
                         </div>
 
                         <div class="mt-4 space-y-3 text-xs text-slate-600">
                             <p class="leading-relaxed">
-                                Install <strong class="text-slate-800">z-Agents</strong> on your Android device (with Jio/Airtel SIM) to transform it into an autonomous local execution agent.
+                                Deliver real-time puja darshan reminders, live astrologer notifications, and festival tithi alerts directly to devotee lock screens.
                             </p>
                             <div class="space-y-1.5">
                                 <div class="flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                    <span><strong>$0 Cost SMS Gateway:</strong> Sends verification codes directly via SIM SMS.</span>
+                                    <span><strong>Customer App:</strong> OneSignal Android & iOS notifications</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                    <span><strong>WhatsApp Fallback:</strong> Dispatches alerts if web sessions disconnect.</span>
+                                    <span><strong>Astrologer Partner:</strong> Instant incoming consultation alerts</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                                    <span><strong>Pandit Calls:</strong> Triggers outbound consultation call bridges.</span>
+                                    <span><strong>Panchang Tithis:</strong> Daily Muhurat nudges at 06:00 AM</span>
                                 </div>
-                            </div>
-
-                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 mt-3">
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agent Webhook Listener Endpoint</div>
-                                <code class="font-mono text-[11px] text-slate-700 block mt-1 break-all bg-white p-2 rounded border border-slate-200">https://onlinepuja.live/api/v1/agent/dispatch</code>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-4 pt-3 border-t border-slate-100">
-                        <a href="https://github.com/vmai-plugins/z-agents" target="_blank" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 border border-slate-200">
-                            <i data-lucide="github" class="w-4 h-4"></i> View z-Agents GitHub Repository
+                        <a href="{{ route('growth-os.autopilot') }}" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 border border-slate-200">
+                            <i data-lucide="sliders" class="w-4 h-4"></i> Manage Autopilot Push Loops
                         </a>
                     </div>
                 </div>

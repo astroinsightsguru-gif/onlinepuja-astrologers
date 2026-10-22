@@ -44,18 +44,25 @@ class Vault
         );
     }
 
-    /** Convenience: every credential the AI layer needs. */
+    /** Convenience: every credential the AI & messaging layer needs. */
     public static function aiCredentials(): array
     {
         return [
-            'omniroute_url'   => rtrim(self::get('omniroute_url', 'https://ai.vmstudio.digital'), '/'),
-            'omniroute_key'   => self::get('omniroute_key'),          // placeholder until provided
-            'openai_key'      => self::get('openai_key'),
-            'openrouter_key'  => self::get('openrouter_key'),
-            'gemini_key'      => self::get('gemini_key'),
-            'ollama_url'      => self::get('ollama_url', 'http://localhost:11434'),
-            'ai_text_chain'   => self::get('ai_text_chain', 'omniroute,openai,gemini,openrouter,pollinations,ollama'),
-            'ai_image_chain'  => self::get('ai_image_chain', 'omniroute,pollinations,pexels'),
+            'omniroute_url'       => rtrim(self::get('omniroute_url', 'https://ai.vmstudio.digital'), '/'),
+            'omniroute_key'       => self::get('omniroute_key'),
+            'openai_key'          => self::get('openai_key'),
+            'openrouter_key'      => self::get('openrouter_key'),
+            'gemini_key'          => self::get('gemini_key'),
+            'ollama_url'          => self::get('ollama_url', 'http://localhost:11434'),
+            'ai_text_chain'       => self::get('ai_text_chain', 'omniroute,openai,gemini,openrouter,pollinations,ollama'),
+            'ai_image_chain'      => self::get('ai_image_chain', 'omniroute,pollinations,pexels'),
+            'evolution_api_url'   => rtrim(self::get('evolution_api_url', config('services.evolution.url', 'https://wa.vmstudio.digital')), '/'),
+            'evolution_api_key'   => self::get('evolution_api_key', config('services.evolution.key', 'bebf8554b69b4eff665465956069890dadeb84547a964ba0ac129e43e98576a2')),
+            'evolution_instance'  => self::get('evolution_instance', config('services.evolution.instance', 'onlinepuja')),
+            'brevo_api_key'       => self::get('brevo_api_key', config('services.brevo.key', '')),
+            'brevo_sender_email'  => self::get('brevo_sender_email', config('mail.from.address', 'no-reply@onlinepuja.live')),
+            'brevo_sender_name'   => self::get('brevo_sender_name', config('mail.from.name', 'Online Puja Varanasi')),
+            'brevo_list_id'       => self::get('brevo_list_id', config('services.brevo.list_id', '2')),
         ];
     }
 }

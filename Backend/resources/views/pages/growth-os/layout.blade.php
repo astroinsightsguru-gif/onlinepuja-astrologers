@@ -45,6 +45,12 @@
         <a href="{{ route('growth-os.social') }}" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all {{ $currentRoute === 'growth-os.social' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80' }}">
             <i data-lucide="share-2" class="w-3.5 h-3.5 {{ $currentRoute === 'growth-os.social' ? 'text-amber-400' : 'text-slate-400' }}"></i> Social & Festivals
         </a>
+        <a href="{{ route('growth-os.marketing') }}" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all {{ $currentRoute === 'growth-os.marketing' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80' }}">
+            <i data-lucide="send" class="w-3.5 h-3.5 {{ $currentRoute === 'growth-os.marketing' ? 'text-amber-400' : 'text-slate-400' }}"></i> Marketing & B2B
+        </a>
+        <a href="{{ route('growth-os.autopilot') }}" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all {{ $currentRoute === 'growth-os.autopilot' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80' }}">
+            <i data-lucide="zap" class="w-3.5 h-3.5 {{ $currentRoute === 'growth-os.autopilot' ? 'text-amber-400' : 'text-slate-400' }}"></i> Autopilot Loops
+        </a>
         <a href="{{ route('growth-os.ai') }}" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center gap-2 whitespace-nowrap transition-all {{ $currentRoute === 'growth-os.ai' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80' }}">
             <i data-lucide="cpu" class="w-3.5 h-3.5 {{ $currentRoute === 'growth-os.ai' ? 'text-amber-400' : 'text-slate-400' }}"></i> AI Engine & Vault
         </a>

@@ -111,6 +111,8 @@ Route::middleware(['auth'])->prefix('growth-os')->group(function () {
     Route::get('seo', [GrowthOsController::class, 'seoAuditor'])->name('growth-os.seo');
     Route::post('seo/{id}/revert', [GrowthOsController::class, 'revertSeoIssue'])->name('growth-os.seo.revert');
     Route::get('social', [GrowthOsController::class, 'socialScheduler'])->name('growth-os.social');
+    Route::get('marketing', [GrowthOsController::class, 'marketingHub'])->name('growth-os.marketing');
+    Route::get('autopilot', [GrowthOsController::class, 'autopilot'])->name('growth-os.autopilot');
     Route::get('ai', [GrowthOsController::class, 'aiEngine'])->name('growth-os.ai');
     Route::post('save-vault', [GrowthOsController::class, 'saveVault'])->name('growth-os.ai.vault');
     Route::post('action', [GrowthOsController::class, 'runAction'])->name('growth-os.action');

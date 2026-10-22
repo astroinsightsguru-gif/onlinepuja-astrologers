@@ -468,6 +468,8 @@ class GrowthOsController extends Controller
             'openrouter_key', 'gemini_key', 'ai_text_chain', 'ai_image_chain', 'ai_video_chain',
             'model_omniroute', 'model_omniroute_image', 'model_omniroute_video', 'model_openrouter',
             'cloudflare_account_id', 'cloudflare_api_token', 'huggingface_token',
+            'evolution_api_url', 'evolution_api_key', 'evolution_instance',
+            'brevo_api_key', 'brevo_sender_email', 'brevo_sender_name', 'brevo_list_id',
             'fb_app_id', 'fb_app_secret', 'fb_api_version', 'fb_page_id', 'fb_page_token',
             'ig_user_id', 'ig_access_token', 'meta_verify_token',
             'youtube_client_id', 'youtube_client_secret',
