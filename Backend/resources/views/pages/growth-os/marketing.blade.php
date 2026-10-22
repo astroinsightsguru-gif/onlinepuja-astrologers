@@ -235,17 +235,47 @@
 
                 <div class="lg:col-span-5 flex flex-col gap-2.5 bg-black/40 p-4 rounded-xl border border-amber-500/30">
                     <div class="text-center pb-2 border-b border-amber-500/20">
-                        <span class="text-[11px] text-amber-300/80 uppercase tracking-wider font-semibold">Campaign Orchestration</span>
+                        <span class="text-[11px] text-amber-300 uppercase tracking-wider font-bold">Autonomous Brain Studio</span>
                     </div>
-                    <button type="button" onclick="loadFestivalCampaign('Dev Deepawali Varanasi')" class="w-full py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md">
-                        <i data-lucide="edit-3" class="w-4 h-4"></i> 1. Load in Campaign Composer
+                    <button type="button" id="btn-master-orchestrate" onclick="orchestrateMasterCampaign('Dev Deepawali Varanasi 2026')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg animate-pulse">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> 🚀 1-Tap Full Autonomous Campaign
                     </button>
-                    <button type="button" id="btn-gen-dev-reel" onclick="generateFestivalReel('Dev Deepawali Varanasi')" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-400/40 font-bold text-xs flex items-center justify-center gap-2 transition-all">
-                        <i data-lucide="film" class="w-4 h-4"></i> 2. Generate 1080x1920 MP4 Reel
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="btn-gen-banners" onclick="generateFestivalBanners('Dev Deepawali & Deepdaan Varanasi 2026')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all">
+                            <i data-lucide="image" class="w-3.5 h-3.5"></i> Banners (1200 & 1080)
+                        </button>
+                        <button type="button" id="btn-publish-blog" onclick="publishFestivalBlog('Dev Deepawali Varanasi 2026')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Publish SEO Blog
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="btn-gen-dev-reel" onclick="generateFestivalReel('Dev Deepawali Varanasi 2026')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all">
+                            <i data-lucide="film" class="w-3.5 h-3.5"></i> 1080x1920 Reel
+                        </button>
+                        <button type="button" onclick="loadFestivalCampaign('Dev Deepawali Varanasi 2026')" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Load Composer
+                        </button>
+                    </div>
+                    <button type="button" id="btn-quick-launch-dev" onclick="quickLaunchFestivalCampaign('Dev Deepawali Varanasi 2026')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Broadcast (WhatsApp + Email + Push)
                     </button>
-                    <button type="button" id="btn-quick-launch-dev" onclick="quickLaunchFestivalCampaign('Dev Deepawali Varanasi')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md">
-                        <i data-lucide="zap" class="w-4 h-4"></i> 3. Launch Multi-Channel Campaign
-                    </button>
+
+                    {{-- Dynamic Asset Dock --}}
+                    <div id="master-asset-dock" class="mt-2 pt-2 border-t border-amber-500/20 text-[11px] space-y-1.5 hidden">
+                        <p class="font-bold text-amber-300 uppercase text-[10px]">✨ Fresh Campaign Assets Live:</p>
+                        <div class="flex items-center justify-between bg-black/50 p-2 rounded-lg">
+                            <span class="text-slate-300">Live SEO Blog:</span>
+                            <a id="dock-blog-link" href="#" target="_blank" class="text-emerald-400 hover:underline font-bold">View Article ↗</a>
+                        </div>
+                        <div class="flex items-center justify-between bg-black/50 p-2 rounded-lg">
+                            <span class="text-slate-300">1200x630 Banner:</span>
+                            <a id="dock-banner-link" href="#" target="_blank" class="text-amber-400 hover:underline font-bold">View Image ↗</a>
+                        </div>
+                        <div class="flex items-center justify-between bg-black/50 p-2 rounded-lg">
+                            <span class="text-slate-300">1080x1920 Reel:</span>
+                            <a id="dock-reel-link" href="#" target="_blank" class="text-purple-400 hover:underline font-bold">Watch Video ↗</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -946,6 +976,157 @@ function generateFestivalReel(festivalName) {
             alert('🎉 Video Reel Synthesized Successfully!\n\nURL: ' + res.video_url);
         } else {
             alert('Video generation note: ' + (res.message || 'Check logs for status'));
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        alert('Error: ' + err.message);
+    });
+}
+
+function orchestrateMasterCampaign(festivalName) {
+    var btn = document.getElementById('btn-master-orchestrate');
+    var origText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin">⏳</span> Orchestrating Brain (Blog + Banners + Reel + Copy)...';
+    }
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'orchestrate_master_campaign', festival: festivalName })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        if (res && res.ok) {
+            var pkg = res.campaign_package;
+            if (pkg) {
+                document.getElementById('camp-headline').value = '🪔 ' + (pkg.branding ? pkg.branding.title : res.festival);
+                document.getElementById('camp-subject').value = pkg.email_subject || ('Sacred Invitation: ' + res.festival);
+                document.getElementById('camp-body').value = pkg.whatsapp_copy || '';
+                document.getElementById('camp-cta-text').value = 'Book Sacred Sankalp 🙏';
+                document.getElementById('camp-cta-url').value = pkg.booking_url || 'https://onlinepuja.live/pujas';
+                document.getElementById('camp-media-url').value = pkg.video_reel_url || pkg.banner_landscape;
+                document.getElementById('camp-media-type').value = pkg.video_reel_url ? 'video' : 'image';
+                document.getElementById('camp-channel').value = 'both';
+                updateLivePreview();
+            }
+
+            // Reveal Asset Dock
+            var dock = document.getElementById('master-asset-dock');
+            if (dock) {
+                dock.classList.remove('hidden');
+                if (res.blog && res.blog.blog_url) {
+                    var blogLink = document.getElementById('dock-blog-link');
+                    blogLink.href = res.blog.blog_url;
+                }
+                if (res.banners && res.banners.landscape) {
+                    var bLink = document.getElementById('dock-banner-link');
+                    bLink.href = res.banners.landscape.banner_url;
+                }
+                if (res.reel && res.reel.video_url) {
+                    var rLink = document.getElementById('dock-reel-link');
+                    rLink.href = res.reel.video_url;
+                }
+            }
+
+            alert('🎉 Autonomous Master Campaign Generated Successfully!\n\n• SEO Devotional Blog: Live on website\n• 1200x630 & 1080x1080 Banners: Ready\n• 1080x1920 MP4 Video Reel: Ready\n• Omnichannel WhatsApp & Email: Loaded in composer below');
+            var comp = document.getElementById('form-broadcast');
+            if (comp) comp.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Orchestration note: ' + (res.message || res.error || 'Failed to complete all steps'));
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        alert('Network Error: ' + err.message);
+    });
+}
+
+function generateFestivalBanners(festivalName) {
+    var btn = document.getElementById('btn-gen-banners');
+    var origText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin">🎨</span> Rendering...';
+    }
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'generate_festival_banners', festival: festivalName })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        if (res && res.ok && res.landscape) {
+            document.getElementById('camp-media-url').value = res.landscape;
+            document.getElementById('camp-media-type').value = 'image';
+            updateLivePreview();
+            alert('✨ Banners Synthesized!\n\nLandscape (1200x630): ' + res.landscape + '\nSquare (1080x1080): ' + res.square);
+        } else {
+            alert('Banner generation note: ' + (res.message || 'Error generating banner'));
+        }
+    })
+    .catch(function(err) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        alert('Error: ' + err.message);
+    });
+}
+
+function publishFestivalBlog(festivalName) {
+    var btn = document.getElementById('btn-publish-blog');
+    var origText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin">✍️</span> Publishing...';
+    }
+
+    fetch('{{ route("growth-os.action") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ action: 'publish_festival_blog', festival: festivalName })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+        if (res && res.ok && res.blog_url) {
+            window.open(res.blog_url, '_blank');
+            alert('🎉 SEO Devotional Blog Published Live!\n\nTitle: ' + res.title + '\nURL: ' + res.blog_url);
+        } else {
+            alert('Blog publish note: ' + (res.message || 'Error'));
         }
     })
     .catch(function(err) {

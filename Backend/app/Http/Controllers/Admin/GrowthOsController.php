@@ -514,6 +514,36 @@ class GrowthOsController extends Controller
                         'data'      => $videoRes,
                     ]);
 
+                case 'orchestrate_master_campaign':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi 2026');
+                    $masterRes = $festEngine->orchestrateMasterCampaign($festName);
+                    return response()->json($masterRes);
+
+                case 'generate_festival_banners':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi 2026');
+                    $banners = $festEngine->generateFestivalBanners($festName);
+                    return response()->json([
+                        'ok'        => $banners['ok'],
+                        'message'   => "Landscape (1200x630) & Square (1080x1080) Banners generated for {$festName}!",
+                        'landscape' => $banners['landscape']['banner_url'] ?? null,
+                        'square'    => $banners['square']['banner_url'] ?? null,
+                        'data'      => $banners,
+                    ]);
+
+                case 'publish_festival_blog':
+                    $festEngine = app(\App\Services\FestivalCampaignEngine::class);
+                    $festName = $request->input('festival', 'Dev Deepawali Varanasi 2026');
+                    $blogRes = $festEngine->publishSeoBlogArticle($festName);
+                    return response()->json([
+                        'ok'       => $blogRes['ok'],
+                        'message'  => "High-ranking SEO Devotional Blog published live to onlinepuja.live/blog/{$blogRes['slug']}!",
+                        'blog_url' => $blogRes['blog_url'],
+                        'title'    => $blogRes['title'],
+                        'data'     => $blogRes,
+                    ]);
+
                 case 'launch_festival_campaign':
                     $festEngine = app(\App\Services\FestivalCampaignEngine::class);
                     $festName = $request->input('festival', 'Dev Deepawali Varanasi');
